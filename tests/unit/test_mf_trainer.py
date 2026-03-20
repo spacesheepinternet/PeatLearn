@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from src.recommendation.mf_trainer import load_interactions, build_mappings, train_mf
+from peatlearn.recommendation.mf_trainer import load_interactions, build_mappings, train_mf
 
 
 def make_temp_db(tmp_path: Path):

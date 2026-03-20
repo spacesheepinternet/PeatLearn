@@ -7,12 +7,12 @@ echo "🔧 Auto-refresh and development features will be available"
 echo ""
 
 # Method 1: Using command line flag
-python peatlearn_master.py --dev
+python app/dashboard.py --dev
 
 # Alternative methods (commented out):
 # Method 2: Using environment variable
 # export PEATLEARN_DEV_MODE=true
-# python peatlearn_master.py
+# streamlit run app/dashboard.py
 
 # Method 3: Direct Streamlit with environment
-# STREAMLIT_DEV_MODE=true streamlit run peatlearn_master.py
+# STREAMLIT_DEV_MODE=true streamlit run app/dashboard.py

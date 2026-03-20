@@ -8,12 +8,7 @@ import os
 import asyncio
 from pathlib import Path
 
-# Add project paths
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(project_root / "inference" / "backend"))
-
-# Set environment variable for settings
+project_root = Path(__file__).parent.parent.parent
 os.environ['PROJECT_ROOT'] = str(project_root)
 
 async def test_vector_search():

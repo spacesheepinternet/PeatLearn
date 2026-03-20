@@ -102,7 +102,7 @@ def run_streamlit():
     # Run streamlit
     subprocess.run([
         sys.executable, '-m', 'streamlit', 'run', 
-        'peatlearn_master.py',
+        'app/dashboard.py',
         '--server.port=8501',
         '--server.headless=false'
     ])

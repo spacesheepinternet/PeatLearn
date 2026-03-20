@@ -1,0 +1,202 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dark PeatLearn Data Pipeline Flowchart</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1e272e;
+      margin: 0;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #flowchart {
+      width: 100%;
+      max-width: 1600px;
+      height: 1600px;
+      border: 1px solid #455a64;
+      background-color: #263238;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      color: #eceff1;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    #legend {
+      background-color: #37474f;
+      border: 1px solid #546e7a;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+      font-size: 14px;
+      max-width: 1600px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    #legend h3 {
+      width: 100%;
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      color: #eceff1;
+    }
+    #legend ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    #legend li {
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      color: #cfd8dc;
+    }
+    #legend .shape {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border: 1px solid #b0bec5;
+    }
+    #legend .box { background-color: #37474f; }
+    #legend .diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); background-color: #37474f; }
+    #legend .ellipse { border-radius: 50%; background-color: #37474f; }
+    #legend .database { background-color: #37474f; border-radius: 50% 50% 0 0; }
+  </style>
+</head>
+<body>
+  <h1>PeatLearn Data Pipeline Flowchart with Duplicate Check</h1>
+  <div id="legend">
+    <h3>Legend</h3>
+    <ul>
+      <li><div class="shape box"></div> Process Stage: Core activities in the pipeline</li>
+      <li><div class="shape diamond"></div> Decision Point: Branching based on conditions</li>
+      <li><div class="shape ellipse"></div> Start/End: Pipeline entry or exit points</li>
+      <li><div class="shape database" style="height: 15px; transform: rotate(180deg);"></div> Data Storage: Represents databases or corpora</li>
+      <li>Colors: Green - Data Input/Output; Blue - Analysis; Orange - Cleaning; Purple - Segmentation; Pink - Embedding; Cyan - Hosting; Red - Integration; Gray - Duplicate Check</li>
+      <li>Edges: Solid arrows indicate flow; Dashed for updates/loops; Labels provide details like percentages or conditions</li>
+      <li>Metrics: Included in node labels (e.g., speed, accuracy)</li>
+    </ul>
+  </div>
+  <div id="flowchart"></div>
+
+  <script>
+    // Define nodes with preserved content and dark theme colors
+    var nodes = new vis.DataSet([
+      { id: 0, label: "Start: New Documents Input\n- Additional Docs for Next Iteration\n- Sources: New Audio Transcripts, Publications, Health Topics, Newsletters, etc.\n- Purpose: Expand Corpus While Ensuring No Duplicates\n- Stored Temporarily in data/raw/ for Processing\n- Represents Ongoing Bioenergetic Research Additions", shape: "ellipse", x: 0, y: -750, color: { background: "linear-gradient(to bottom, #66bb6a, #388e3c)", border: "#2e7d32" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 11, label: "Existing Corpus\n- Current 552+ Documents: Transcripts (188+), Papers (96+), etc.\n- Vector Embeddings Stored in Pinecone\n- Artifacts Hosted on Hugging Face (~700MB)\n- Used for Duplicate Detection via Semantic Similarity\n- Coverage: 100% of Ray Peat's Public Corpus", shape: "database", x: 600, y: -500, color: { background: "linear-gradient(to bottom, #b0bec5, #78909c)", border: "#607d8b" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 12, label: "Duplicate Check\n- Compare New Docs Against Existing Corpus\n- Methods: Content Hashing, Semantic Similarity (Using Embeddings)\n- Tools: Custom Python Script (e.g., in preprocessing/)\n- Threshold: >95% Similarity Considered Duplicate\n- Handles Partial Overlaps or Variants\n- Purpose: Maintain Uniqueness, Avoid Redundancy & Data Bloat", shape: "box", x: 0, y: -500, color: { background: "linear-gradient(to bottom, #90a4ae, #546e7a)", border: "#455a64" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 13, label: "Decision: Is Duplicate?\n- Based on Check Results & Threshold\n- Yes: Discard to Prevent Redundancy\n- No: Proceed to Main Pipeline\n- Optional: Log Matches for Review\n- Handles Edge Cases Like Minor Edits", shape: "diamond", x: 0, y: -250, color: { background: "linear-gradient(to bottom, #ffd54f, #ffa000)", border: "#ff8f00" }, font: { size: 11, color: "#000", multi: true }, margin: 20 },
+      { id: 14, label: "Discard Duplicate\n- Log Discarded Items & Reasons\n- Optional: User Notification or Archive\n- End Branch: No Further Processing\n- Ensures Corpus Integrity", shape: "ellipse", x: -600, y: -250, color: { background: "linear-gradient(to bottom, #ef5350, #c62828)", border: "#b71c1c" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 1, label: "Stage 1: Quality Analysis\n- Automated Scoring of Document Quality\n- Identification of Processing Requirements\n- Categorization by Content Type and Complexity\n- Output: Quality Scores & Analysis Results in data/analysis/\n- Tools: Scripts in preprocessing/quality_analysis/\n- Significance: Ensures Efficient Downstream Processing", shape: "box", x: 0, y: 0, color: { background: "linear-gradient(to bottom, #4fc3f7, #0288d1)", border: "#0277bd" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 2, label: "Decision: Cleaning Tier\n- Based on Quality Scores & Flags\n- High-Quality (27%): Route to Tier 1\n- Complex/Noisy (73%): Route to Tier 2\n- Threshold: Automated Based on Analysis", shape: "diamond", x: 0, y: 250, color: { background: "linear-gradient(to bottom, #ffd54f, #ffa000)", border: "#ff8f00" }, font: { size: 11, color: "#000", multi: true }, margin: 20 },
+      { id: 3, label: "Tier 1: Rules-Based Cleaning (27%)\n- For High-Quality Docs\n- Actions: Remove Formatting Errors, Standardize Punctuation, Basic Normalization\n- Speed: 2-5 Files/Second\n- Script: preprocessing/cleaning/main_pipeline.py --limit 10 (Sample)\n- Output: Cleaned Texts\n- Efficiency: Minimal AI Overhead", shape: "box", x: -500, y: 500, color: { background: "linear-gradient(to bottom, #ffca28, #ef6c00)", border: "#e65100" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 4, label: "Tier 2: AI-Powered Cleaning (73%)\n- For Complex Docs (e.g., Noisy Transcripts, Scanned PDFs)\n- Actions: OCR Error Correction, Text Enhancement, Speaker Attribution, Coherence Improvement\n- Speed: 1 File/10-30 Seconds\n- Models: LLM Integration (e.g., Gemini)\n- Script: preprocessing/cleaning/main_pipeline.py (Full Run)\n- Output: Enhanced & Structured Texts", shape: "box", x: 500, y: 500, color: { background: "linear-gradient(to bottom, #ffca28, #ef6c00)", border: "#e65100" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 5, label: "Merge: Post-Cleaning Processing\n- Combine Outputs from Tiers 1 & 2\n- Validation: Ensure Consistency & Quality\n- Stored in: data/processed/", shape: "box", x: 0, y: 750, color: { background: "linear-gradient(to bottom, #ba68c8, #7b1fa2)", border: "#6a1b9a" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 6, label: "Stage 2: Segmentation\n- AI-Driven Chunking: By Paragraph, Topic, Speaker Change\n- Purpose: Fine-Grained Retrieval for Semantic Search\n- Tools: Algorithms in preprocessing/segmentation/\n- Output: Semantically Meaningful Segments\n- Integration: Prepares for Accurate Vectorization", shape: "box", x: 0, y: 1000, color: { background: "linear-gradient(to bottom, #ba68c8, #7b1fa2)", border: "#6a1b9a" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 7, label: "Stage 3: Embedding Generation\n- Vectorization: Using Gemini 'gemini-embedding-001'\n- Storage: Pinecone Vector Index for Semantic Search\n- Evaluation: Quality Assessment in embedding/evaluation/\n- Script: embedding/embed_corpus.py\n- Optional: Download Pre-Trained (~700MB) via embedding/download_from_hf.py\n- Metrics: Optimized for <200ms Search Latency", shape: "box", x: 0, y: 1250, color: { background: "linear-gradient(to bottom, #f06292, #c2185b)", border: "#ad1457" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 8, label: "Stage 4: Hugging Face Hosting\n- External Hosting: Embeddings & Artifacts for Lightweight Codebase\n- Benefits: Easy Collaboration, Auto-Sync, No Massive Downloads\n- Integration: Hybrid Approach with Local Code\n- Purpose: Scalability & Contributor Onboarding", shape: "box", x: 0, y: 1500, color: { background: "linear-gradient(to bottom, #4dd0e1, #0097a7)", border: "#00838f" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 9, label: "Stage 5: RAG Implementation\n- Retrieval: From Pinecone Based on Queries\n- Generation: LLM (Fine-Tuned BERT/Gemini) for Context-Aware Responses\n- API Endpoints: /api/search, /api/ask, /api/topics, etc.\n- Backend: FastAPI Microservices in inference/backend/\n- Metrics: 95%+ Query Relevance, 99.9% Uptime Target\n- Features: Personalized Recommendations, Domain-Specific Extraction", shape: "box", x: 0, y: 1750, color: { background: "linear-gradient(to bottom, #ef5350, #c62828)", border: "#b71c1c" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 10, label: "End: Updated System Integration\n- Frontend: Streamlit Dashboard & HTML UI\n- Deployment: Local/Docker for Dev, Cloud (Vercel/AWS) for Prod\n- Usage: Intelligent Search, Nutrition Insights, Hormonal Analysis\n- Overall Metrics: 100% Corpus Coverage, High Accuracy", shape: "ellipse", x: 0, y: 2000, color: { background: "linear-gradient(to bottom, #66bb6a, #388e3c)", border: "#2e7d32" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } },
+      { id: 15, label: "Update Existing Corpus\n- Incorporate New Documents & Vectors\n- Refresh Pinecone Index for Semantic Search\n- Sync Updates to Hugging Face Hosting\n- Log Changes for Version Control\n- Prepare for Future Iterations", shape: "box", x: 600, y: 1750, color: { background: "linear-gradient(to bottom, #b0bec5, #78909c)", border: "#607d8b" }, font: { size: 11, color: "#fff", multi: true }, margin: 20, widthConstraint: { maximum: 350 } }
+    ]);
+
+    // Define edges with black label text and lighter background
+    var edges = new vis.DataSet([
+      { from: 0, to: 12, arrows: "to", label: "New Input Corpus", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.4 } },
+      { from: 11, to: 12, arrows: "to", label: "Reference Existing Data", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, dashes: true, width: 2, smooth: { type: "curvedCW", roundness: 0.5 } },
+      { from: 12, to: 13, arrows: "to", label: "Check Results", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.4 } },
+      { from: 13, to: 14, arrows: "to", label: "Yes (Duplicate)", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.5 } },
+      { from: 13, to: 1, arrows: "to", label: "No (Unique)", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.4 } },
+      { from: 1, to: 2, arrows: "to", label: "Analysis Results", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.4 } },
+      { from: 2, to: 3, arrows: "to", label: "High-Quality (27%)", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.5 } },
+      { from: 2, to: 4, arrows: "to", label: "Complex (73%)", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.5 } },
+      { from: 3, to: 5, arrows: "to", label: "Cleaned Data", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.5 } },
+      { from: 4, to: 5, arrows: "to", label: "Enhanced Data", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.5 } },
+      { from: 5, to: 6, arrows: "to", label: "Processed Texts", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.4 } },
+      { from: 6, to: 7, arrows: "to", label: "Segmented Chunks", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.4 } },
+      { from: 7, to: 8, arrows: "to", label: "Vector Embeddings", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.4 } },
+      { from: 8, to: 9, arrows: "to", label: "Hosted Artifacts", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.4 } },
+      { from: 9, to: 10, arrows: "to", label: "RAG-Enabled System", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, width: 2, smooth: { type: "curvedCW", roundness: 0.4 } },
+      { from: 9, to: 15, arrows: "to", label: "Incorporate Updates", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, dashes: true, width: 2, smooth: { type: "curvedCW", roundness: 0.5 } },
+      { from: 15, to: 11, arrows: "to", label: "Update Loop for Next Iteration", font: { align: "middle", size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" }, color: { color: "#546e7a" }, dashes: true, width: 2, smooth: { type: "curvedCW", roundness: 0.6 } }
+    ]);
+
+    // Set up the network with fixed positions and enhanced options
+    var container = document.getElementById("flowchart");
+    var data = { nodes: nodes, edges: edges };
+    var options = {
+      layout: { hierarchical: false }, // Fixed positions for precise control
+      nodes: {
+        shapeProperties: { borderRadius: 8 },
+        shadow: { enabled: true, size: 12, x: 6, y: 6 },
+        font: { multi: true, size: 11, bold: { color: "#eceff1" }, lineHeight: 1.4 }
+      },
+      edges: {
+        arrows: { to: { scaleFactor: 0.6 } },
+        shadow: { enabled: true, size: 6, x: 3, y: 3 },
+        font: { size: 12, color: "#000000", background: "rgba(120, 144, 156, 0.9)" },
+        smooth: { enabled: true, type: "curvedCW", roundness: 0.4 }
+      },
+      physics: { enabled: false },
+      interaction: { hover: true, navigationButtons: true, keyboard: true, zoomView: true, dragView: true }
+    };
+
+    // Initialize and render the flowchart
+    var network = new vis.Network(container, data, options);
+    network.moveTo({ position: { x: 0, y: 400 }, scale: 0.4 }); // Initial view centered
+  </script>
+</body>
+</html>

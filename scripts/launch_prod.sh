@@ -11,4 +11,4 @@ unset PEATLEARN_DEV_MODE
 unset STREAMLIT_DEV_MODE
 
 # Launch in production mode (default)
-python peatlearn_master.py
+streamlit run app/dashboard.py

@@ -1,7 +1,0 @@
-# PeatLearn Embedding Requirements
-# Kept minimal; advanced requirements in requirements-advanced.txt
-
-numpy
-pandas
-python-dotenv
-pinecone-client

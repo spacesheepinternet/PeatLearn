@@ -6,45 +6,49 @@ Built around Dr. Ray Peat's bioenergetic philosophy, this comprehensive system d
 
 ## 🚀 Quick Start
 
-### Launch PeatLearn Master Dashboard
+### Launch PeatLearn Dashboard
 
 **Production Mode (Default - Secure)**
 ```bash
-# Production mode - development features disabled
+# Production mode — backward-compat launcher
 python peatlearn_master.py
-# OR
+# OR directly
+streamlit run app/dashboard.py
+# OR via script
 ./scripts/launch_prod.sh
 ```
 
 **Development Mode (with Auto-Refresh)**
 ```bash
-# Development mode - auto-refresh enabled
+# Development mode — auto-refresh enabled
 python peatlearn_master.py --dev
+# OR
+streamlit run app/dashboard.py -- --dev
 # OR
 ./scripts/launch_dev.sh
 # OR
-PEATLEARN_DEV_MODE=true python peatlearn_master.py
-```
-
-### Other Interfaces
-```bash
-# Run Complete System Demo
-python3 scripts/demo_system.py
-
-# Streamlit Dashboard (ensure venv is activated)
-source venv/bin/activate && streamlit run scripts/streamlit_dashboard.py --server.port 8502
-
-# Modern HTML Interface
-open web_ui/frontend/web_interface.html
+PEATLEARN_DEV_MODE=true streamlit run app/dashboard.py
 ```
 
 ### Start Backend Services
 ```bash
 # Terminal 1: RAG Service (Port 8000)
-source venv/bin/activate && cd inference/backend && python app.py
+uvicorn app.api:app --port 8000
 
-# Terminal 2: Advanced ML Service (Port 8001)  
-source venv/bin/activate && cd inference/backend && python -m uvicorn advanced_app:app --port 8001
+# Terminal 2: Advanced ML Service (Port 8001)
+uvicorn app.advanced_api:app --port 8001
+
+# Or launch all at once
+python scripts/run_servers.py
+```
+
+### Other Interfaces
+```bash
+# Run Complete System Demo
+python scripts/demo_system.py
+
+# Modern HTML Interface
+open web_ui/frontend/web_interface.html
 ```
 
 ## 🧠 Advanced ML Features

@@ -77,6 +77,9 @@ data/analysis/*
 
 
 # Embedding and vector stores
+*.npy
+data/raw/new_content_2026/
+data/embeddings/
 embedding/vectors/*
 !embedding/vectors/.gitkeep
 embedding/vectorstore/*
@@ -308,10 +311,8 @@ dev-debug.log
 *.sw?
 # OS specific
 
-/.claude
 /.cursor
 /.taskmaster
-CLAUDE.md
 /.github
 .DS_Store
 

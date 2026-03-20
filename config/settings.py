@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     
     # Vector Database
     VECTOR_DB_TYPE: str = Field(default="pinecone", env="VECTOR_DB_TYPE")  # chromadb, pinecone, qdrant
-    CHROMA_PERSIST_DIR: str = str(PROJECT_ROOT / "embedding" / "vectorstore" / "chroma")
+    CHROMA_PERSIST_DIR: str = str(PROJECT_ROOT / "data" / "vectorstore" / "chroma")
     
     # Data Paths
     RAW_DATA_DIR: str = str(PROJECT_ROOT / "data" / "raw" / "raw_data")
@@ -97,8 +97,8 @@ PATHS = {
     "analysis_data": Path(settings.ANALYSIS_DATA_DIR),
     "logs": Path(settings.LOGS_DIR),
     "preprocessing": PROJECT_ROOT / "preprocessing",
-    "embedding": PROJECT_ROOT / "embedding", 
-    "inference": PROJECT_ROOT / "inference",
+    "peatlearn": PROJECT_ROOT / "peatlearn",
+    "app": PROJECT_ROOT / "app",
     "web_ui": PROJECT_ROOT / "web_ui",
     "tests": PROJECT_ROOT / "tests",
     "docs": PROJECT_ROOT / "docs",

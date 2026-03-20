@@ -2,11 +2,7 @@ import unittest
 import sys
 from pathlib import Path
 
-# Add project root to sys.path for module imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from inference.backend.personalization.personalization_engine import PersonalizationEngine, QuizPerformance
+from peatlearn.personalization.engine import PersonalizationEngine, QuizPerformance
 
 class TestPersonalizationEngine(unittest.TestCase):
     def test_engine_initialization(self):

@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 import sys
 from pathlib import Path
-import importlib.util
 
 ROOT = Path(__file__).parent.parent
-MODEL_PATH = ROOT / "src" / "adaptive_learning" / "topic_model.py"
-MODULE_NAME = "src.adaptive_learning.topic_model"
+sys.path.insert(0, str(ROOT))
 
-spec = importlib.util.spec_from_file_location(MODULE_NAME, str(MODEL_PATH))
-module = importlib.util.module_from_spec(spec)
-sys.modules[MODULE_NAME] = module
-spec.loader.exec_module(module)  # type: ignore
-CorpusTopicModel = module.CorpusTopicModel
+from peatlearn.adaptive.topic_model import CorpusTopicModel
 
 def main():
     tm = CorpusTopicModel(
