@@ -182,7 +182,7 @@ async def get_related_topics(
 ):
     """Get topics related to the query."""
     try:
-        topics = await rag_system.get_related_topics(query, max_topics=limit)
+        topics = await rag_system.get_related_questions(query, max_questions=limit)
         return {
             "query": query,
             "related_topics": topics,

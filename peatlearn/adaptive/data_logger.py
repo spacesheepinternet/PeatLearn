@@ -5,6 +5,7 @@ Tracks user interactions, manages sessions, and stores feedback data
 """
 
 import csv
+import logging
 import sqlite3
 import pandas as pd
 import json
@@ -12,7 +13,19 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-import streamlit as st
+
+# Streamlit is optional — data_logger is also used by FastAPI backends
+try:
+    import streamlit as st
+    _HAS_STREAMLIT = True
+except ImportError:
+    st = None  # type: ignore[assignment]
+    _HAS_STREAMLIT = False
+
+# Fallback in-memory state when running outside Streamlit
+_FALLBACK_STATE: Dict[str, Any] = {}
+
+logger = logging.getLogger(__name__)
 
 class DataLogger:
     """
@@ -110,14 +123,20 @@ class DataLogger:
                 pass
     
     def get_session_id(self) -> str:
-        """Get or create session ID for current Streamlit session"""
-        if 'session_id' not in st.session_state:
-            st.session_state.session_id = str(uuid.uuid4())
-        return st.session_state.session_id
-    
+        """Get or create session ID for current Streamlit session (or fallback state)."""
+        if _HAS_STREAMLIT:
+            if 'session_id' not in st.session_state:
+                st.session_state.session_id = str(uuid.uuid4())
+            return st.session_state.session_id
+        if 'session_id' not in _FALLBACK_STATE:
+            _FALLBACK_STATE['session_id'] = str(uuid.uuid4())
+        return _FALLBACK_STATE['session_id']
+
     def get_user_id(self) -> str:
-        """Get user ID from session state"""
-        return st.session_state.get('user_id', 'anonymous')
+        """Get user ID from session state (or fallback state)."""
+        if _HAS_STREAMLIT:
+            return st.session_state.get('user_id', 'anonymous')
+        return _FALLBACK_STATE.get('user_id', 'anonymous')
     
     def log_interaction(self, 
                        user_query: str,
@@ -191,9 +210,9 @@ class DataLogger:
                     llm_response, topic, user_feedback, interaction_type,
                     response_time, context_str
                 ])
-        except Exception:
+        except Exception as _csv_err:
             # Do not fail if CSV write has issues; SQLite is the source of truth
-            pass
+            logger.warning("CSV interaction write failed (non-fatal): %s", _csv_err)
     
     def log_feedback(self, 
                      interaction_index: int,
@@ -206,12 +225,15 @@ class DataLogger:
             feedback: 1 for thumbs up, -1 for thumbs down
         """
         
-        # For now, store feedback in session state
-        # In production, you'd want to update the CSV file
-        if 'interaction_feedback' not in st.session_state:
-            st.session_state.interaction_feedback = {}
-        
-        st.session_state.interaction_feedback[interaction_index] = feedback
+        # Store feedback in session state (or fallback dict)
+        if _HAS_STREAMLIT:
+            if 'interaction_feedback' not in st.session_state:
+                st.session_state.interaction_feedback = {}
+            st.session_state.interaction_feedback[interaction_index] = feedback
+        else:
+            if 'interaction_feedback' not in _FALLBACK_STATE:
+                _FALLBACK_STATE['interaction_feedback'] = {}
+            _FALLBACK_STATE['interaction_feedback'][interaction_index] = feedback
         
         # Also log as a new interaction
         self.log_interaction(

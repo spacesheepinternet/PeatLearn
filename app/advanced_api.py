@@ -26,7 +26,7 @@ import sqlite3
 import json
 import uuid
 
-from config.settings import settings
+from config.settings import settings, PROJECT_ROOT
 from peatlearn.rag.rag_system import PineconeRAG as RayPeatRAG, RAGResponse
 from peatlearn.personalization.quiz_logger import log_quiz_outcome
 from peatlearn.personalization.utils import generate_mcq_from_passage
@@ -115,7 +115,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -125,7 +125,7 @@ app.add_middleware(
 rag_system = RayPeatRAG()
 
 # Lightweight MF recommender loader
-MF_MODEL_PATH = Path("data/models/recs/mf_model.npz")
+MF_MODEL_PATH = PROJECT_ROOT / "data" / "models" / "recs" / "mf_model.npz"
 MF_AVAILABLE = False
 MF_U = None  # type: ignore
 MF_V = None  # type: ignore
@@ -137,7 +137,7 @@ RECS_CACHE: dict[str, dict] = {}
 RECS_TTL_SECONDS = 60
 
 # Quiz DB schema and helpers
-DB_PATH = Path("data/user_interactions/interactions.db")
+DB_PATH = PROJECT_ROOT / "data" / "user_interactions" / "interactions.db"
 
 def _ensure_quiz_schema() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -532,9 +532,9 @@ def load_mf_model() -> None:
             MF_USER_TO_IDX = dict(data['user_to_idx'])  # type: ignore
             MF_ITEM_TO_IDX = dict(data['item_to_idx'])  # type: ignore
             MF_AVAILABLE = True
-            print(f"✅ MF model loaded: users={len(MF_USER_TO_IDX)}, items={len(MF_ITEM_TO_IDX)}")
+            print(f"[INFO] MF model loaded: users={len(MF_USER_TO_IDX)}, items={len(MF_ITEM_TO_IDX)}")
         except Exception as e:
-            print(f"⚠️ MF model load failed: {e}")
+            print(f"[WARN] MF model load failed: {e}")
             MF_AVAILABLE = False
     else:
         MF_AVAILABLE = False
@@ -543,20 +543,20 @@ def load_mf_model() -> None:
 async def startup_event():
     """Initialize all advanced ML components on startup."""
     if ADVANCED_ML_AVAILABLE:
-        print("🚀 Initializing Advanced ML Components...")
+        print("[INFO] Initializing Advanced ML Components...")
         
         # Initialize personalization engine
         await personalization_engine.initialize_models()
         
         # Initialize RL agent
-        print("🤖 RL Agent ready")
+        print("[INFO] RL Agent ready")
         
         # Initialize knowledge graph
         await ray_peat_knowledge_graph.initialize_models()
         
-        print("✅ All advanced ML components initialized!")
+        print("[INFO] All advanced ML components initialized!")
     else:
-        print("⚠️ Running in basic mode without advanced ML features")
+        print("[WARN] Running in basic mode without advanced ML features")
     # Load MF recommender regardless, if available
     load_mf_model()
     # Ensure quiz schema exists
@@ -751,7 +751,7 @@ if ADVANCED_ML_AVAILABLE:
         RECS_CACHE[cache_key] = {"ts": now, "data": resp}
         return resp
 
-    from src.adaptive_learning.quiz_generator import quiz_generator
+    from peatlearn.adaptive.quiz_generator import quiz_generator
 
     @app.post("/api/quiz/generate")
     async def generate_personalized_quiz(request: QuizRequest):

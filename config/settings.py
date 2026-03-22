@@ -3,9 +3,10 @@ Ray Peat Legacy - Central Configuration Settings
 """
 
 import os
+import secrets
 from pathlib import Path
 from typing import Optional
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 # Project root directory
@@ -27,6 +28,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: Optional[str] = Field(default=None, env="GEMINI_API_KEY")
     OPENAI_API_KEY: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
     PINECONE_API_KEY: Optional[str] = Field(default=None, env="PINECONE_API_KEY")
+    GROQ_API_KEY: Optional[str] = Field(default=None, env="GROQ_API_KEY")
     
     # Database Configuration
     DATABASE_URL: str = Field(
@@ -65,7 +67,7 @@ class Settings(BaseSettings):
     EMBEDDING_DIMENSIONS: int = Field(default=768, env="EMBEDDING_DIMENSIONS")
     
     # LLM Settings
-    DEFAULT_LLM_MODEL: str = Field(default="gemini-2.5-flash-lite", env="DEFAULT_LLM_MODEL")
+    DEFAULT_LLM_MODEL: str = Field(default="gemini-2.5-flash", env="DEFAULT_LLM_MODEL")
     MAX_CONTEXT_LENGTH: int = Field(default=32000, env="MAX_CONTEXT_LENGTH")
     TEMPERATURE: float = Field(default=0.1, env="TEMPERATURE")
     
@@ -74,7 +76,7 @@ class Settings(BaseSettings):
     GEMINI_RATE_LIMIT: int = Field(default=15, env="GEMINI_RATE_LIMIT")  # requests per minute
     
     # Security
-    SECRET_KEY: str = Field(default="dev-secret-key", env="SECRET_KEY")
+    SECRET_KEY: str = Field(default_factory=lambda: secrets.token_hex(32), env="SECRET_KEY")
     CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:8000"]
     
     # Logging

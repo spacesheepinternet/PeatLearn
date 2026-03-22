@@ -1,3 +1,7 @@
+---
+name: handoff
+description: Write a HANDOFF.md capturing current git state, work in progress, decisions, and next steps
+---
 # /handoff — Write a Handoff Document
 
 Generate a `HANDOFF.md` at the project root capturing the current state of work.

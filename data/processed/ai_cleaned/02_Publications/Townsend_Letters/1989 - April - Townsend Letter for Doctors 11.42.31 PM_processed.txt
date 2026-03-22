@@ -1,1081 +1,137 @@
-
-
 **RAY PEAT:** "I suspect that neither Erasmus nor Budwig has studied the fundamentals of organic chemistry."
+
+
 
 **CONTEXT:** The editor of "Fats and Oils: The Complete Guide to Fats and Oils in Health and Nutrition" is responding to Ray Peat's critique of their book.
 
-**RAY PEAT:** "I suspect that neither Erasmus nor Budwig has studied the fundamentals of organic chemistry."
 
-**CONTEXT:** The editor is defending their and Dr. Budwig's scientific background.
-
-**RAY PEAT:** "I suspect that neither Erasmus nor Budwig has studied the fundamentals of organic chemistry."
-
-**CONTEXT:** The editor is reiterating their qualifications and Dr. Budwig's expertise in lipid biochemistry.
 
 **RAY PEAT:** "I claim that I make a distinction between what I report (from research and clinical findings) and what I recommend (based on what I understand about health). I have only recommended one oil: fresh flaxseed oil (which is high in the omega-3 alpha-linolenic acid and low in omega-6 linoleic acid)."
 
+
+
 **CONTEXT:** The editor is clarifying their recommendations regarding fats and oils, specifically highlighting their endorsement of fresh flaxseed oil.
 
+
+
 **RAY PEAT:** "I make a distinction between what I report (from research and clinical findings) and what I recommend (based on what I understand about health). I have only recommended one oil: fresh flaxseed oil (which is high in the omega-3 alpha-linolenic acid and low in omega-6 linoleic acid)."
+
+
 
 **CONTEXT:** The editor is further elaborating on the specific qualities of the flaxseed oil they recommend, emphasizing its processing and packaging.
 
-**RAY PEAT:** "I make a distinction between what I report (from research and clinical findings) and what I recommend (based on what I understand about health). I have only recommended one oil: fresh flaxseed oil (which is high in the omega-3 alpha-linolenic acid and low in omega-6 linoleic acid)."
 
-**CONTEXT:** The editor is explaining their reasoning for recommending this specific type of flaxseed oil, linking it to the need for careful oil production for human health.
-
-**RAY PEAT:** "I make a distinction between what I report (from research and clinical findings) and what I recommend (based on what I understand about health). I have only recommended one oil: fresh flaxseed oil (which is high in the omega-3 alpha-linolenic acid and low in omega-6 linoleic acid)."
-
-**CONTEXT:** The editor is differentiating between "linseed oil" (paint-grade) and "flaxseed oil" (for human consumption), emphasizing the care required for the latter.
-
-**RAY PEAT:** "I make a distinction between what I report (from research and clinical findings) and what I recommend (based on what I understand about health). I have only recommended one oil: fresh flaxseed oil (which is high in the omega-3 alpha-linolenic acid and low in omega-6 linoleic acid)."
-
-**CONTEXT:** The editor is stating their non-endorsement of imitations of their recommended flaxseed oil and the importance of quality.
-
-**RAY PEAT:** "I make a distinction between what I report (from research and clinical findings) and what I recommend (based on what I understand about health). I have only recommended one oil: fresh flaxseed oil (which is high in the omega-3 alpha-linolenic acid and low in omega-6 linoleic acid)."
-
-**CONTEXT:** The editor is outlining their general recommendations against refined oils, non-organic unrefined oils, and oils in transparent plastic containers, positioning themselves against the mainstream oil industry.
 
 **RAY PEAT:** "I recommend a total of 15 to 20% of calories from fats in the diet of most people. This is 10% lower than the recommendation of the American Heart Association but in line with traditional diets not leading to cardiovascular disease. If 2% of daily calories were omega-3s, 4% omega-6s (I suggested 3 to 10% in Fats and Oils), 5% monos and 5% saturates, they might constitute reasonable ratios for health. The body adapts to fluctuations in the ratios. It cannot handle too many saturates or too many omega-6s. It needs both essential fatty acids. A balance is prudent."
+
+
 
 **CONTEXT:** The editor is discussing their recommended fat intake percentages and ratios of different fatty acids, contrasting them with the American Heart Association and emphasizing the need for balance.
 
-**RAY PEAT:** "I recommend a total of 15 to 20% of calories from fats in the diet of most people. This is 10% lower than the recommendation of the American Heart Association but in line with traditional diets not leading to cardiovascular disease. If 2% of daily calories were omega-3s, 4% omega-6s (I suggested 3 to 10% in Fats and Oils), 5% monos and 5% saturates, they might constitute reasonable ratios for health. The body adapts to fluctuations in the ratios. It cannot handle too many saturates or too many omega-6s. It needs both essential fatty acids. A balance is prudent."
 
-**CONTEXT:** The editor is critiquing the Pritikin diet for being too low in total fats and omega-3s, and too low in vitamin E, stating it's not suitable for healthy individuals.
-
-**RAY PEAT:** "I recommend a total of 15 to 20% of calories from fats in the diet of most people. This is 10% lower than the recommendation of the American Heart Association but in line with traditional diets not leading to cardiovascular disease. If 2% of daily calories were omega-3s, 4% omega-6s (I suggested 3 to 10% in Fats and Oils), 5% monos and 5% saturates, they might constitute reasonable ratios for health. The body adapts to fluctuations in the ratios. It cannot handle too many saturates or too many omega-6s. It needs both essential fatty acids. A balance is prudent."
-
-**CONTEXT:** The editor is strongly disagreeing with the "fat is poison" sentiment, citing research on the essentiality of fats and essential fatty acids.
-
-**RAY PEAT:** "I recommend a total of 15 to 20% of calories from fats in the diet of most people. This is 10% lower than the recommendation of the American Heart Association but in line with traditional diets not leading to cardiovascular disease. If 2% of daily calories were omega-3s, 4% omega-6s (I suggested 3 to 10% in Fats and Oils), 5% monos and 5% saturates, they might constitute reasonable ratios for health. The body adapts to fluctuations in the ratios. It cannot handle too many saturates or too many omega-6s. It needs both essential fatty acids. A balance is prudent."
-
-**CONTEXT:** The editor acknowledges the health problems caused by excess linoleic acid (omega-6), especially from refined oils and diets lacking antioxidants, and considers this an established fact.
 
 **RAY PEAT:** "I acknowledge the health problems caused by an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants. I consider this now established fact important enough to emphasize in every lecture I give."
 
+
+
 **CONTEXT:** The editor apologizes for a misquote attributed to Dr. Jeffrey Bland, clarifying it was from a publisher's flyer, not the book's introduction, and affirming Dr. Bland's conscientiousness.
+
+
 
 **RAY PEAT:** "Dr. Max Gerson aid use fresh flax seed oil in his work. He called it linseed oil (unfortunately, in my opinion). The Gerson clinic, operated by his daughter, uses Omega Nutrition’s flax seed oil, with good results in the treatment of many degenerative diseases."
 
+
+
 **CONTEXT:** The editor mentions Dr. Max Gerson's use of fresh flaxseed oil (which he referred to as linseed oil) and that the Gerson clinic continues to use Omega Nutrition's flaxseed oil with positive results in treating degenerative diseases.
+
+
 
 **RAY PEAT:** "I do not know Mike Minarsich. He is not a scientist, but a promoter. He, like many others since the book came out, has eagerly quoted me to sell his particular brand of products. He has done so without my permission. I in no way endorse or recommend his products."
 
+
+
 **CONTEXT:** The editor clarifies their professional role as a writer and educator, earning a living through fees and royalties, and distances themselves from unauthorized endorsements by others.
+
+
 
 **RAY PEAT:** "I am a writer and educator, doing my best to spread the word about fats and oils, cholesterol, essential fatty acids, omega 3’s, human health and natural therapies. I earn my living by charging fees for education and consultations, and collecting royalties on books."
 
+
+
 **CONTEXT:** The editor discusses the importance of oxidation for energy production and the role of essential fatty acids, particularly alpha-linolenic acid (omega-3), as potent oxidants necessary for life. They emphasize the need for a balance between oxidation and reduction.
+
+
 
 **RAY PEAT:** "Finally, a word about oxidation and anti-oxidants. In the last few years, we have given anti-oxidants a lot of deserved attention. In the process however, we have almost forgotten that animal and human life depend on oxidation. Oxidation produces energy. Lack of oxidation results in lowered metabolic rate, lower energy levels, and degeneration. The essential fatty acids (especially the omega 3 essential fatty acid alpha-linolenic acid) constitute the highest level oxidants in human nutrition. We require them for our oxidation-dependent life. In the final analysis, the energy which keeps us alive is generated by a finely regulated balance of oxidation and reduction, by a proper balance of oxidants and antioxidants. The fats and oils, in their natural form, are a necessary part of this balance."
 
+
+
 **RAY PEAT:** "Rheumatoid arthritis is presumed to be an autoimmune disease, at least it is an inflammatory disease. In the January 26, 1985 issue of Lancet Kremer et al. spell this out. Then they use MAX EPA to suppress inflammatory action, in other words to be immunosuppressive. Here they were using a fish oil product that could be expected to be all cis isomers and no trans isomers. In Lancet for March 18, 1978, Bower and Newsholme used 30 ml. of sunflower seed oil which most likely had about 5% trans isomers and 95% cis isomers, and 0.5 ml. of wheat germ oil which would be all cis isomers. The oil mixture used here had to be highly immunosuppressive to have an effect on an autoimmune disease such as the Guillain-Barre syndrome."
+
+
 
 **CONTEXT:** The editor discusses the use of fish oil (Max EPA) and sunflower seed oil in treating inflammatory and autoimmune diseases like rheumatoid arthritis and Guillain-Barre syndrome, noting their potential immunosuppressive effects and the presence of cis and trans isomers.
 
-**RAY PEAT:** "Rheumatoid arthritis is presumed to be an autoimmune disease, at least it is an inflammatory disease. In the January 26, 1985 issue of Lancet Kremer et al. spell this out. Then they use MAX EPA to suppress inflammatory action, in other words to be immunosuppressive. Here they were using a fish oil product that could be expected to be all cis isomers and no trans isomers. In Lancet for March 18, 1978, Bower and Newsholme used 30 ml. of sunflower seed oil which most likely had about 5% trans isomers and 95% cis isomers, and 0.5 ml. of wheat germ oil which would be all cis isomers. The oil mixture used here had to be highly immunosuppressive to have an effect on an autoimmune disease such as the Guillain-Barre syndrome."
 
-**CONTEXT:** The editor expresses doubt about the authenticity of "cold pressed oils" on the market, suggesting they might be refined oils sold under false labels, and explains the formation of trans isomers during oil refining and hydrogenation.
 
 **RAY PEAT:** "Now a bit about cold pressed oils. I rather doubt if there are any on the market today, even though they are sold as such. The presumed benefit of cold pressed oils is that they would be free from the harmful trans isomers. Trans isomers of PUFAs were never in human food prior to about 1925. They are formed in the caustic refining of vegetable oils and in far greater amounts by the hydrogenation process."
 
+
+
 **RAY PEAT:** "I know a great lot about flax seed oil and I will tell some of it here. From Berlin east across Poland and Russia before about 1930, small food stores had presses for the pressing of flax seed oil. On pressing flax seed about 40% of the oil was removed. The customer would be given the oil and the press cake which contained the other 60% of the oil. This press cake would be taken home and used in making black bread. The flax seed cake was what made bread black. Newly pressed flax seed oil has a pleasant nutty aroma. Let freshly pressed oil set on the shelf for a week or so and brown phosphatides will settle out at the bottom of the bottle."
+
+
 
 **CONTEXT:** The editor describes the traditional method of pressing flaxseed oil in Eastern Europe before 1930, highlighting the process, the resulting press cake used in bread, and the natural settling of phosphatides in freshly pressed oil.
 
-**RAY PEAT:** "I know a great lot about flax seed oil and I will tell some of it here. From Berlin east across Poland and Russia before about 1930, small food stores had presses for the pressing of flax seed oil. On pressing flax seed about 40% of the oil was removed. The customer would be given the oil and the press cake which contained the other 60% of the oil. This press cake would be taken home and used in making black bread. The flax seed cake was what made bread black. Newly pressed flax seed oil has a pleasant nutty aroma. Let freshly pressed oil set on the shelf for a week or so and brown phosphatides will settle out at the bottom of the bottle."
 
-**CONTEXT:** The editor contrasts the natural properties of flaxseed oil with soybean oil, noting the unpleasant odor and higher phosphatide content of soybean oil, which results in more sludge (lecithin) upon refining.
-
-**RAY PEAT:** "I know a great lot about flax seed oil and I will tell some of it here. From Berlin east across Poland and Russia before about 1930, small food stores had presses for the pressing of flax seed oil. On pressing flax seed about 40% of the oil was removed. The customer would be given the oil and the press cake which contained the other 60% of the oil. This press cake would be taken home and used in making black bread. The flax seed cake was what made bread black. Newly pressed flax seed oil has a pleasant nutty aroma. Let freshly pressed oil set on the shelf for a week or so and brown phosphatides will settle out at the bottom of the bottle."
-
-**CONTEXT:** The editor asserts that hexane extraction of vegetable oils, including wheat germ oil and evening primrose oil, is acceptable and results in oils free from trans isomers, despite potential initial unpleasant odors.
 
 **RAY PEAT:** "There is nothing wrong with hexane extraction of vegetable oils. I feel certain that Vioben Laboratories hexane extracts its wheat germ oil. With Efamol Research, they are keeping a secret how they extract evening primrose oil, but I would bet a lot that it is hexane extracted. Fresh hexane extracted soya oil smells awful, however it is free from trans isomers."
 
+
+
 **CONTEXT:** The editor suggests that consuming whole foods containing PUFAs, such as walnuts, is a way to obtain these fatty acids without the potential issues associated with processed oils.
+
+
 
 **RAY PEAT:** "If one wants some PUFAs free from trans isomers one should eat food containing them such as walnuts which are 50% oil by weight."
 
+
+
 **RAY PEAT:** "Flax oil contains only small amounts of linoleic acid, Flax oil is predominantly linolenic acid, a substance proven to be essential in brain development and learning, slowing aging and age pigment accumulation, repairing damage to the circulatory system, selectively kills certain cancer cells, increasing immune response, coincidentally all the things Mr. Peat has claimed contrary."
+
+
 
 **CONTEXT:** The editor is directly refuting Ray Peat's claims about linoleic acid, asserting that flaxseed oil is rich in linolenic acid (omega-3) and highlighting its numerous health benefits, which they believe Peat has misrepresented.
 
-**RAY PEAT:** "Flax oil contains only small amounts of linoleic acid, Flax oil is predominantly linolenic acid, a substance proven to be essential in brain development and learning, slowing aging and age pigment accumulation, repairing damage to the circulatory system, selectively kills certain cancer cells, increasing immune response, coincidentally all the things Mr. Peat has claimed contrary."
 
-**CONTEXT:** The editor suggests Ray Peat is confusing linolenic acid (omega-3) with linoleic acid (omega-6), and explains that linoleic acid is involved in cancer promotion due to reduced cyclooxygenase activity and increased PGE2. They state omega-3 fatty acids can modulate PGE2 production.
 
 **RAY PEAT:** "It appears Mr. Peat has got linolenic and (Omega 3) confused with linoleic acid (Omega 6). Linoleic acid (common in most oils) is definitely involved in promotion of cancer due to lack of production of cyclooxygenases and increased PGE 2 production. Omega 3 fatty acids can control PGE 2 production to some extent."
 
+
+
 **CONTEXT:** The editor cites research by Dr. Karmali, suggesting an optimal omega-6 to omega-3 ratio of 1:1 for cancer prevention and that omega-3s prevent immunosuppression of cell-mediated immunity. They note flax oil's high omega-3 content (55-60%).
+
+
 
 **RAY PEAT:** "Dr. Karmali found the best ratio of Omega 6/3 is 1/1 for preventing cancer and that Omega 3 works by preventing immunosuppression of cell-mediated immunity. Flax oil typically contains 55-60% Omega 3."
 
+
+
 **RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
+
+
 
 **CONTEXT:** The editor criticizes Ray Peat for basing his entire critique on his own newsletter and suggests this indicates a promotional motive. They also mention receiving letters from individuals who have benefited from their flaxseed oil after being failed by conventional medicine.
 
+
+
 **RAY PEAT:** "It disappoints me that a person does not make a reasonable attempt to understand a subject before he criticizes something and that he footnotes his entire article from his own newsletter. When one bases his whole criticism on an excerpt from his own newsletter, one can conclude that Mr. Peat is on a subscription drive."
 
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
 
-**CONTEXT:** The editor lists several reputable references and research facilities supporting their claims about the benefits of linolenic acid and flaxseed oil.
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**CONTEXT:** The editor mentions that their company, Omega Nutrition, supplies fresh flax oil to fatty acid researchers and that reading orthodox medical journals would show Ray Peat how misinformed he is.
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**CONTEXT:** The editor states that the only reported side effect from using their flaxseed oil is in individuals with severe liver problems who have difficulty digesting any fat.
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**CONTEXT:** The editor applauds the Townsend Letter for providing a platform for public discussion and information exchange.
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**CONTEXT:** The editor expresses interest in the ongoing criticisms and rebuttals and feels compelled to join the discussion after reading Ray Peat's opinion, which they note is footnoted solely by his own newsletter.
 
 **RAY PEAT:** "It is with great interest that I watch the criticism and rebuttals that occur issue to issue. After reading Raymond Peat’s opinion, footnoted only by his own newsletter, I must step into the battlefield."
 
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
 
-**CONTEXT:** The editor is referencing research on the selective killing of cancer cells, the role of linolenic acid in blood pressure, and the importance of omega-3s in nutrition and aging.
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**CONTEXT:** The editor is citing research on prostaglandins, leukotrienes, and the SA Medical Journal, as well as ongoing research at the USDA and universities on malaria treatment, diabetes, and cholesterol reduction. They also mention Pierre Budowski's work on linolenic acid slowing aging and Dr. Martha Neuring's research on its necessity for brain development.
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
-
-**RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking antioxidants leads to health problems. I consider this now established fact important enough to emphasize in every lecture I give."
 
 **RAY PEAT:** "I agree that an excess of the omega-6 linoleic acid, especially from refined oils, fried omega oils, and an omega-6 containing diet lacking

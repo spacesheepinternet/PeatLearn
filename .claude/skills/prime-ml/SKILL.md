@@ -1,3 +1,7 @@
+---
+name: prime-ml
+description: Load advanced ML subsystem overview — personalization, RL agent, knowledge graph
+---
 # /prime-ml — Advanced ML Subsystem Overview
 
 Read these files to understand the current state of the ML/personalization subsystem:

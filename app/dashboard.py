@@ -403,7 +403,18 @@ def _split_answer_and_sources(raw: str) -> tuple[str, list[str]]:
     body = raw[:m.start()].rstrip()
     tail = m.group(1)
     sources = [l.strip(" -*\t") for l in tail.splitlines() if l.strip()]
-    return body, sources
+    # Deduplicate by filename — keep first occurrence (highest relevance), renumber
+    seen_files: set[str] = set()
+    deduped: list[str] = []
+    for s in sources:
+        # Extract filename before the "(relevance:" part
+        fname = re.sub(r"\d+\.\s*", "", s).split("(relevance")[0].strip()
+        if fname not in seen_files:
+            seen_files.add(fname)
+            # Renumber: replace leading "N. " with new sequential number
+            renumbered = re.sub(r"^\d+\.\s*", f"{len(deduped) + 1}. ", s)
+            deduped.append(renumbered)
+    return body, deduped
 
 # Initialize components
 @st.cache_resource
@@ -484,10 +495,13 @@ def _is_gibberish(q: str) -> bool:
     if len(letters) >= 4 and not any(c in letters for c in 'aeiou'):
         return True
     # 5+ consecutive consonant letters — real English words top out at 4 (e.g. "ngth").
-    # Run on letter-only string to avoid punctuation (dots, dashes) padding the count.
+    # Check each word individually to avoid cross-word false positives
+    # (e.g. "cortisol and stress" → "ndstr" when concatenated).
     # Explicitly enumerate consonants so y is treated as a vowel (avoids "trypt" false-positive).
-    if re.search(r'[b-df-hj-np-tv-xz]{5,}', letters):
-        return True
+    for w in q.split():
+        w_letters = re.sub(r'[^a-z]', '', w)
+        if re.search(r'[b-df-hj-np-tv-xz]{5,}', w_letters):
+            return True
     # Every long word lacks vowels (multi-word gibberish like "sdfds qwrtz")
     words = q.split()
     if all(len(w) >= 4 and not any(c in w for c in 'aeiou') for w in words if w.isalpha()):
@@ -760,8 +774,11 @@ def render_recommendations():
                     </div>
                 """, unsafe_allow_html=True)
         
-    except Exception as e:
-        st.warning(f"Recommendations unavailable: {e}")
+    except Exception:
+        if not _adv_health_cached():
+            st.caption("_Recommendations load once the ML server (port 8001) is running._")
+        else:
+            st.warning("Recommendations temporarily unavailable. Try refreshing.")
 
 def render_chat_interface():
     """Render the main chat interface with AI profiling"""
@@ -840,8 +857,15 @@ def render_chat_interface():
                     resolved_query = f"{last_user} — {prompt}"
 
             # Generate AI response using real RAG with Gemini
+            # Pass the last 3 turns (6 messages) as context so the model can
+            # reference the conversation without relying solely on pronoun resolution.
+            recent_history = st.session_state.chat_history[:-1][-6:] if len(st.session_state.chat_history) > 1 else []
             with st.spinner("Ray Peat AI is thinking..."):
-                response = _get_rag_system().get_rag_response(resolved_query, st.session_state.user_profile)
+                response = _get_rag_system().get_rag_response(
+                    resolved_query,
+                    st.session_state.user_profile,
+                    chat_history=recent_history,
+                )
         
         # Add assistant message (attach parsed sources)
         body_md_tmp, sources_tmp = _split_answer_and_sources(response)

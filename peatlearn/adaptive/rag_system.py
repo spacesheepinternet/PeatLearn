@@ -57,7 +57,7 @@ class RayPeatRAG:
         """Initialize the RAG system."""
         # Initialize Pinecone-backed search by default
         self.search_engine = search_engine or (RayPeatVectorSearch() if RayPeatVectorSearch else None)
-        self.llm_model = "gemini-2.5-flash-lite"
+        self.llm_model = "gemini-2.5-flash"
         self.api_key = os.getenv('GEMINI_API_KEY')
         
         if not self.search_engine:
@@ -65,14 +65,22 @@ class RayPeatRAG:
         if not self.api_key:
             print("Warning: Google API key not found. Using fallback mode.")
         
-    def get_rag_response(self, query: str, user_profile: Optional[Dict[str, Any]] = None) -> str:
+    def get_rag_response(
+        self,
+        query: str,
+        user_profile: Optional[Dict[str, Any]] = None,
+        chat_history: Optional[List[Dict[str, Any]]] = None,
+        max_sources: int = 8,
+    ) -> str:
         """
-        Get response using proper RAG with vector search
-        
+        Get response using proper RAG with vector search.
+
         Args:
             query: User's question
             user_profile: User's learning profile for adaptation
-            
+            chat_history: Recent conversation turns (list of {role, content} dicts)
+            max_sources: Max number of source chunks to include (default 8, range 3–15)
+
         Returns:
             Detailed response with sources from Ray Peat's work
         """
@@ -80,7 +88,7 @@ class RayPeatRAG:
             return self._fallback_response(query)
 
         try:
-            return self._get_rag_response_sync(query, user_profile)
+            return self._get_rag_response_sync(query, user_profile, chat_history, max_sources)
         except RuntimeError as e:
             err = str(e)
             if "RATE_LIMITED_DAILY" in err:
@@ -93,7 +101,13 @@ class RayPeatRAG:
             import traceback; traceback.print_exc()
             return self._fallback_response(query)
     
-    def _get_rag_response_sync(self, query: str, user_profile: Optional[Dict[str, Any]] = None) -> str:
+    def _get_rag_response_sync(
+        self,
+        query: str,
+        user_profile: Optional[Dict[str, Any]] = None,
+        chat_history: Optional[List[Dict[str, Any]]] = None,
+        max_sources: int = 8,
+    ) -> str:
         """Fully synchronous RAG path — safe to call from Streamlit or any context."""
         gemini_headers = {"x-goog-api-key": self.api_key, "Content-Type": "application/json"}
 
@@ -111,27 +125,90 @@ class RayPeatRAG:
         if not embedding:
             raise RuntimeError("Empty embedding returned")
 
-        # --- Step 2: Query Pinecone — fetch more candidates for reranking ---
-        pinecone_resp = self.search_engine.index.query(
-            vector=embedding,
-            top_k=20,
-            include_metadata=True,
-        )
-        matches = pinecone_resp.get("matches", [])
+        # --- Step 1b: HyDE — re-embed a hypothetical Peat-style answer for better retrieval ---
+        hyde_text = query  # fallback default
+        try:
+            hyde_resp = requests.post(
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
+                json={
+                    "contents": [{"role": "user", "parts": [{"text":
+                        "Write a 2-3 sentence answer as Ray Peat would, using bioenergetic language. Question: " + query
+                    }]}],
+                    "generationConfig": {"temperature": 0.2, "maxOutputTokens": 150},
+                },
+                headers=gemini_headers,
+                timeout=15,
+            )
+            if hyde_resp.status_code == 200:
+                hyde_text = hyde_resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip() or query
+        except Exception:
+            pass
 
-        # Convert to dicts, filter low-similarity matches
-        candidates = []
-        for m in matches:
-            if m.get("score", 0) < 0.3:
-                continue
-            meta = m.get("metadata", {})
-            candidates.append({
-                "id": m.get("id", ""),
-                "source_file": meta.get("source_file", ""),
-                "context": meta.get("context", ""),
-                "ray_peat_response": meta.get("ray_peat_response", ""),
-                "score": m.get("score", 0),
-            })
+        hyde_emb = requests.post(
+            emb_url,
+            json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": hyde_text}]}},
+            headers=gemini_headers,
+            timeout=30,
+        )
+        if hyde_emb.status_code == 200:
+            hyde_vals = hyde_emb.json().get("embedding", {}).get("values")
+            if hyde_vals:
+                embedding = hyde_vals  # overwrite — Pinecone query uses this transparently
+
+        # --- Step 2: Query Pinecone with two-pass diversity strategy ---
+        # Some files have 50+ near-identical chunks that drown out diverse results.
+        # Pass 1: fetch results, cap per file. Pass 2: if too few unique files,
+        # re-query excluding dominant files to surface diverse sources.
+        _MAX_CANDIDATES_PER_FILE = 4
+        _MIN_UNIQUE_FILES = max(6, max_sources)
+
+        def _collect_candidates(matches_list, existing_candidates=None, existing_counts=None):
+            cands = list(existing_candidates or [])
+            counts = dict(existing_counts or {})
+            seen_ids = {c["id"] for c in cands}
+            for m in matches_list:
+                if m.get("score", 0) < 0.15:
+                    continue
+                mid = m.get("id", "")
+                if mid in seen_ids:
+                    continue
+                meta = m.get("metadata", {})
+                sf = meta.get("source_file", "")
+                counts[sf] = counts.get(sf, 0) + 1
+                if counts[sf] > _MAX_CANDIDATES_PER_FILE:
+                    continue
+                seen_ids.add(mid)
+                cands.append({
+                    "id": mid,
+                    "source_file": sf,
+                    "context": meta.get("context", ""),
+                    "ray_peat_response": meta.get("ray_peat_response", ""),
+                    "score": m.get("score", 0),
+                })
+            return cands, counts
+
+        pinecone_resp = self.search_engine.index.query(
+            vector=embedding, top_k=80, include_metadata=True,
+        )
+        candidates, file_counts = _collect_candidates(pinecone_resp.get("matches", []))
+
+        # Pass 2: if not enough unique files, re-query excluding dominant files
+        unique_files = len(file_counts)
+        if unique_files < _MIN_UNIQUE_FILES:
+            dominant = [f for f, n in file_counts.items() if n >= _MAX_CANDIDATES_PER_FILE]
+            if dominant:
+                # Pinecone metadata filter: exclude dominant files
+                exclude_filter = {"source_file": {"$nin": dominant}}
+                try:
+                    pass2_resp = self.search_engine.index.query(
+                        vector=embedding, top_k=40, include_metadata=True,
+                        filter=exclude_filter,
+                    )
+                    candidates, file_counts = _collect_candidates(
+                        pass2_resp.get("matches", []), candidates, file_counts
+                    )
+                except Exception:
+                    pass  # if filter not supported, keep what we have
 
         if not candidates:
             return "I couldn't find relevant information on that topic in Ray Peat's work. Try rephrasing or ask about metabolism, thyroid, hormones, or nutrition."
@@ -145,23 +222,33 @@ class RayPeatRAG:
 
         candidates.sort(key=lambda x: x["rerank_score"], reverse=True)
 
-        # Keep best 8, one per source file for diversity
-        seen, sources = set(), []
-        for c in candidates:
-            key = c["source_file"].strip()
-            if key in seen:
-                continue
-            sources.append(c)
-            seen.add(key)
-            if len(sources) >= 8:
-                break
-        # Backfill if fewer than 8 unique sources
-        if len(sources) < 8:
-            for c in candidates:
-                if c not in sources:
-                    sources.append(c)
-                    if len(sources) >= 8:
-                        break
+        # MMR-style: penalise repeated source files AND content types for diversity
+        source_counts: dict = {}
+        type_counts: dict = {}
+        sources = []
+        remaining = list(candidates)
+        while remaining and len(sources) < max_sources:
+            best_idx, best_score = 0, -1.0
+            for idx, c in enumerate(remaining):
+                key = c["source_file"].strip()
+                # Content type = top-level directory (e.g. "01_Audio_Transcripts")
+                ctype = key.split("/")[0] if "/" in key else key.split("\\")[0] if "\\" in key else ""
+                n_file = source_counts.get(key, 0)
+                n_type = type_counts.get(ctype, 0)
+                raw = c["rerank_score"]
+                # Penalise repeated files (heavy) and repeated content types (lighter)
+                adjusted = max(raw - 0.3 * n_file - 0.05 * n_type, raw * 0.1)
+                if adjusted > best_score:
+                    best_score, best_idx = adjusted, idx
+            winner = remaining.pop(best_idx)
+            sources.append(winner)
+            key = winner["source_file"].strip()
+            ctype = key.split("/")[0] if "/" in key else key.split("\\")[0] if "\\" in key else ""
+            source_counts[key] = source_counts.get(key, 0) + 1
+            type_counts[ctype] = type_counts.get(ctype, 0) + 1
+            # Hard cap: never take more than 2 chunks from the same source
+            if source_counts[key] >= 2:
+                remaining = [c for c in remaining if c["source_file"].strip() != key]
 
         if not sources:
             return "I couldn't find relevant information on that topic in Ray Peat's work."
@@ -170,12 +257,12 @@ class RayPeatRAG:
         context_parts = []
         for i, s in enumerate(sources, 1):
             context_parts.append(
-                f"Source {i} (from {s['source_file']}):\n"
-                f"Context: {s['context']}\n"
-                f"Ray Peat's response: {s['ray_peat_response']}"
+                f"[S{i}] {s['source_file']} (relevance {s['score']:.2f})\n"
+                f"Topic context: {s['context']}\n"
+                f"Peat's words: {s['ray_peat_response']}"
             )
         context = "\n---\n".join(context_parts)
-        prompt = self._create_adaptive_prompt(query, context, user_profile)
+        prompt = self._create_adaptive_prompt(query, context, user_profile, chat_history)
 
         # --- Step 4: Call Gemini LLM via REST (avoids SDK retry wrapping) ---
         _all_models = [self.llm_model, "gemini-2.5-flash-lite", "gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"]
@@ -183,7 +270,7 @@ class RayPeatRAG:
         models_to_try = [m for m in _all_models if not (m in seen_models or seen_models.add(m))]
         payload = {
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.3, "maxOutputTokens": 4096, "topP": 0.8, "topK": 40},
+            "generationConfig": {"temperature": 0.25, "maxOutputTokens": 4096, "topP": 0.85, "topK": 40, "candidateCount": 1},
         }
         answer = ""
         rate_limited = False
@@ -218,6 +305,27 @@ class RayPeatRAG:
                 answer = ""
             if answer:
                 break
+
+        # --- Step 4b: Groq fallback when all Gemini models are rate-limited ---
+        if not answer and (rate_limited or daily_limit_hit):
+            groq_key = os.getenv("GROQ_API_KEY")
+            if groq_key:
+                try:
+                    groq_resp = requests.post(
+                        "https://api.groq.com/openai/v1/chat/completions",
+                        json={
+                            "model": "llama-3.3-70b-versatile",
+                            "messages": [{"role": "user", "content": prompt}],
+                            "temperature": 0.25,
+                            "max_tokens": 4096,
+                        },
+                        headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
+                        timeout=60,
+                    )
+                    if groq_resp.status_code == 200:
+                        answer = groq_resp.json()["choices"][0]["message"]["content"]
+                except Exception:
+                    pass
 
         if not answer and rate_limited:
             if daily_limit_hit:
@@ -304,40 +412,71 @@ class RayPeatRAG:
             print(f"Error generating answer: {e}")
             return f"I encountered an error while generating the response: {str(e)}"
     
-    def _create_adaptive_prompt(self, question: str, context: str, user_profile: Optional[Dict[str, Any]] = None) -> str:
-        """Create a prompt adapted to the user's learning profile"""
-        
+    def _create_adaptive_prompt(
+        self,
+        question: str,
+        context: str,
+        user_profile: Optional[Dict[str, Any]] = None,
+        chat_history: Optional[List[Dict[str, Any]]] = None,
+    ) -> str:
+        """Create a prompt adapted to the user's learning profile and conversation history."""
+
         # Classify question depth from signals
         q_lower = question.lower()
-        detail_signals = ["explain", "detail", "elaborate", "in depth", "thoroughly", "how does", "why does", "mechanism", "relationship between", "tell me more", "comprehensive"]
+        detail_signals = [
+            "explain", "detail", "elaborate", "in depth", "thoroughly",
+            "how does", "why does", "mechanism", "relationship between",
+            "tell me more", "comprehensive", "deep dive",
+        ]
         wants_detail = any(s in q_lower for s in detail_signals)
 
         if wants_detail:
-            length_instruction = "Aim for 200–300 words across 2–4 tight paragraphs."
-            followup_instruction = """End with ONE practical follow-up question a real person would naturally ask next — something like "Want to know what's actually slowing yours down?" or "Curious about the thyroid connection?" NOT a quiz question or academic prompt."""
+            length_instruction = "Write 180–260 words across 2–4 tight paragraphs. Go deep on mechanism where sources allow."
+            followup_instruction = (
+                'End with ONE specific follow-up question that would genuinely deepen understanding — '
+                'something a curious person would actually wonder next. Keep it under 20 words.'
+            )
         else:
-            length_instruction = "Aim for 60–100 words across 2–3 short paragraphs. Be punchy. Every sentence should earn its place."
-            followup_instruction = """End with ONE very short follow-up question that feels like a natural conversation next step — e.g. "Curious how to boost yours?" or "Want to know what's blocking it?" Keep it under 12 words. Sound like a person, not a professor."""
+            length_instruction = "Write 120–180 words. Be precise and punchy. One clear idea per sentence."
+            followup_instruction = (
+                'End with ONE short, curious follow-up question (≤15 words) that feels like a natural '
+                'next step in the conversation — not a quiz question.'
+            )
 
-        base_prompt = f"""You are Ray Peat AI — a knowledgeable guide to Ray Peat's bioenergetic philosophy. Explain his ideas clearly and confidently, always attributing them to him ("Peat argued...", "In his view...", "He was direct about this..."). You're an informed friend, not a polemicist.
+        # Build optional conversation history block
+        history_block = ""
+        if chat_history:
+            recent = [m for m in chat_history if m.get("role") in ("user", "assistant")][-6:]
+            if recent:
+                lines = []
+                for m in recent:
+                    role_label = "User" if m["role"] == "user" else "Assistant"
+                    # Truncate long assistant messages to keep prompt focused
+                    content = (m.get("content") or "")[:400]
+                    lines.append(f"{role_label}: {content}")
+                history_block = "\n\nCONVERSATION SO FAR (for context — do not repeat):\n" + "\n".join(lines)
 
-Use ONLY the provided sources to answer. Do not invent anything.
+        base_prompt = f"""You are Ray Peat AI — a knowledgeable, warm guide to Ray Peat's bioenergetic philosophy. You speak like an informed friend who has read everything Peat ever wrote: direct, curious, never preachy.
 
-Question: {question}
+Use ONLY the provided SOURCES to answer. Never add external knowledge or invent anything.{history_block}
+
+CURRENT QUESTION: {question}
 
 SOURCES:
 {context}
 
 Rules:
 - {length_instruction}
+- Never open with "Certainly", "Great question", "Of course", or any filler. Start directly: a fact, a contrast, a direct answer, or Peat's own words.
 - Write in plain prose. No bullet points. No headers unless the question genuinely covers multiple distinct topics.
-- Vary your opening — never use the same phrasing twice. Don't rely on clichés like "Forget what they tell you." Start from a different angle each time: a fact, a contrast, a direct answer, Peat's own words.
-- Attribute Peat's views to him clearly ("Peat saw this as...", "He argued...", "His take was..."). This distinguishes his perspective from mainstream medicine without being aggressive toward it.
-- Cite sources inline as [S1], [S2] etc. Weave citations naturally into sentences — don't cluster them at the start of a paragraph.
-- Lead with the most interesting point. Counterintuitive ideas are worth surfacing early.
-- Use Peat's exact words only when they're genuinely striking. Avoid academic filler phrases.
+- Attribute every claim to Peat explicitly: "Peat argued...", "He was direct about this...", "In his view...", "His take was..."
+- Cite sources inline as [S1], [S2] etc. — matching the source numbers in the SOURCES block. Weave citations naturally into sentences, never clustered.
+- If sources conflict on a point, acknowledge the tension explicitly rather than picking one silently.
+- Lead with the most interesting or counterintuitive point. Surface it early.
+- Use Peat's exact words only when they're genuinely striking. Avoid academic filler.
+- When sources contain practical advice (foods, supplements, techniques, or lifestyle changes Peat recommended), include it concretely — don't stop at theory.
 - {followup_instruction}
-- If the sources don't cover the question, say so in one sentence."""
+- If the sources don't cover the question, say so in one sentence and suggest a related angle the user might find useful."""
 
         return base_prompt + "\n\nAnswer:"
     
@@ -356,9 +495,9 @@ Rules:
                     model.generate_content,
                     user_prompt,
                     generation_config={
-                        "temperature": 0.3,
+                        "temperature": 0.25,
                         "max_output_tokens": 4096,
-                        "top_p": 0.8,
+                        "top_p": 0.85,
                         "top_k": 40,
                     },
                 )
@@ -376,7 +515,7 @@ Rules:
             headers = {"Content-Type": "application/json", "x-goog-api-key": self.api_key}
             payload = {
                 "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
-                "generationConfig": {"temperature": 0.3, "maxOutputTokens": 4096, "topP": 0.8, "topK": 40},
+                "generationConfig": {"temperature": 0.25, "maxOutputTokens": 4096, "topP": 0.85, "topK": 40, "candidateCount": 1},
             }
             try:
                 async with aiohttp.ClientSession() as session:

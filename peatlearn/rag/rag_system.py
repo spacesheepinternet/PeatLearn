@@ -154,28 +154,23 @@ class PineconeRAG:
             score = 0.7 * float(r.similarity_score) + 0.3 * float(overlap)
             scored.append((score, r))
 
-        # Sort by score desc
+        # MMR-style: penalise repeated source files softly instead of hard dedup
         scored.sort(key=lambda x: x[0], reverse=True)
-
-        # Deduplicate by (source_file, normalized excerpt) for diversity
-        seen_sources: set[str] = set()
+        source_counts: dict[str, int] = {}
         selected: List[SearchResult] = []
-        for _score, r in scored:
-            key = (r.source_file or "").strip()
-            if key in seen_sources:
-                continue
-            selected.append(r)
-            seen_sources.add(key)
-            if len(selected) >= max_sources:
-                break
-
-        # If we still have room (few unique sources), fill remaining ignoring source dedupe
-        if len(selected) < max_sources:
-            for _score, r in scored:
-                if r not in selected:
-                    selected.append(r)
-                    if len(selected) >= max_sources:
-                        break
+        remaining = list(scored)
+        while remaining and len(selected) < max_sources:
+            best_idx, best_score = 0, -1.0
+            for idx, (raw_score, r) in enumerate(remaining):
+                key = (r.source_file or "").strip()
+                n = source_counts.get(key, 0)
+                adjusted = max(raw_score - 0.3 * n, raw_score * 0.1)
+                if adjusted > best_score:
+                    best_score, best_idx = adjusted, idx
+            _, winner = remaining.pop(best_idx)
+            selected.append(winner)
+            key = (winner.source_file or "").strip()
+            source_counts[key] = source_counts.get(key, 0) + 1
 
         return selected
     
@@ -294,8 +289,8 @@ class PineconeRAG:
         for i, source in enumerate(sources, 1):
             truncation_note = " [Note: truncated]" if source.truncated else ""
             # Trim very long fields to keep prompt concise
-            ctx = (source.context or "")[:800]
-            resp = (source.ray_peat_response or "")[:1200]
+            ctx = (source.context or "")[:2000]
+            resp = (source.ray_peat_response or "")[:3000]
             context_parts.append(
                 f"SOURCE {i} | file: {source.source_file} | sim: {source.similarity_score:.3f}{truncation_note}\n"
                 f"Context:\n{ctx}\n"
@@ -305,7 +300,7 @@ class PineconeRAG:
         context = "\n---\n".join(context_parts)
         
         # Create the prompt
-        prompt = f"""You are an expert on Ray Peat's bioenergetic approach. Answer the user's question strictly from the SOURCES below.
+        prompt = f"""You are Ray Peat AI — a knowledgeable guide to Ray Peat's bioenergetic philosophy. Answer the user's question strictly from the SOURCES below.
 
 Question: {question}
 
@@ -313,16 +308,18 @@ SOURCES:
 {context}
 
 Requirements:
-- Use only the SOURCES. Do not add external knowledge.
-- Synthesize a clear, well-structured answer with headings and bullet points where helpful.
-- Include 2-4 short quoted snippets in quotes when directly citing.
-- Cite sources inline as [S1], [S2], etc., matching SOURCE indices.
-- If information is insufficient or contradictory, state this explicitly.
-- End with a short 1-2 sentence summary.
+- Use ONLY the SOURCES. Never add external knowledge or invent anything.
+- Write in a clear, direct voice. Attribute every claim to Peat explicitly: "Peat argued...", "In his view...", "He was direct about this..."
+- Never open with filler phrases like "Certainly", "Great question", or "Of course".
+- Cite sources inline as [S1], [S2], etc., matching the SOURCE numbers above. Weave citations naturally into sentences.
+- Include 1-3 short direct quotes when they are genuinely striking.
+- If sources conflict on a point, acknowledge the tension explicitly.
+- If information is insufficient, state this clearly and suggest a related angle.
+- End with a 1-2 sentence summary, then list key citations and source mapping.
 
 Output format:
-1) Answer
-2) Key citations (list, e.g., [S1], [S3])
+1) Answer (with inline citations)
+2) Key citations (e.g., [S1], [S3])
 3) Source mapping: [S1]=<file>, [S2]=<file>, ...
 """
 
@@ -351,9 +348,9 @@ Output format:
                     model.generate_content,
                     user_prompt,
                     generation_config={
-                        "temperature": 0.3,
+                        "temperature": 0.25,
                         "max_output_tokens": 4096,
-                        "top_p": 0.8,
+                        "top_p": 0.85,
                         "top_k": 40,
                     },
                 )
@@ -373,10 +370,11 @@ Output format:
             payload = {
                 "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
                 "generationConfig": {
-                    "temperature": 0.3,
+                    "temperature": 0.25,
                     "maxOutputTokens": 4096,
-                    "topP": 0.8,
+                    "topP": 0.85,
                     "topK": 40,
+                    "candidateCount": 1,
                 },
             }
             try:

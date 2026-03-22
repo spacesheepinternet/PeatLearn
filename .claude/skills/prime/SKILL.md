@@ -1,3 +1,7 @@
+---
+name: prime
+description: Load full project overview — entry points, key subsystems, and current state
+---
 # /prime — Full Project Overview
 
 Read the following files to build a complete picture of the current project state:

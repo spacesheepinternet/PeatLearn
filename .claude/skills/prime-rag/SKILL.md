@@ -1,3 +1,7 @@
+---
+name: prime-rag
+description: Load RAG subsystem overview — PineconeVectorSearch, PineconeRAG, adaptive rag_system
+---
 # /prime-rag — RAG Subsystem Overview
 
 Read these files to understand the current state of the RAG subsystem:

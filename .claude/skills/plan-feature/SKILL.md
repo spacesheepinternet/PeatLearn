@@ -1,3 +1,7 @@
+---
+name: plan-feature
+description: Plan a new feature — explore codebase, design approach, write implementation plan
+---
 # /plan-feature — Plan a New Feature
 
 **Usage:** `/plan-feature <feature description>`
