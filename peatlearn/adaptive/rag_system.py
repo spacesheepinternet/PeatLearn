@@ -487,21 +487,22 @@ Rules:
         
         async def call_once(user_prompt: str) -> tuple[str, str]:
             try:
-                import google.generativeai as genai  # type: ignore
-                genai.configure(api_key=self.api_key)
+                from google import genai as _genai  # type: ignore
+                from google.genai import types as _gtypes
+                _client = _genai.Client(api_key=self.api_key)
                 model_name = self.llm_model if self.llm_model.startswith("gemini") else f"models/{self.llm_model}"
-                model = genai.GenerativeModel(model_name)
                 resp = await asyncio.to_thread(
-                    model.generate_content,
-                    user_prompt,
-                    generation_config={
-                        "temperature": 0.25,
-                        "max_output_tokens": 4096,
-                        "top_p": 0.85,
-                        "top_k": 40,
-                    },
+                    _client.models.generate_content,
+                    model=model_name,
+                    contents=user_prompt,
+                    config=_gtypes.GenerateContentConfig(
+                        temperature=0.25,
+                        max_output_tokens=4096,
+                        top_p=0.85,
+                        top_k=40,
+                    ),
                 )
-                text = getattr(resp, "text", "") or ""
+                text = resp.text or ""
                 finish = ""
                 try:
                     finish = str(resp.candidates[0].finish_reason)  # type: ignore[attr-defined]

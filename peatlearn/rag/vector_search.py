@@ -54,7 +54,7 @@ class PineconeVectorSearch:
         self.index = None
         self.pc = None
         self.embedding_model = "gemini-embedding-001"
-        self.embedding_dimensions = 768  # Will be updated from index stats if available
+        self.embedding_dimensions = 3072  # Will be updated from index stats if available
         
         # Load environment variables
         load_dotenv(Path(__file__).parent.parent.parent / ".env")

@@ -64,7 +64,7 @@ class Settings(BaseSettings):
     
     # Embedding Settings
     EMBEDDING_MODEL: str = Field(default="gemini-embedding-001", env="EMBEDDING_MODEL")
-    EMBEDDING_DIMENSIONS: int = Field(default=768, env="EMBEDDING_DIMENSIONS")
+    EMBEDDING_DIMENSIONS: int = Field(default=3072, env="EMBEDDING_DIMENSIONS")
     
     # LLM Settings
     DEFAULT_LLM_MODEL: str = Field(default="gemini-2.5-flash", env="DEFAULT_LLM_MODEL")

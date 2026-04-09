@@ -2,7 +2,7 @@ import json
 import os
 import time
 from pathlib import Path
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
 # ---
@@ -12,14 +12,12 @@ def analyze_content_with_gemini(file_content, prompt_template, api_key):
     if api_key is None:
         raise ValueError("GEMINI_API_KEY not found in environment variables.")
     
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-2.5-flash-lite')
-    
+    client = genai.Client(api_key=api_key)
+
     try:
-        # Adding a specific instruction for JSON output
         prompt = prompt_template.format(file_content=file_content) + "\n\nPlease provide the output in a valid JSON format."
-        response = model.generate_content(prompt)
-        
+        response = client.models.generate_content(model='gemini-2.5-flash-lite', contents=prompt)
+
         # Clean the response to ensure it's valid JSON
         clean_response = response.text.strip().replace('```json', '').replace('```', '')
         return json.loads(clean_response)

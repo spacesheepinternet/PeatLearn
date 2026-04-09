@@ -239,152 +239,807 @@ st.set_page_config(
 # Custom CSS
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+
+    /* === Frutiger Aero — Color system === */
+    :root {
+        --primary:       #0EA5E9;
+        --primary-light: #7DD3FC;
+        --primary-dark:  #0369A1;
+        --accent:        #34D399;
+        --accent-warm:   #F4A261;
+        --green:         #22C55E;
+        --green-light:   #86EFAC;
+        --success:       #2EC4B6;
+        --danger:        #EF6461;
+        --warning:       #FCA311;
+        --text:          #E8F4FD;
+        --surface:       rgba(186, 230, 253, 0.10);
+        --surface-hover: rgba(186, 230, 253, 0.16);
+        --surface-glass: rgba(255, 255, 255, 0.14);
+        --border:        rgba(186, 230, 253, 0.22);
+        --border-top:    rgba(255, 255, 255, 0.45);
+        --text-muted:    rgba(224, 242, 254, 0.65);
+        --glow-primary:  rgba(14, 165, 233, 0.35);
+        --glow-teal:     rgba(46, 196, 182, 0.30);
+        --glow-green:    rgba(34, 197, 94, 0.28);
+    }
+
+    /* === Global text visibility fix === */
+    body, .stApp, p, span, li, td, th, label,
+    .stMarkdown, .stMarkdown p, .stMarkdown li,
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4,
+    [data-testid="stText"], .stChatMessage,
+    [data-baseweb="select"] span,
+    .stSlider label, .stSelectbox label, .stTextInput label,
+    .stRadio label, .stCheckbox label, .element-container {
+        color: var(--text) !important;
+    }
+
+    h1, h2, h3, h4, h5, h6 { color: #F0F9FF !important; }
+
+    html, body, [class*="css"] {
+        font-family: 'Nunito', sans-serif !important;
+    }
+
+    /* === Frutiger Aero — Bokeh page background === */
+    [data-testid="stApp"],
+    [data-testid="stAppViewContainer"] {
+        background:
+            radial-gradient(ellipse 70% 55% at 8%  12%, rgba(56,  189, 248, 0.26) 0%, transparent 70%),
+            radial-gradient(ellipse 55% 50% at 82% 30%, rgba(34,  211, 238, 0.20) 0%, transparent 65%),
+            radial-gradient(ellipse 50% 45% at 70% 75%, rgba(34,  197,  94, 0.22) 0%, transparent 62%),
+            radial-gradient(ellipse 40% 40% at 25% 60%, rgba(134, 239, 172, 0.16) 0%, transparent 58%),
+            radial-gradient(ellipse 40% 35% at 88% 82%, rgba(99,  220, 249, 0.16) 0%, transparent 60%),
+            radial-gradient(ellipse 90% 80% at 50% 50%, rgba(2,    78, 121, 0.50) 0%, transparent 100%),
+            linear-gradient(160deg, #021F3D 0%, #032B50 35%, #031A2A 65%, #011810 100%);
+        background-attachment: fixed;
+    }
+
+    [data-testid="stAppViewContainer"] > .main > .block-container {
+        background: transparent !important;
+    }
+
+    /* === Frutiger Aero — Glass card base (shared) === */
+    .stat-card,
+    .metric-card,
+    .insight-card,
+    .sq-item,
+    .empty-state-card,
+    .profile-card,
+    .welcome-features {
+        background: var(--surface-glass) !important;
+        border: 1px solid var(--border) !important;
+        border-top-color: var(--border-top) !important;
+        backdrop-filter: blur(18px) saturate(160%);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+    }
+
+    /* === Main header — Aero sky gloss === */
     .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 52%, transparent 52%),
+            linear-gradient(135deg, #0C4A6E 0%, #0EA5E9 45%, #38BDF8 80%, #7DD3FC 100%);
         color: white;
-        padding: 2rem;
-        border-radius: 10px;
+        padding: 2.5rem 2rem;
+        border-radius: 20px;
         text-align: center;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow:
+            0 8px 32px rgba(14, 165, 233, 0.45),
+            0 0  60px rgba(14, 165, 233, 0.20),
+            inset 0 1px 0 rgba(255,255,255,0.30);
+        border: 1px solid rgba(125, 211, 252, 0.35);
+        border-top-color: rgba(255,255,255,0.45);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(4px);
     }
-    
+
+    .main-header::before {
+        content: '';
+        position: absolute;
+        top: -40%;
+        left: 10%;
+        width: 80%;
+        height: 90%;
+        background: radial-gradient(ellipse, rgba(255,255,255,0.14) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .main-header h1 {
+        font-size: 2.1rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .main-header p {
+        font-size: 1.05rem;
+        opacity: 0.82;
+        margin: 0;
+        font-weight: 300;
+    }
+
+    /* === Metric card === */
     .metric-card {
-        background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid #667eea;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background: var(--surface);
+        padding: 1.1rem 1.2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--primary);
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
-    
+
+    .metric-card:hover {
+        border-color: rgba(255,255,255,0.18);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+
+    /* === Chat messages === */
     .chat-message {
-        padding: 1.5rem;
-        margin: 0.5rem 0;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: box-shadow 0.3s ease;
+        padding: 1rem 1.3rem;
+        margin: 0.8rem 0;
+        border-radius: 16px;
+        animation: fadeInUp 0.22s ease forwards;
+        position: relative;
+        line-height: 1.65;
     }
-    
-    .chat-message:hover {
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
-    
+
     .user-message {
-        background-color: #667eea;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 50%, transparent 50%),
+            linear-gradient(135deg, #0284C7 0%, #0EA5E9 100%);
         color: white;
-        margin-left: 2rem;
-        border-bottom-right-radius: 0;
+        margin-left: 8%;
+        border-bottom-right-radius: 4px;
+        border: 1px solid rgba(125, 211, 252, 0.30);
+        border-top-color: rgba(255,255,255,0.38);
+        box-shadow: 0 3px 14px rgba(14, 165, 233, 0.35), inset 0 1px 0 rgba(255,255,255,0.20);
     }
-    
+
     .assistant-message {
-        background-color: #f8f9fa;
-        margin-right: 2rem;
-        border-bottom-left-radius: 0;
+        background: rgba(2, 40, 80, 0.55);
+        border: 1px solid var(--border);
+        border-top-color: rgba(255,255,255,0.18);
+        margin-right: 4%;
+        border-bottom-left-radius: 4px;
+        backdrop-filter: blur(20px) saturate(140%);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.10);
     }
-    
+
+    .message-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.45rem;
+    }
+
+    .avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .avatar-user {
+        background: rgba(255,255,255,0.22);
+        color: white;
+    }
+
+    .avatar-ai {
+        background: linear-gradient(135deg, #2EC4B6, #06B6D4);
+        color: white;
+        box-shadow: 0 0 8px rgba(6, 182, 212, 0.55);
+    }
+
+    .msg-name {
+        font-weight: 600;
+        font-size: 0.82rem;
+        opacity: 0.9;
+    }
+
+    .msg-time {
+        font-size: 0.7rem;
+        opacity: 0.45;
+        margin-left: auto;
+    }
+
+    /* === RAG answer === */
     .rag-answer h3 {
-        color: #2c3e50;
-        margin-top: 1rem;
-        margin-bottom: 0.5rem;
-        font-size: 1.2em;
+        font-size: 1.05em;
+        font-weight: 600;
+        margin: 0.9rem 0 0.4rem;
     }
-    
+
     .rag-answer p {
-        margin-top: 0.3rem;
-        margin-bottom: 0.3rem;
-        line-height: 1.6;
+        margin: 0.3rem 0;
+        line-height: 1.7;
     }
-    
+
     .rag-answer ul {
-        padding-left: 1.5rem;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
+        padding-left: 1.4rem;
+        margin: 0.4rem 0;
     }
-    
-    .rag-answer li {
-        margin-bottom: 0.3rem;
-    }
-    
-    /* Sources styling with hover effect */
+
+    .rag-answer li { margin-bottom: 0.35rem; }
+
+    /* === Sources === */
     .sources-container {
-        margin-top: 1.5rem;
-        border-top: 1px solid #eaeaea;
-        padding-top: 1rem;
+        margin-top: 1.2rem;
+        border-top: 1px solid var(--border);
+        padding-top: 0.8rem;
     }
-    
+
     .sources-toggle {
         cursor: pointer;
-        color: #667eea;
-        font-weight: bold;
-        display: inline-block;
-        padding: 0.3rem 0.5rem;
-        border-radius: 4px;
-        transition: background-color 0.3s;
+        color: var(--primary-light);
+        font-weight: 500;
+        font-size: 0.83rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.28rem 0.6rem;
+        border-radius: 6px;
+        transition: background 0.2s;
     }
-    
-    .sources-toggle:hover {
-        background-color: #f0f2f5;
-    }
-    
+
+    .sources-toggle:hover { background: var(--surface-hover); }
+
     .sources-content {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease-out;
+        transition: max-height 0.35s ease-out;
         margin-top: 0.5rem;
     }
-    
-    .sources-content ul {
-        padding-left: 1.2rem;
-        margin: 0.5rem 0;
-    }
-    
+
+    .sources-content ul { padding-left: 1.2rem; margin: 0.5rem 0; }
+
     .sources-content li {
         margin-bottom: 0.4rem;
-        font-size: 0.9em;
-        color: #555;
+        font-size: 0.84em;
+        opacity: 0.65;
     }
-    
-    /* When sources are expanded */
+
     .sources-container:hover .sources-content {
         max-height: 500px;
         transition: max-height 0.5s ease-in;
     }
-    
+
+    /* === Recommendation card — amber glass === */
     .recommendation-card {
-        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 0.5rem 0;
-        border-left: 4px solid #ff6b6b;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        background: linear-gradient(135deg, rgba(251,191,36,0.10) 0%, rgba(251,191,36,0.04) 100%);
+        padding: 1.1rem 1.2rem;
+        border-radius: 12px;
+        margin: 0.6rem 0;
+        border: 1px solid rgba(251,191,36,0.20);
+        border-top-color: rgba(255,255,255,0.18);
+        border-left: 4px solid var(--accent-warm);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+        transition: transform 0.15s, box-shadow 0.15s;
     }
-    
+
+    .recommendation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 22px rgba(251,191,36,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .recommendation-card h4 {
+        color: var(--accent-warm);
+        margin: 0 0 0.4rem;
+        font-size: 0.94rem;
+        font-weight: 600;
+    }
+
+    /* === Profile card — sky-teal glass === */
     .profile-card {
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 0.5rem 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        background: linear-gradient(135deg, rgba(46,196,182,0.09) 0%, rgba(14,165,233,0.09) 100%);
+        padding: 1.1rem;
+        border-radius: 12px;
+        margin: 0.6rem 0;
+        border: 1px solid rgba(14,165,233,0.18);
     }
-    
+
+    /* === Mastery badges — glass shimmer === */
     .mastery-badge {
-        display: inline-block;
-        padding: 0.2rem 0.5rem;
-        border-radius: 15px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        margin: 0.2rem;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        display: inline-flex;
+        align-items: center;
+        padding: 0.28rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.77rem;
+        font-weight: 600;
+        margin: 0.2rem 0.25rem 0.2rem 0;
+        letter-spacing: 0.01em;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
     }
-    
-    .struggling { background-color: #ffebee; color: #c62828; }
-    .learning { background-color: #fff3e0; color: #ef6c00; }
-    .advanced { background-color: #e8f5e8; color: #2e7d32; }
-    
-    /* Feedback buttons */
-    .stButton button {
-        padding: 0.2rem 0.5rem;
-        font-size: 1rem;
+
+    .struggling { background: rgba(239,100,97,0.16);  color: #FCA5A5; border: 1px solid rgba(239,100,97,0.30); border-top-color: rgba(255,255,255,0.22); }
+    .learning   { background: rgba(252,163,17,0.16);  color: #FCD34D; border: 1px solid rgba(252,163,17,0.30); border-top-color: rgba(255,255,255,0.22); }
+    .advanced   { background: rgba(46,196,182,0.16);  color: #5EEAD4; border: 1px solid rgba(46,196,182,0.30); border-top-color: rgba(255,255,255,0.22); }
+
+    /* === Welcome card — Aero glass === */
+    .welcome-card {
+        max-width: 540px;
+        margin: 2.5rem auto 1rem;
+        text-align: center;
+        padding: 3rem 2.5rem 2.5rem;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.04) 50%, transparent 50%),
+            linear-gradient(145deg, rgba(14,165,233,0.18) 0%, rgba(6,182,212,0.10) 50%, rgba(46,196,182,0.10) 100%);
+        border: 1px solid rgba(125,211,252,0.28);
+        border-top-color: rgba(255,255,255,0.42);
+        border-radius: 24px;
+        backdrop-filter: blur(24px) saturate(150%);
+        -webkit-backdrop-filter: blur(24px) saturate(150%);
+        box-shadow:
+            0 20px 60px rgba(0,0,0,0.35),
+            0 0   40px rgba(14,165,233,0.15),
+            inset 0 1px 0 rgba(255,255,255,0.28);
+    }
+
+    .welcome-card .wc-icon {
+        font-size: 3.2rem;
+        line-height: 1;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .welcome-card h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        background: linear-gradient(135deg, #7DD3FC, #2EC4B6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .welcome-card .wc-tagline {
+        opacity: 0.62;
+        margin: 0 0 1.8rem;
+        font-size: 0.97rem;
+        line-height: 1.6;
+    }
+
+    .welcome-features {
+        text-align: left;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.1rem 1.3rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.88rem;
+        line-height: 2;
+        opacity: 0.85;
+    }
+
+    .wc-cta {
+        font-size: 0.88rem;
+        opacity: 0.5;
+        font-style: italic;
+    }
+
+    /* === Sidebar — Aero frosted panel === */
+    section[data-testid="stSidebar"] {
+        background:
+            radial-gradient(ellipse 80% 60% at 50% 0%, rgba(14,165,233,0.14) 0%, transparent 70%),
+            rgba(2, 25, 55, 0.75);
+        border-right: 1px solid rgba(125, 211, 252, 0.18);
+        backdrop-filter: blur(24px) saturate(140%);
+        -webkit-backdrop-filter: blur(24px) saturate(140%);
+        box-shadow: 2px 0 20px rgba(0,0,0,0.28);
+    }
+
+    /* === Gel buttons === */
+    .stButton > button {
+        font-family: 'Nunito', sans-serif !important;
+        font-weight: 600;
+        border-radius: 20px;
+        border: 1px solid rgba(125,211,252,0.40);
+        border-top-color: rgba(255,255,255,0.52);
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.05) 50%, transparent 50%),
+            linear-gradient(180deg, #0284C7 0%, #0369A1 100%);
+        color: #E0F2FE !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.40);
+        box-shadow:
+            0 4px 14px rgba(14,165,233,0.40),
+            inset 0 1px 0 rgba(255,255,255,0.30),
+            inset 0 -1px 0 rgba(0,0,0,0.20);
+        transition: all 0.18s ease;
+        padding: 0.45rem 1.3rem;
+    }
+
+    .stButton > button:hover {
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.08) 50%, transparent 50%),
+            linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%);
+        box-shadow:
+            0 6px 20px rgba(14,165,233,0.55),
+            inset 0 1px 0 rgba(255,255,255,0.38);
+        transform: translateY(-1px);
+    }
+
+    .stButton > button:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(14,165,233,0.30);
+    }
+
+    /* === Sidebar user card === */
+    .sidebar-user-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem 1.1rem 0.9rem;
+        margin: 0.4rem 0 0.9rem;
+    }
+
+    .sidebar-user-card .user-name {
+        font-size: 0.98rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+    }
+
+    .session-chip {
+        display: inline-block;
+        background: rgba(14,165,233,0.16);
+        border: 1px solid rgba(14,165,233,0.28);
+        border-top-color: rgba(255,255,255,0.28);
+        color: var(--primary-light);
+        border-radius: 20px;
+        padding: 0.15rem 0.6rem;
+        font-size: 0.7rem;
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        margin-bottom: 0.75rem;
+        backdrop-filter: blur(8px);
+    }
+
+    .status-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 20px;
+        font-size: 0.71rem;
+        font-weight: 500;
+    }
+
+    .status-pill.ok   { background: rgba(46,196,182,0.18); color: #5EEAD4; border: 1px solid rgba(46,196,182,0.32); border-top-color: rgba(255,255,255,0.25); }
+    .status-pill.warn { background: rgba(252,163,17,0.18); color: #FCD34D; border: 1px solid rgba(252,163,17,0.32); border-top-color: rgba(255,255,255,0.20); }
+
+    /* === Section header === */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.65rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1.3rem;
+    }
+
+    .section-header h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* === Quiz question card — sky glass === */
+    .quiz-question-card {
+        background: linear-gradient(135deg, rgba(14,165,233,0.12) 0%, rgba(14,165,233,0.04) 100%);
+        border: 1px solid rgba(14,165,233,0.22);
+        border-top-color: rgba(255,255,255,0.22);
+        border-left: 4px solid var(--primary);
+        border-radius: 12px;
+        padding: 1.3rem 1.5rem;
+        margin-bottom: 1.2rem;
+        font-size: 1.02rem;
+        font-weight: 500;
+        line-height: 1.65;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    /* === Passage excerpt === */
+    .passage-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        border-radius: 10px;
+        padding: 1rem 1.2rem;
+        margin: 0.8rem 0 0.4rem;
+        font-size: 0.88rem;
+        line-height: 1.75;
+        font-style: italic;
+        opacity: 0.82;
+    }
+
+    .passage-source {
+        font-size: 0.73rem;
+        opacity: 0.42;
+        margin-top: 0.4rem;
+        font-style: normal;
+    }
+
+    /* === Stat cards (profile + analytics) === */
+    .stat-cards-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-cards-row.three-col { grid-template-columns: repeat(3, 1fr); }
+
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.1rem 1rem;
+        text-align: center;
+        transition: box-shadow 0.2s;
+    }
+
+    .stat-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.22); }
+
+    .stat-card .sc-icon { font-size: 1.4rem; display: block; margin-bottom: 0.4rem; line-height: 1; }
+    .stat-card .sc-value { font-size: 1.45rem; font-weight: 700; color: var(--primary-light); line-height: 1.1; margin-bottom: 0.25rem; }
+    .stat-card .sc-label { font-size: 0.7rem; opacity: 0.48; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* === Chat empty state === */
+    .chat-empty-state {
+        text-align: center;
+        padding: 2.5rem 1.5rem 1.5rem;
+    }
+
+    .chat-empty-state .ces-icon { font-size: 2.8rem; display: block; margin-bottom: 0.8rem; }
+    .chat-empty-state h4 { font-size: 1rem; font-weight: 600; margin: 0 0 0.4rem; opacity: 0.85; }
+    .chat-empty-state p { font-size: 0.85rem; opacity: 0.45; margin: 0 0 1.4rem; }
+
+    .suggested-questions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        max-width: 500px;
+        margin: 0 auto;
+        text-align: left;
+    }
+
+    .sq-item {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.65rem 0.95rem;
+        font-size: 0.84rem;
+        opacity: 0.78;
+        transition: border-color 0.18s, opacity 0.18s;
+        cursor: default;
+    }
+
+    .sq-item:hover { border-color: rgba(14,165,233,0.45); opacity: 1; }
+
+    /* === Insight cards === */
+    .insight-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        margin: 0.4rem 0;
+        font-size: 0.88rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.55rem;
+        line-height: 1.65;
+    }
+
+    .insight-card .ic-icon { flex-shrink: 0; font-size: 0.95rem; opacity: 0.65; margin-top: 0.08rem; }
+
+    /* === Badges container === */
+    .badges-row { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.75rem; margin-bottom: 0.5rem; }
+
+    /* === Empty state card === */
+    .empty-state-card {
+        text-align: center;
+        padding: 2.2rem 1.5rem;
+        background: var(--surface);
+        border: 1px dashed var(--border);
+        border-radius: 14px;
+        opacity: 0.68;
+        margin: 0.8rem 0;
+    }
+
+    .empty-state-card .esc-icon { font-size: 2rem; display: block; margin-bottom: 0.6rem; }
+    .empty-state-card p { font-size: 0.88rem; opacity: 0.62; margin: 0; }
+
+    /* === Sidebar footer === */
+    .sidebar-footer {
+        margin-top: 2rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border);
+        text-align: center;
+        font-size: 0.69rem;
+        opacity: 0.32;
+        line-height: 1.7;
+    }
+
+    /* === Quiz progress label === */
+    .quiz-progress-label {
+        font-size: 0.76rem;
+        opacity: 0.48;
+        text-align: right;
+        margin-bottom: 0.6rem;
+        letter-spacing: 0.02em;
+    }
+
+    /* === Quiz result card === */
+    .quiz-result-card {
+        background: linear-gradient(135deg, rgba(46,196,182,0.1) 0%, rgba(46,196,182,0.04) 100%);
+        border: 1px solid rgba(46,196,182,0.22);
+        border-radius: 12px;
+        padding: 1.4rem 1.5rem;
+        text-align: center;
+        margin: 0.8rem 0 1.2rem;
+    }
+
+    .quiz-result-card .qr-score {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2EC4B6;
+        line-height: 1;
+        margin-bottom: 0.3rem;
+    }
+
+    .quiz-result-card .qr-label {
+        font-size: 0.85rem;
+        opacity: 0.55;
+    }
+
+    /* === Chat input — Aero glass === */
+    [data-testid="stChatInput"] {
+        background: rgba(2, 40, 80, 0.65) !important;
+        border: 1px solid rgba(125, 211, 252, 0.25) !important;
+        border-top-color: rgba(255,255,255,0.20) !important;
+        border-radius: 16px !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.25) !important;
+    }
+
+    /* === Tabs — Aero pill bar === */
+    .stTabs [data-baseweb="tab-list"] {
+        background: rgba(2, 30, 60, 0.60);
+        border-radius: 14px;
+        padding: 0.25rem;
+        border: 1px solid var(--border);
+        border-top-color: rgba(255,255,255,0.15);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        gap: 0.2rem;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        color: var(--text-muted);
+        border-radius: 10px;
+        transition: all 0.2s;
+        font-weight: 600;
+        font-family: 'Nunito', sans-serif;
+        padding: 0.4rem 1rem;
+    }
+
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 50%, transparent 50%),
+            linear-gradient(180deg, #0284C7, #0369A1) !important;
+        color: white !important;
+        box-shadow:
+            0 2px 10px rgba(14, 165, 233, 0.40),
+            inset 0 1px 0 rgba(255,255,255,0.28) !important;
+        border: 1px solid rgba(125,211,252,0.30) !important;
+        border-top-color: rgba(255,255,255,0.42) !important;
+    }
+
+    /* === Sidebar user card — Aero glass === */
+    .sidebar-user-card {
+        background: rgba(255,255,255,0.09) !important;
+        border: 1px solid var(--border) !important;
+        border-top-color: rgba(255,255,255,0.32) !important;
+        border-radius: 14px;
+        padding: 1rem 1.1rem 0.9rem;
+        margin: 0.4rem 0 0.9rem;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18) !important;
+    }
+
+    /* === Landing page full-screen === */
+    .landing-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+
+    .landing-icon {
+        font-size: 4.5rem;
+        line-height: 1;
+        margin-bottom: 1.2rem;
+        display: block;
+        filter: drop-shadow(0 0 24px rgba(34,197,94,0.55));
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-8px); }
+    }
+
+    .landing-hello {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0 0 0.4rem;
+        background: linear-gradient(135deg, #86EFAC, #38BDF8, #7DD3FC);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.1;
+    }
+
+    .landing-sub {
+        font-size: 1.05rem;
+        color: rgba(224,242,254,0.65) !important;
+        margin: 0 0 2.5rem;
+        max-width: 420px;
+        line-height: 1.6;
+        -webkit-text-fill-color: rgba(224,242,254,0.65);
+    }
+
+    .landing-form-wrap {
+        width: 100%;
+        max-width: 380px;
+        margin: 0 auto;
+    }
+
+    .landing-features {
+        display: flex;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 2.5rem;
+        max-width: 460px;
+    }
+
+    .landing-feature-pill {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.14);
+        border-top-color: rgba(255,255,255,0.28);
+        border-radius: 20px;
+        padding: 0.3rem 0.85rem;
+        font-size: 0.78rem;
+        color: rgba(224,242,254,0.72) !important;
+        -webkit-text-fill-color: rgba(224,242,254,0.72);
+        backdrop-filter: blur(8px);
+        white-space: nowrap;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -542,7 +1197,7 @@ def render_user_setup():
     st.markdown("<div class='main-header'><h1>🧠 PeatLearn AI - Adaptive Learning</h1><p>Your Personal Ray Peat Bioenergetics Tutor</p></div>", unsafe_allow_html=True)
     
     with st.sidebar:
-        st.header("👤 User Setup")
+        st.markdown('<p style="font-size:0.8rem;opacity:0.4;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;">🧠 PeatLearn</p>', unsafe_allow_html=True)
         
         # Get user ID
         user_id = st.text_input("Enter your name or ID:", value=st.session_state.get('user_id', ''))
@@ -561,34 +1216,25 @@ def render_user_setup():
             st.rerun()
         
         if st.session_state.user_id:
-            st.write(f"**Current User:** {st.session_state.user_id}")
             # Ensure session_id is initialized
             if not st.session_state.get('session_id'):
                 try:
-                    # Lazily initialize session id if missing
                     DataLogger().get_session_id()
                 except Exception:
                     pass
-            if st.session_state.session_id:
-                st.write(f"**Session:** {st.session_state.session_id[:8]}...")
-            else:
-                st.write("**Session:** Not initialized")
-            
-            # Show AI and personalization backend status
             api_key = os.getenv('GEMINI_API_KEY')
-            adv_ok = False
             adv_ok = _adv_health_cached()
-            cols = st.columns(2)
-            with cols[0]:
-                if api_key:
-                    st.success("🤖 AI Analysis: Enabled")
-                else:
-                    st.warning("🤖 AI Analysis: Using Fallback Mode")
-            with cols[1]:
-                if adv_ok:
-                    st.success("🧩 Personalization API: Connected")
-                else:
-                    st.warning("🧩 Personalization API: Basic Mode")
+            _sid = st.session_state.session_id[:8] + '…' if st.session_state.session_id else 'initializing'
+            _uid_display = html.escape(st.session_state.user_id)
+            _ai_pill = '<span class="status-pill ok">🤖 AI Active</span>' if api_key else '<span class="status-pill warn">🤖 Fallback</span>'
+            _api_pill = '<span class="status-pill ok">🧩 ML Online</span>' if adv_ok else '<span class="status-pill warn">🧩 ML Offline</span>'
+            st.markdown(f"""
+            <div class="sidebar-user-card">
+                <div class="user-name">👤 {_uid_display}</div>
+                <div class="session-chip">session {_sid}</div>
+                <div class="status-row">{_ai_pill}{_api_pill}</div>
+            </div>
+            """, unsafe_allow_html=True)
             
              # Development mode indicator and controls
             if DEVELOPMENT_MODE:
@@ -674,6 +1320,13 @@ def render_user_setup():
                     """)
                 st.caption("🔒 Production mode active - development features disabled")
 
+            st.markdown("""
+            <div class="sidebar-footer">
+                PeatLearn v1.0 · Powered by Gemini 2.5<br>
+                552 Sources · Ray Peat Corpus
+            </div>
+            """, unsafe_allow_html=True)
+
 def render_user_profile():
     """Render user profile and learning analytics"""
     if not st.session_state.user_profile:
@@ -682,28 +1335,43 @@ def render_user_profile():
     
     profile = st.session_state.user_profile
     
-    st.subheader("📊 Your Learning Profile")
+    st.markdown('<div class="section-header"><h3>📊 Your Learning Profile</h3></div>', unsafe_allow_html=True)
     
     # Overall stats
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Learning State", profile.get('overall_state', 'new').title())
-    
-    with col2:
-        st.metric("Learning Style", profile.get('learning_style', 'balanced').replace('_', ' ').title())
-    
-    with col3:
-        st.metric("Total Interactions", profile.get('total_interactions', 0))
-    
-    with col4:
-        avg_feedback = profile.get('average_feedback', 0)
-        st.metric("Avg Feedback", f"{avg_feedback:.1f}" if avg_feedback else "N/A")
+    _state = profile.get('overall_state', 'new').title()
+    _style = profile.get('learning_style', 'balanced').replace('_', ' ').title()
+    _interactions = profile.get('total_interactions', 0)
+    _avg_fb = profile.get('average_feedback', 0)
+    _fb_display = f"{_avg_fb:.1f}" if _avg_fb else "—"
+    st.markdown(f"""
+    <div class="stat-cards-row">
+        <div class="stat-card">
+            <span class="sc-icon">🎓</span>
+            <div class="sc-value">{_state}</div>
+            <div class="sc-label">Learning State</div>
+        </div>
+        <div class="stat-card">
+            <span class="sc-icon">🧭</span>
+            <div class="sc-value">{_style}</div>
+            <div class="sc-label">Learning Style</div>
+        </div>
+        <div class="stat-card">
+            <span class="sc-icon">💬</span>
+            <div class="sc-value">{_interactions}</div>
+            <div class="sc-label">Total Interactions</div>
+        </div>
+        <div class="stat-card">
+            <span class="sc-icon">⭐</span>
+            <div class="sc-value">{_fb_display}</div>
+            <div class="sc-label">Avg Feedback</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Topic mastery
     topic_mastery = profile.get('topic_mastery', {})
     if topic_mastery:
-        st.subheader("🎯 Topic Mastery")
+        st.markdown('<div class="section-header" style="margin-top:1rem"><h3>🎯 Topic Mastery</h3></div>', unsafe_allow_html=True)
         
         mastery_data = []
         for topic, data in topic_mastery.items():
@@ -717,58 +1385,69 @@ def render_user_profile():
         df = pd.DataFrame(mastery_data)
         
         # Create mastery chart
-        fig = px.bar(df, x='Topic', y='Mastery Level', 
-                    color='State', 
-                    title="Mastery Levels by Topic",
+        fig = px.bar(df, x='Topic', y='Mastery Level',
+                    color='State',
+                    title="Topic Mastery Overview",
                     color_discrete_map={
-                        'struggling': '#ff6b6b',
-                        'learning': '#feca57', 
-                        'advanced': '#48db71'
-                    })
+                        'struggling': '#F87171',
+                        'learning':   '#FBBF24',
+                        'advanced':   '#34D399'
+                    },
+                    template='plotly_dark')
+        fig.update_layout(
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font_family='Nunito',
+            title_font_size=15,
+            legend_title_text='State',
+        )
+        fig.update_xaxes(gridcolor='rgba(255,255,255,0.06)')
+        fig.update_yaxes(gridcolor='rgba(255,255,255,0.06)')
         st.plotly_chart(fig, use_container_width=True)
         
         # Show mastery badges
-        for _, row in df.iterrows():
-            badge_class = row['State']
-            st.markdown(f"""
-                <span class="mastery-badge {badge_class}">
-                    {row['Topic']}: {row['State'].title()} ({row['Mastery Level']:.1f})
-                </span>
-            """, unsafe_allow_html=True)
+        badges_html = "".join(
+            f'<span class="mastery-badge {row["State"]}">{row["Topic"]}: {row["State"].title()} ({row["Mastery Level"]:.1f})</span>'
+            for _, row in df.iterrows()
+        )
+        st.markdown(f'<div class="badges-row">{badges_html}</div>', unsafe_allow_html=True)
     
     # AI insights if available
     ai_analysis = profile.get('ai_analysis', {})
     if ai_analysis:
-        st.subheader("🤖 AI Insights")
-        
+        st.markdown('<div class="section-header" style="margin-top:1rem"><h3>🤖 AI Insights</h3></div>', unsafe_allow_html=True)
         insights = ai_analysis.get('insights', [])
         for insight in insights:
-            st.write(f"• {insight}")
-        
+            st.markdown(f'<div class="insight-card"><span class="ic-icon">💡</span>{html.escape(str(insight))}</div>', unsafe_allow_html=True)
         learning_velocity = ai_analysis.get('learning_velocity')
         if learning_velocity:
-            st.info(f"**Learning Velocity:** {learning_velocity.title()}")
+            st.markdown(f'<div class="insight-card"><span class="ic-icon">📈</span><strong>Learning Velocity:</strong>&nbsp;{html.escape(learning_velocity.title())}</div>', unsafe_allow_html=True)
 
 def render_recommendations():
     """Render personalized recommendations via backend."""
     if not st.session_state.get('user_id'):
         return
-    st.subheader("💡 Personalized Recommendations")
+    st.markdown('<div class="section-header"><h3>💡 Personalized Recommendations</h3></div>', unsafe_allow_html=True)
     try:
         topic_mastery = (st.session_state.user_profile or {}).get('topic_mastery', {})
         topic_filter = list(topic_mastery.keys())[:5] if topic_mastery else None
         recs = _fetch_recommendations_cached(st.session_state.user_id, topic_filter, 8)
         if True:
             if not recs:
-                st.info("No recommendations yet. Start interacting to personalize.")
+                st.markdown("""
+                <div class="empty-state-card">
+                    <span class="esc-icon">🔮</span>
+                    <p>No recommendations yet — interact with the chat to personalize your feed.</p>
+                </div>
+                """, unsafe_allow_html=True)
                 return
             for rec in recs:
-                title = rec.get('title') or rec.get('content_id')
-                reason = rec.get('recommendation_reason', '')
-                snippet = rec.get('snippet', '')
+                title = html.escape(str(rec.get('title') or rec.get('content_id', '')))
+                reason = html.escape(str(rec.get('recommendation_reason', '')))
+                snippet = html.escape(str(rec.get('snippet', '')))
                 st.markdown(f"""
                     <div class="recommendation-card">
-                        <h4 style="color:#ff6b6b;">{title}</h4>
+                        <h4>{title}</h4>
                         <p>{snippet}</p>
                         {f"<small><i>{reason}</i></small>" if reason else ""}
                     </div>
@@ -783,22 +1462,62 @@ def render_recommendations():
 def render_chat_interface():
     """Render the main chat interface with AI profiling"""
     data_logger, ai_profiler, content_selector, quiz_generator, dashboard, rag_system, topic_model = init_adaptive_system()
-    
-    st.subheader("💬 Chat with Ray Peat AI")
-    
+
+    st.markdown('<div class="section-header"><h3>💬 Chat with Ray Peat AI</h3></div>', unsafe_allow_html=True)
+
+    if not st.session_state.chat_history:
+        st.markdown("""
+        <div class="chat-empty-state">
+            <span class="ces-icon">🌿</span>
+            <h4>Ask Ray Peat AI anything</h4>
+            <p>Start with one of these questions or type your own below</p>
+            <div class="suggested-questions">
+                <div class="sq-item">💡 What does Ray Peat say about thyroid and metabolism?</div>
+                <div class="sq-item">🧬 How does progesterone protect against estrogen dominance?</div>
+                <div class="sq-item">⚡ Why does Ray Peat recommend sugar over starch?</div>
+                <div class="sq-item">🫁 What is the role of CO₂ in oxygen delivery?</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
     # Display chat history
     for i, message in enumerate(st.session_state.chat_history):
         if message['role'] == 'user':
+            _ts = message.get('timestamp', '')
+            _ts_fmt = ''
+            if _ts:
+                try:
+                    _ts_fmt = datetime.fromisoformat(_ts).strftime('%H:%M')
+                except Exception:
+                    pass
+            _uid = st.session_state.get('user_id', 'U')
+            _initials = (_uid[:2].upper()) if _uid else 'U'
             st.markdown(f"""
                 <div class="chat-message user-message">
-                    <strong>You:</strong> {message['content']}
+                    <div class="message-header">
+                        <span class="avatar avatar-user">{_initials}</span>
+                        <span class="msg-name">You</span>
+                        <span class="msg-time">{_ts_fmt}</span>
+                    </div>
+                    {html.escape(message['content'])}
                 </div>
             """, unsafe_allow_html=True)
         else:
             body_md, sources = _split_answer_and_sources(message['content'])
+            _ts = message.get('timestamp', '')
+            _ts_fmt = ''
+            if _ts:
+                try:
+                    _ts_fmt = datetime.fromisoformat(_ts).strftime('%H:%M')
+                except Exception:
+                    pass
             st.markdown(f"""
                 <div class="chat-message assistant-message">
-                    <strong>Ray Peat AI:</strong>
+                    <div class="message-header">
+                        <span class="avatar avatar-ai">🌿</span>
+                        <span class="msg-name">Ray Peat AI</span>
+                        <span class="msg-time">{_ts_fmt}</span>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
             # Render markdown body first (allows headings/lists)
@@ -995,13 +1714,18 @@ def render_quiz_interface():
     if not st.session_state.get('user_id'):
         st.info("Enter your user ID first.")
         return
-    st.subheader("🎯 Personalized Quiz")
+    st.markdown('<div class="section-header"><h3>🎯 Personalized Quiz</h3></div>', unsafe_allow_html=True)
 
     # Debug toggle
     debug_mode = st.toggle("Show adaptive debug info", value=False, help="Displays ability, item difficulty and target anchors.")
 
     # Session-based quiz flow using new endpoints
     if st.session_state.get('quiz_active') and st.session_state.get('quiz_session_id'):
+        _answered = st.session_state.get('quiz_answered', 0)
+        _total_q = st.session_state.get('quiz_num_questions', 5)
+        _progress = min(_answered / _total_q, 1.0)
+        st.markdown(f'<div class="quiz-progress-label">Question {_answered + 1} of {_total_q}</div>', unsafe_allow_html=True)
+        st.progress(_progress)
         session_id = st.session_state.quiz_session_id
         # Fetch next item if we don't have a current one
         if 'quiz_current_item' not in st.session_state or st.session_state.quiz_current_item is None:
@@ -1029,7 +1753,11 @@ def render_quiz_interface():
                 st.session_state.quiz_session_id = None
                 return
         item = st.session_state.quiz_current_item
-        st.write(f"**Question:** {item.get('stem','')}")
+        st.markdown(f"""
+        <div class="quiz-question-card">
+            {html.escape(item.get('stem', ''))}
+        </div>
+        """, unsafe_allow_html=True)
         if debug_mode:
             cols_dbg = st.columns(3)
             cols_dbg[0].metric("Item difficulty (b)", f"{item.get('difficulty_b', 0.5):.2f}")
@@ -1041,9 +1769,13 @@ def render_quiz_interface():
         ctx = item.get('passage_excerpt') or ''
         src = item.get('source_file') or ''
         if ctx:
-            st.markdown(f"<div class='metric-card'><small><strong>Passage</strong></small><br/>{html.escape(ctx)}</div>", unsafe_allow_html=True)
-        if src:
-            st.caption(f"Source: {src}")
+            _src_line = f'<div class="passage-source">📄 {html.escape(src)}</div>' if src else ''
+            st.markdown(f"""
+            <div class="passage-card">
+                {html.escape(ctx)}
+                {_src_line}
+            </div>
+            """, unsafe_allow_html=True)
         options = item.get('options', [])
         choice = st.radio("Choose an option:", options=[f"{chr(65+i)}. {opt}" for i, opt in enumerate(options)], key=f"quiz_choice_{item.get('item_id')}")
         colA, colB = st.columns([1,1])
@@ -1068,6 +1800,7 @@ def render_quiz_interface():
                     else:
                         st.error(f"Incorrect. Correct answer: {chr(65 + int(res.get('correct_index',0)))}")
                 st.session_state.quiz_current_item = None
+                st.session_state.quiz_answered = st.session_state.get('quiz_answered', 0) + 1
                 st.rerun()
         with colB:
             if st.button("Cancel Quiz"):
@@ -1090,7 +1823,15 @@ def render_quiz_interface():
     # Show last result if available
     if st.session_state.get('quiz_result'):
         res = st.session_state.quiz_result
-        st.info(f"Last quiz: {res.get('correct',0)}/{res.get('total',0)} correct ({res.get('score_percentage',0):.1f}%)")
+        _correct = res.get('correct', 0)
+        _total = res.get('total', 0)
+        _pct = res.get('score_percentage', 0)
+        st.markdown(f"""
+        <div class="quiz-result-card">
+            <div class="qr-score">{_correct}/{_total}</div>
+            <div class="qr-label">Last quiz — {_pct:.1f}% correct</div>
+        </div>
+        """, unsafe_allow_html=True)
     if st.button("Start Quiz", type="primary"):
         try:
             payload = {"user_id": st.session_state.user_id, "num_questions": num_q}
@@ -1103,6 +1844,8 @@ def render_quiz_interface():
                 st.session_state.quiz_session_id = data.get('session_id')
                 st.session_state.quiz_active = True
                 st.session_state.quiz_current_item = None
+                st.session_state.quiz_num_questions = num_q
+                st.session_state.quiz_answered = 0
                 st.rerun()
             else:
                 st.error(f"Failed to generate quiz: {r.text}")
@@ -1194,6 +1937,66 @@ Expected prob:   expected = σ(1.7 · (θ − b))
     st.subheader("Project Links")
     st.markdown("- `docs/RAY_Peat_IN_MEMORIAM.md` (full memorial page)\n- README for architecture and endpoints")
 
+def render_landing_page():
+    """Full-screen centered onboarding — no sidebar, just a greeting + name input."""
+    # Hide sidebar entirely on landing
+    st.markdown("""
+    <style>
+    section[data-testid="stSidebar"] { display: none !important; }
+    [data-testid="stAppViewContainer"] > .main > .block-container {
+        max-width: 560px !important;
+        margin: 0 auto !important;
+        padding-top: 8vh !important;
+        padding-bottom: 4rem !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="landing-wrap">
+        <span class="landing-icon">🌿</span>
+        <div class="landing-hello">Hello there 👋</div>
+        <p class="landing-sub">
+            Welcome to PeatLearn — your AI-powered guide to Dr. Ray Peat's
+            bioenergetic philosophy. What's your name?
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_l, col_c, col_r = st.columns([1, 4, 1])
+    with col_c:
+        with st.form("landing_form", clear_on_submit=False):
+            name = st.text_input(
+                "Your name",
+                placeholder="Enter your name...",
+                label_visibility="collapsed",
+            )
+            submitted = st.form_submit_button(
+                "Start Learning →",
+                use_container_width=True,
+                type="primary",
+            )
+            if submitted:
+                if name.strip():
+                    data_logger, ai_profiler, _, _, _, _, _ = init_adaptive_system()
+                    st.session_state.user_id = name.strip()
+                    st.session_state.session_id = data_logger.get_session_id()
+                    st.session_state.user_profile = ai_profiler.get_user_profile(name.strip())
+                    st.rerun()
+                else:
+                    st.error("Please enter your name to continue.")
+
+    st.markdown("""
+    <div class="landing-features">
+        <span class="landing-feature-pill">🔬 552+ Source Documents</span>
+        <span class="landing-feature-pill">🤖 Gemini 2.5 AI</span>
+        <span class="landing-feature-pill">🎯 Adaptive Quizzes</span>
+        <span class="landing-feature-pill">📊 Learning Profile</span>
+        <span class="landing-feature-pill">💡 Personalized Recs</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 def main():
     """Main application"""
     init_session_state()
@@ -1210,9 +2013,9 @@ def main():
     import atexit
     atexit.register(cleanup_observers)
     
-    # Check if user is set up
+    # Check if user is set up — show full-screen landing if not
     if not st.session_state.user_id:
-        render_user_setup()
+        render_landing_page()
         st.stop()
     
     # Sidebar user info and navigation
@@ -1232,43 +2035,125 @@ def main():
         render_quiz_interface()
     
     with tab4:
-        st.subheader("📈 Learning Analytics")
+        st.markdown('<div class="section-header"><h3>📈 Learning Analytics</h3></div>', unsafe_allow_html=True)
         if not st.session_state.user_id:
             st.info("Enter your user ID to view analytics.")
         else:
-            ok = False
+            # --- Quiz history (always available, reads directly from SQLite) ---
+            qh_ok = False
+            qh_data = {}
+            try:
+                qh_r = requests.get(f"http://localhost:8001/api/analytics/quiz-history/{st.session_state.user_id}", timeout=8)
+                if qh_r.status_code == 200:
+                    qh_ok = True
+                    qh_data = qh_r.json()
+            except Exception:
+                pass
+
+            if qh_ok and qh_data.get('sessions'):
+                sessions = qh_data['sessions']
+                total_sessions = qh_data.get('total_sessions', 0)
+                avg_score = sum(s['score_pct'] for s in sessions) / len(sessions) if sessions else 0
+                last_score = sessions[-1]['score_pct'] if sessions else 0
+
+                st.markdown(f"""
+                <div class="stat-cards-row three-col">
+                    <div class="stat-card">
+                        <span class="sc-icon">🎯</span>
+                        <div class="sc-value">{total_sessions}</div>
+                        <div class="sc-label">Quizzes Taken</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="sc-icon">📊</span>
+                        <div class="sc-value">{avg_score:.0f}%</div>
+                        <div class="sc-label">Avg Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="sc-icon">⚡</span>
+                        <div class="sc-value">{last_score:.0f}%</div>
+                        <div class="sc-label">Last Score</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # Score over time chart
+                df_sessions = pd.DataFrame(sessions)
+                fig_scores = px.line(
+                    df_sessions, x='session_num', y='score_pct',
+                    title="Quiz Score Over Time",
+                    markers=True,
+                    labels={'session_num': 'Quiz #', 'score_pct': 'Score (%)'},
+                    color_discrete_sequence=['#0EA5E9'],
+                    template='plotly_dark',
+                )
+                fig_scores.add_hline(y=avg_score, line_dash='dot', line_color='#34D399',
+                                     annotation_text=f"avg {avg_score:.0f}%",
+                                     annotation_font_color='#34D399')
+                fig_scores.update_layout(
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font_family='Nunito',
+                    title_font_size=15,
+                    yaxis_range=[0, 105],
+                )
+                fig_scores.update_xaxes(gridcolor='rgba(255,255,255,0.06)', dtick=1)
+                fig_scores.update_yaxes(gridcolor='rgba(255,255,255,0.06)')
+                st.plotly_chart(fig_scores, use_container_width=True)
+
+                # Topic mastery bar chart
+                if qh_data.get('mastery'):
+                    df_mastery = pd.DataFrame(qh_data['mastery'])
+                    df_mastery.columns = ['Topic', 'Ability']
+                    fig_mastery = px.bar(
+                        df_mastery.head(12), x='Topic', y='Ability',
+                        title="Topic Ability (IRT θ)",
+                        color_discrete_sequence=['#34D399'],
+                        template='plotly_dark',
+                    )
+                    fig_mastery.update_layout(
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        font_family='Nunito',
+                        title_font_size=15,
+                    )
+                    fig_mastery.update_xaxes(gridcolor='rgba(255,255,255,0.06)')
+                    fig_mastery.update_yaxes(gridcolor='rgba(255,255,255,0.06)')
+                    st.plotly_chart(fig_mastery, use_container_width=True)
+            else:
+                st.info("No quiz sessions recorded yet. Complete a quiz to see your analytics.")
+
+            # --- Advanced ML analytics (optional, in-memory personalization engine) ---
+            adv_ok = False
             try:
                 r = requests.get(f"http://localhost:8001/api/analytics/user/{st.session_state.user_id}", timeout=8)
-                ok = r.status_code == 200
+                adv_ok = r.status_code == 200
             except Exception:
-                ok = False
-            if ok:
+                pass
+            if adv_ok:
                 data = r.json().get('user_analytics', {})
-                if 'error' in data:
-                    st.info("No analytics yet. Interact more to build your profile.")
-                else:
-                    cols = st.columns(3)
-                    cols[0].metric("Avg Mastery", f"{data.get('average_mastery',0):.2f}")
-                    cols[1].metric("Learning Velocity", f"{data.get('learning_velocity',0):.2f}")
-                    cols[2].metric("Preferred Difficulty", f"{data.get('preferred_difficulty',0):.2f}")
-                    top_topics = data.get('top_topics', [])
-                    if top_topics:
-                        if isinstance(top_topics[0], dict):
-                            df_top = pd.DataFrame(top_topics)
-                            if 'name' in df_top.columns and 'importance' in df_top.columns:
-                                df_top.rename(columns={'name':'Topic','importance':'Mastery'}, inplace=True)
-                        else:
-                            df_top = pd.DataFrame(top_topics, columns=["Topic","Mastery"]) 
-                        st.bar_chart(df_top.set_index(df_top.columns[0]))
-            else:
-                st.info("Analytics service unavailable. Showing local session stats.")
-                data_logger, ai_profiler, content_selector, quiz_generator, dashboard, rag_system, topic_model = init_adaptive_system()
-                all_interactions = data_logger._load_interactions()
-                user_interactions = all_interactions.loc[all_interactions['user_id'] == st.session_state.user_id].copy()
-                if not user_interactions.empty:
-                    user_interactions['timestamp'] = pd.to_datetime(user_interactions['timestamp'])
-                    daily = user_interactions.groupby(user_interactions['timestamp'].dt.date).size()
-                    st.line_chart(daily)
+                if data and 'error' not in data:
+                    with st.expander("Advanced ML Profile", expanded=False):
+                        top_topics = data.get('top_topics', [])
+                        if top_topics:
+                            if isinstance(top_topics[0], dict):
+                                df_top = pd.DataFrame(top_topics)
+                                if 'name' in df_top.columns and 'importance' in df_top.columns:
+                                    df_top.rename(columns={'name': 'Topic', 'importance': 'Mastery'}, inplace=True)
+                            else:
+                                df_top = pd.DataFrame(top_topics, columns=["Topic", "Mastery"])
+                            fig_top = px.bar(df_top, x=df_top.columns[0], y=df_top.columns[1],
+                                             title="Top Topics by Mastery",
+                                             color_discrete_sequence=['#0EA5E9'],
+                                             template='plotly_dark')
+                            fig_top.update_layout(
+                                paper_bgcolor='rgba(0,0,0,0)',
+                                plot_bgcolor='rgba(0,0,0,0)',
+                                font_family='Nunito',
+                                title_font_size=15,
+                            )
+                            fig_top.update_xaxes(gridcolor='rgba(255,255,255,0.06)')
+                            fig_top.update_yaxes(gridcolor='rgba(255,255,255,0.06)')
+                            st.plotly_chart(fig_top, use_container_width=True)
 
     with tab5:
         # Import and use the enhanced memorial

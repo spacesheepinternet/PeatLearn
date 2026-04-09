@@ -40,7 +40,7 @@ except ImportError:
             load_dotenv()
             self.GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
             self.EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'gemini-embedding-001')
-            self.EMBEDDING_DIMENSIONS = int(os.getenv('EMBEDDING_DIMENSIONS', '768'))
+            self.EMBEDDING_DIMENSIONS = int(os.getenv('EMBEDDING_DIMENSIONS', '3072'))
     
     settings = Settings()
 
@@ -93,7 +93,7 @@ class PineconeConfig:
     """Configuration for Pinecone upload."""
     api_key: str
     index_name: str = "ray-peat-corpus"
-    vector_dimension: int = 768
+    vector_dimension: int = 3072
     metric: str = "cosine"
     cloud: str = "aws"
     region: str = "us-east-1"

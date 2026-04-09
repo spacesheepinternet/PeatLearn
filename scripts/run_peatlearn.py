@@ -15,15 +15,16 @@ def check_requirements():
         'streamlit',
         'plotly', 
         'pandas',
-        'google-generativeai',
+        'google-genai',
         'python-dotenv'
     ]
     
     missing_packages = []
     
+    _import_map = {'google-genai': 'google.genai'}
     for package in required_packages:
         try:
-            __import__(package.replace('-', '_'))
+            __import__(_import_map.get(package, package.replace('-', '_')))
         except ImportError:
             missing_packages.append(package)
     

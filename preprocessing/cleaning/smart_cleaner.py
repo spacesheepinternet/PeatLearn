@@ -13,7 +13,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -37,11 +37,11 @@ class SmartCleaner:
         """Initialize with API key."""
         api_key = os.getenv('GOOGLE_API_KEY') or os.getenv('GEMINI_API_KEY')
         if api_key:
-            genai.configure(api_key=api_key)
-            self.ai_model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            self.client = genai.Client(api_key=api_key)
+            self._model_name = 'gemini-2.5-flash-lite'
             logger.info("✅ AI cleaning available")
         else:
-            self.ai_model = None
+            self.client = None
             logger.warning("⚠️ No API key - rules-based cleaning only")
     
     def detect_noise_level(self, content: str) -> float:
@@ -109,7 +109,7 @@ class SmartCleaner:
     
     def ai_smart_clean(self, content: str) -> str:
         """Use AI to intelligently clean noisy content while preserving all Ray Peat material."""
-        if not self.ai_model:
+        if not self.client:
             return content
         
         prompt = f"""
@@ -142,7 +142,7 @@ Return the cleaned content:
 """
         
         try:
-            response = self.ai_model.generate_content(prompt)
+            response = self.client.models.generate_content(model=self._model_name, contents=prompt)
             return response.text
         except Exception as e:
             logger.error(f"AI cleaning failed: {e}")
@@ -173,7 +173,7 @@ Return the cleaned content:
             cleaned = self.rules_based_clean(original)
             
             # Use AI if still noisy after rules-based cleaning
-            if noise_level > NOISE_THRESHOLD and self.ai_model:
+            if noise_level > NOISE_THRESHOLD and self.client:
                 logger.info(f"🤖 AI cleaning (noise: {noise_level:.1%}): {file_path.name}")
                 final_content = self.ai_smart_clean(cleaned)
                 method = 'ai_enhanced'

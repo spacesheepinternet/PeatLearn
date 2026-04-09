@@ -40,7 +40,7 @@ class PineconeManager:
         self.index_name = index_name
         self.pc = None
         self.index = None
-        self.dimension: int = 768
+        self.dimension: int = 3072
         
         # Load environment variables
         load_dotenv(Path(__file__).parent.parent.parent / ".env")
@@ -283,7 +283,7 @@ class PineconeManager:
         try:
             # Get all vectors with metadata
             import numpy as np
-            dummy_vector = np.zeros(768).tolist()
+            dummy_vector = np.zeros(3072).tolist()
             
             all_metadata = []
             

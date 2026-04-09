@@ -12,9 +12,15 @@ Focus on:
 import re
 import json
 import logging
+import os
 from pathlib import Path
-import google.generativeai as genai
+from google import genai
 from typing import Dict, List, Tuple, Optional
+
+_AI_MODEL = 'gemini-2.0-flash-exp'
+
+def _get_client() -> genai.Client:
+    return genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -95,7 +101,7 @@ Content to segment:
 {content}
 """
 
-def extract_ray_peat_signal(content: str, model=None) -> Dict:
+def extract_ray_peat_signal(content: str) -> Dict:
     """
     Extract pure Ray Peat signal from noisy content using AI.
     
@@ -115,12 +121,10 @@ def extract_ray_peat_signal(content: str, model=None) -> Dict:
             "signal_quality": "low"
         }
     
-    if model is None:
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
-    
     try:
-        prompt = RAY_PEAT_SIGNAL_EXTRACTION_PROMPT.format(content=content[:50000])  # Limit for API
-        response = model.generate_content(prompt)
+        client = _get_client()
+        prompt = RAY_PEAT_SIGNAL_EXTRACTION_PROMPT.format(content=content[:50000])
+        response = client.models.generate_content(model=_AI_MODEL, contents=prompt)
         
         # Clean and parse JSON response
         clean_response = response.text.strip()
@@ -147,7 +151,7 @@ def extract_ray_peat_signal(content: str, model=None) -> Dict:
             "error": str(e)
         }
 
-def segment_ray_peat_content(content: str, model=None) -> Dict:
+def segment_ray_peat_content(content: str) -> Dict:
     """
     Segment cleaned Ray Peat content into focused topic-based chunks.
     
@@ -165,12 +169,10 @@ def segment_ray_peat_content(content: str, model=None) -> Dict:
             "extraction_summary": "Content too short for segmentation"
         }
     
-    if model is None:
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
-    
     try:
+        client = _get_client()
         prompt = CONVERSATION_SEGMENTATION_PROMPT.format(content=content[:50000])
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model=_AI_MODEL, contents=prompt)
         
         # Clean and parse JSON response
         clean_response = response.text.strip()
@@ -200,7 +202,7 @@ def segment_ray_peat_content(content: str, model=None) -> Dict:
             "extraction_summary": f"Segmentation failed: {str(e)}"
         }
 
-def enhance_tier1_with_signal_extraction(input_dir: str, output_dir: str, model=None) -> Dict:
+def enhance_tier1_with_signal_extraction(input_dir: str, output_dir: str) -> Dict:
     """
     Re-process Tier 1 files with enhanced signal extraction.
     
@@ -224,9 +226,6 @@ def enhance_tier1_with_signal_extraction(input_dir: str, output_dir: str, model=
         "segments_created": 0
     }
     
-    if model is None:
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
-    
     for file_path in input_path.glob("*.txt"):
         try:
             logger.info(f"Enhancing signal extraction for: {file_path.name}")
@@ -236,7 +235,7 @@ def enhance_tier1_with_signal_extraction(input_dir: str, output_dir: str, model=
                 content = f.read()
             
             # Extract pure Ray Peat signal
-            signal_result = extract_ray_peat_signal(content, model)
+            signal_result = extract_ray_peat_signal(content)
             
             if signal_result["signal_quality"] in ["high", "medium"] and \
                signal_result["ray_peat_percentage"] >= 20:
@@ -244,7 +243,7 @@ def enhance_tier1_with_signal_extraction(input_dir: str, output_dir: str, model=
                 # Segment if it's substantial content
                 if len(signal_result["extracted_content"]) > 1000:
                     segment_result = segment_ray_peat_content(
-                        signal_result["extracted_content"], model
+                        signal_result["extracted_content"]
                     )
         
                     # Save segmented content
@@ -315,9 +314,8 @@ def enhance_tier1_with_signal_extraction(input_dir: str, output_dir: str, model=
     return stats
 
 if __name__ == "__main__":
-    # Test the functions
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        _get_client()
         print("Enhanced AI cleaners module loaded successfully")
         print("Gemini API connection established")
     except Exception as e:

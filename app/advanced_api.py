@@ -252,6 +252,29 @@ def _ensure_adaptive_schema() -> None:
     conn.commit()
     conn.close()
 
+def _purge_bad_quiz_items() -> None:
+    """Remove items whose stems contain old meta-reference phrases that broke the quiz UX."""
+    bad_patterns = [
+        "According to the excerpt",
+        "Based on the passage",
+        "supported by the passage",
+        "as implied in the excerpt",
+        "per the passage",
+    ]
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        for pat in bad_patterns:
+            cur.execute("DELETE FROM quiz_items WHERE stem LIKE ?", (f"%{pat}%",))
+        deleted = conn.total_changes
+        conn.commit()
+        conn.close()
+        if deleted:
+            print(f"[INFO] Purged {deleted} stale quiz items with meta-reference stems.")
+    except Exception as e:
+        print(f"[WARN] Could not purge bad quiz items: {e}")
+
+
 def _get_user_abilities(user_id: str) -> dict:
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
@@ -358,14 +381,16 @@ def _parse_llm_mcq_json(payload: str) -> dict | None:
 def _llm_generate_mcq_from_passage(topic: str, passage_text: str, target_difficulty: float) -> dict | None:
     """Use LLM to generate a high-quality, grounded MCQ from a passage."""
     prompt = (
-        "You are an expert tutor grounded in Ray Peat's corpus. Create ONE multiple-choice question grounded STRICTLY in the given passage.\n"
-        "- Calibrate difficulty around the target difficulty (0=easy, 1=hard): {difficulty:.2f}.\n"
-        "- The stem must reference or paraphrase the passage precisely.\n"
-        "- Include 1-2 short direct quotes from the passage in the explanation to justify the correct answer.\n"
-        "- Options must be plausible and mutually exclusive; exactly one correct.\n"
-        "Return a JSON object with keys: stem, options (array of 4), correct_index (0-3), explanation.\n"
-        "Passage:\n" + passage_text[:1600]
-    ).format(difficulty=target_difficulty)
+        "You are an expert tutor grounded in Ray Peat's bioenergetic corpus. Create ONE multiple-choice question about the topic '{topic}'.\n"
+        "Rules:\n"
+        "- The question must be self-contained — do NOT use phrases like 'According to the passage', 'As stated in the excerpt', 'Based on the above', or any reference to a 'passage' or 'text'.\n"
+        "- Ask a direct factual question a student should know, e.g. 'What role does X play in Y?' or 'Which of the following best describes X?'\n"
+        "- Calibrate difficulty to {difficulty:.2f} (0=easy, 1=hard).\n"
+        "- Include 1-2 short quotes from the provided context in the explanation field only (not in the stem or options).\n"
+        "- Options must be concise (under 20 words each), plausible, and mutually exclusive; exactly one correct.\n"
+        "Return ONLY a JSON object with keys: stem, options (array of 4 strings), correct_index (0-3), explanation.\n"
+        "Context (for grounding — do NOT reference it in the stem/options):\n" + passage_text[:1600]
+    ).format(topic=topic, difficulty=target_difficulty)
     raw = llm_call(prompt)
     parsed = _parse_llm_mcq_json(raw)
     if not parsed:
@@ -438,15 +463,15 @@ async def _seed_items_for_topics(
                     explanation = templ.get("rationale") or ""
                 except Exception:
                     key_phrase = topic.split()[0].capitalize() if topic else "Topic"
-                    stem = f"Which statement is supported by the passage about {key_phrase}?"
+                    stem = f"Which statement best describes the role of {key_phrase} in Ray Peat's bioenergetic framework?"
                     options = [
-                        f"{key_phrase} supports metabolic health in the bioenergetic view.",
-                        f"{key_phrase} should generally be avoided according to the excerpt.",
-                        f"{key_phrase} has no meaningful metabolic impact per the passage.",
-                        f"{key_phrase} only matters in rare cases as implied in the excerpt.",
+                        f"{key_phrase} plays a central role in supporting cellular energy and metabolic health.",
+                        f"{key_phrase} is generally harmful and should be minimized in a healthy metabolism.",
+                        f"{key_phrase} has no meaningful effect on mitochondrial or metabolic function.",
+                        f"{key_phrase} only becomes relevant under conditions of severe nutritional deficiency.",
                     ]
                     correct_index = 0
-                    explanation = "This option most closely aligns with the cited passage."
+                    explanation = "Ray Peat's bioenergetic framework emphasizes the importance of this factor in cellular energy production."
             try:
                 cur.execute(
                     "INSERT INTO quiz_items (item_id, topic, stem, options, correct_index, explanation, passage_excerpt, source_file, difficulty_b, discrimination_a, guessing_c, type, validated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -562,6 +587,8 @@ async def startup_event():
     # Ensure quiz schema exists
     _ensure_quiz_schema()
     _ensure_adaptive_schema()
+    # Remove stale items generated with old meta-reference stems
+    _purge_bad_quiz_items()
 
 # Basic endpoints (existing)
 @app.get("/")
@@ -1181,6 +1208,85 @@ async def quiz_finish(session_id: str):
     conn.close()
     pct = (correct_ct / total * 100.0) if total else 0.0
     return {"correct": correct_ct, "total": total, "score_percentage": pct}
+
+@app.get("/api/analytics/quiz-history/{user_id}")
+async def get_quiz_history(user_id: str):
+    """Return per-session quiz scores for a user, read directly from SQLite."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        # Get finished sessions for this user, ordered by start time
+        cur.execute(
+            """
+            SELECT s.session_id, s.started_at, s.finished_at, s.topics,
+                   COUNT(CASE WHEN e.correct=1 THEN 1 END) as correct_ct,
+                   COUNT(e.item_id) as total
+            FROM quiz_sessions s
+            LEFT JOIN quiz_events e ON s.session_id = e.session_id
+            WHERE s.user_id = ? AND s.status = 'finished'
+            GROUP BY s.session_id
+            ORDER BY s.started_at ASC
+            """,
+            (user_id,),
+        )
+        rows = cur.fetchall()
+        # Ability progression per topic
+        cur.execute(
+            """
+            SELECT topic, ability, updated_at
+            FROM user_ability_history
+            WHERE user_id = ?
+            ORDER BY updated_at ASC
+            """,
+            (user_id,),
+        )
+        ability_rows = cur.fetchall()
+        # Topic mastery summary
+        cur.execute(
+            "SELECT topic, ability FROM user_abilities WHERE user_id = ? ORDER BY ability DESC",
+            (user_id,),
+        )
+        mastery_rows = cur.fetchall()
+        conn.close()
+
+        sessions = []
+        for i, (sid, started, finished, topics_json, correct, total) in enumerate(rows):
+            pct = round(correct / total * 100.0, 1) if total else 0.0
+            try:
+                topics = json.loads(topics_json) if topics_json else []
+            except Exception:
+                topics = []
+            sessions.append({
+                "session_num": i + 1,
+                "session_id": sid,
+                "started_at": started,
+                "finished_at": finished,
+                "topics": topics,
+                "correct": correct,
+                "total": total,
+                "score_pct": pct,
+            })
+
+        ability_history = [
+            {"topic": t, "ability": round(float(a), 3), "updated_at": ts}
+            for t, a, ts in ability_rows
+        ]
+        mastery = [
+            {"topic": t, "ability": round(float(a), 3)}
+            for t, a in mastery_rows
+        ]
+
+        return {
+            "user_id": user_id,
+            "sessions": sessions,
+            "ability_history": ability_history,
+            "mastery": mastery,
+            "total_sessions": len(sessions),
+            "timestamp": datetime.now().isoformat(),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # Health check
 @app.get("/api/health")

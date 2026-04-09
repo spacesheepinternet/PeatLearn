@@ -4,13 +4,13 @@ Upload local embeddings to a Hugging Face dataset repository.
 
 Usage:
   python embedding/upload_to_hf.py \
-    --repo abanwild/peatlearn-embeddings \
+    --repo your-username/peatlearn-embeddings \
     --path embedding/vectors \
     --private false
 
 Environment variables (preferred):
   HF_TOKEN=hf_...                # Hugging Face token with write access
-  HF_DATASET_REPO=owner/name     # e.g., abanwild/peatlearn-embeddings
+  HF_DATASET_REPO=owner/name     # e.g., your-username/peatlearn-embeddings
 
 Notes:
 - Only files matching patterns (npy/pkl/json/zip) are uploaded.

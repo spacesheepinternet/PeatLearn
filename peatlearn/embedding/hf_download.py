@@ -3,11 +3,11 @@
 Download embeddings from a Hugging Face dataset repository into local folder.
 
 Usage:
-  python embedding/download_from_hf.py --repo abanwild/peatlearn-embeddings --dest embedding/vectors
+  python embedding/download_from_hf.py --repo your-username/peatlearn-embeddings --dest embedding/vectors
 
 Environment variables (preferred):
   HF_TOKEN            # Optional for public repos; required for private
-  HF_DATASET_REPO     # e.g., abanwild/peatlearn-embeddings
+  HF_DATASET_REPO     # e.g., your-username/peatlearn-embeddings
 """
 from __future__ import annotations
 import argparse

@@ -12,33 +12,31 @@ import re
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple
 
-import google.generativeai as genai
 import requests
 from dotenv import load_dotenv
+from google import genai
+from google.genai import types
 
 from .profile_analyzer import TopicExtractor
 
 # Load environment variables from .env file
 load_dotenv()
 
-QUIZ_LLM_PROVIDER = "gemini"
+QUIZ_MODEL = "gemini-2.5-flash-lite"
+GENERATION_CONFIG = types.GenerateContentConfig(
+    temperature=0.6,
+    top_p=0.95,
+    top_k=32,
+    max_output_tokens=800,
+    response_mime_type="application/json",
+)
 
-# Configure the Gemini API (optional)
-MODEL = None
+_CLIENT = None
 try:
-    if QUIZ_LLM_PROVIDER in ("gemini", "auto"):
-        api_key = os.environ.get("GEMINI_API_KEY")
-        if api_key:
-            genai.configure(api_key=api_key)
-            GENERATION_CONFIG = {
-                "temperature": 0.6,
-                "top_p": 0.95,
-                "top_k": 32,
-                "max_output_tokens": 800,
-                "response_mime_type": "application/json",
-            }
-            MODEL = genai.GenerativeModel(model_name="gemini-2.5-flash-lite", generation_config=GENERATION_CONFIG)
-            print("Gemini API configured successfully.")
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if api_key:
+        _CLIENT = genai.Client(api_key=api_key)
+        print("Gemini API configured successfully.")
 except Exception as e:
     print(f"Gemini configuration failed: {e}")
 
@@ -46,51 +44,28 @@ def call_llm_api(prompt: str) -> str:
     """
     Calls the Gemini LLM API and returns the JSON response as a string.
     """
-    # Gemini only, with short backoff on 429
-    if MODEL is None:
-        print("Error: Gemini model not configured.")
+    if _CLIENT is None:
+        print("Error: Gemini client not configured.")
         return "{}"
+    import time
     attempts = 0
-    last_error = None
     while attempts < 2:
         attempts += 1
         try:
-            response = MODEL.generate_content(prompt)
-            # Prefer safe extraction from candidates
-            try:
-                if getattr(response, "candidates", None):
-                    for cand in response.candidates:
-                        fr = getattr(cand, "finish_reason", None)
-                        if fr is not None and str(fr).lower() not in ("stop", "finish_reason.stop"):
-                            continue
-                        parts = getattr(cand, "content", None)
-                        if parts and getattr(parts, "parts", None):
-                            texts = []
-                            for p in parts.parts:
-                                t = getattr(p, "text", None)
-                                if t:
-                                    texts.append(t)
-                            if texts:
-                                return "\n".join(texts)
-            except Exception:
-                pass
-            try:
-                return response.text
-            except Exception:
-                pass
-            return "{}"
+            response = _CLIENT.models.generate_content(
+                model=QUIZ_MODEL,
+                contents=prompt,
+                config=GENERATION_CONFIG,
+            )
+            return response.text
         except Exception as e:
             last_error = str(e)
-            # Minimal respect of retry delay if present in message
-            import re, time
             m = re.search(r"retry_delay\s*\{\s*seconds:\s*(\d+)", last_error)
-            delay = int(m.group(1)) if m else 5
-            delay = min(delay, 8)
+            delay = min(int(m.group(1)) if m else 5, 8)
             if attempts < 2:
                 time.sleep(delay)
             else:
                 print(f"Error calling Gemini API: {e}")
-                break
     return "{}"
 
 class QuizGenerator:

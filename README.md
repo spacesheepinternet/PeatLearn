@@ -129,7 +129,7 @@ Raw Data → Quality Analysis → AI-Powered Cleaning → Segmentation → Embed
 Our embeddings are hosted separately to keep the codebase lightweight:
 
 - **Code Repository**: [GitHub](https://github.com/thewildofficial/PeatLearn) (this repo)
-- **Embeddings Dataset**: [Hugging Face](https://huggingface.co/datasets/abanwild/peatlearn-embeddings)
+- **Embeddings Dataset**: Hugging Face (set `HF_DATASET_REPO` in `.env`)
 
 This hybrid approach allows:
 - ✅ Fast code sharing and collaboration

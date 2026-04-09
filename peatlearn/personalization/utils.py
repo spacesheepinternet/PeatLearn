@@ -142,17 +142,21 @@ def generate_mcq_from_passage(
         if len(central) > 220:
             central = central[:220].rsplit(" ", 1)[0] + "..."
 
-    # Build stem
-    stem = f"According to the excerpt, which statement best reflects the passage?"
+    # Build stem — direct factual question, no meta-references to "the passage" or "the excerpt"
+    topic_label = (topic or "this topic").strip()
+    stem = f"Which of the following statements about {topic_label} is most accurate?"
 
-    # Correct option is a light paraphrase or the sentence itself
-    correct = central
-    # Simple distractors
+    # Correct option: trim to a concise claim (first clause before comma/semicolon, or first 120 chars)
+    correct = re.split(r"[,;]", central)[0].strip()
+    if len(correct) > 130:
+        correct = correct[:130].rsplit(" ", 1)[0] + "..."
+
+    # Distractors grounded in the topic, not in "the passage"
     negation = re.sub(r"\b(is|are|was|were|supports|promotes|increases|reduces)\b",
-                      "does not", central, flags=re.IGNORECASE)
-    distortion = f"{central.split(',')[0]} in only rare cases, if at all."
-    unrelated = f"The passage argues an unrelated point about {(topic or 'another topic')} instead."
-    options = [correct, negation, distortion, unrelated][:num_options]
+                      "does not", correct, flags=re.IGNORECASE)
+    distortion = f"{correct.split()[0] if correct else topic_label} has only a minor role in metabolic regulation."
+    contrast = f"The opposite of {topic_label} is generally preferred for optimal cellular energy."
+    options = [correct, negation, distortion, contrast][:num_options]
 
     difficulty = estimate_difficulty_score(text)
 

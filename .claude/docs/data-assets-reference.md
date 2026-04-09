@@ -64,7 +64,7 @@ Source: `data/raw/Ray Peat Anthology.xlsx`
 | `embeddings_20250728_221826.npy` | Float32 matrix, shape `(552, 768)` |
 | `embeddings_20250728_221826.pkl` | List of dicts: `{id, context, ray_peat_response, source_file, tokens}` |
 
-HuggingFace mirror: `abanwild/peatlearn-embeddings`
+HuggingFace mirror: set via `HF_DATASET_REPO` env variable
 
 To download:
 ```bash

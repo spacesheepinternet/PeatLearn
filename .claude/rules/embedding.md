@@ -20,13 +20,13 @@ paths:
 ## Embedding Spec
 
 - Model: `gemini-embedding-001`
-- Dimensions: **768** — hardcoded in Pinecone index and `config/settings.py`
+- Dimensions: **3072** — native Gemini output, hardcoded in Pinecone index and `config/settings.py`
 - Batch size: 10 (Gemini rate limit safe)
 - Output format: `data/embeddings/vectors/embeddings_<timestamp>.npy` + matching `.pkl` metadata
 
 ## HuggingFace Sync
 
-- Repository: `abanwild/peatlearn-embeddings`
+- Repository: set via `HF_DATASET_REPO` env variable
 - Download before a fresh embed run to avoid re-embedding already-done docs.
 - Upload after a full embed run completes.
 
@@ -43,7 +43,7 @@ paths:
 - Latest embedding file: `data/embeddings/vectors/embeddings_20250728_221826.npy`
 
 ## Do Not
-- Do not change embedding dimensions from 768 — would require re-creating the Pinecone index and re-embedding all 552 docs.
+- Do not change embedding dimensions from 3072 — would require re-creating the Pinecone index and re-embedding all 552 docs.
 - Do not embed in the main thread during a server request — it blocks.
 - Do not delete `data/embeddings/cache/` — it saves API cost on re-runs.
 - Do not commit `.npy`/`.pkl` embedding files to git — they are large binary assets.

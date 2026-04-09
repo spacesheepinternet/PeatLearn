@@ -52,15 +52,16 @@ def check_packages():
         'fastapi',
         'uvicorn',
         'pinecone-client',
-        'google-generativeai',
+        'google-genai',
         'python-dotenv',
         'pandas',
         'numpy'
     ]
     
+    _import_map = {'google-genai': 'google.genai'}
     for package in required:
         try:
-            __import__(package.replace('-', '_'))
+            __import__(_import_map.get(package, package.replace('-', '_')))
             print(f"  ✅ {package}")
         except ImportError:
             print(f"  ❌ {package} - NOT INSTALLED")
@@ -125,8 +126,8 @@ def check_api_connectivity():
     gemini_key = os.getenv('GEMINI_API_KEY')
     if gemini_key:
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=gemini_key)
+            from google import genai
+            genai.Client(api_key=gemini_key)
             print("  ✅ Gemini API: Key configured")
         except Exception as e:
             print(f"  ❌ Gemini API: Error - {str(e)[:50]}")

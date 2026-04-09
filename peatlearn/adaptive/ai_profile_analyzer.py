@@ -4,7 +4,7 @@ AI-Enhanced Profile Analyzer for PeatLearn Adaptive Learning System
 Uses small AI models like Gemini 2.5-flash-lite for intelligent mastery assessment
 """
 
-import google.generativeai as genai
+from google import genai
 import json
 import os
 from datetime import datetime
@@ -24,8 +24,8 @@ class AIEnhancedProfiler(LearnerProfiler):
         # Initialize Gemini with API key from environment
         api_key = os.getenv('GEMINI_API_KEY')
         if api_key:
-            genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-2.5-flash')
+            self.client = genai.Client(api_key=api_key)
+            self._model_name = 'gemini-2.5-flash'
             self.ai_enabled = True
         else:
             print("Warning: GEMINI_API_KEY not found. Falling back to rule-based analysis.")
@@ -91,7 +91,7 @@ class AIEnhancedProfiler(LearnerProfiler):
             }}
             """
             
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(model=self._model_name, contents=prompt)
             response_text = response.text.strip()
             
             # Clean up response text - remove markdown formatting if present
@@ -224,7 +224,7 @@ class AIEnhancedProfiler(LearnerProfiler):
             }}
             """
             
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(model=self._model_name, contents=prompt)
             response_text = response.text.strip()
             
             # Clean up response text - remove markdown formatting if present
@@ -321,7 +321,7 @@ class AIEnhancedProfiler(LearnerProfiler):
             }}
             """
             
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(model=self._model_name, contents=prompt)
             response_text = response.text.strip()
             
             # Clean up response text - remove markdown formatting if present

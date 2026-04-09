@@ -1,102 +1,121 @@
-# Handoff — 2026-03-22
+# Handoff — 2026-04-02
 
 ## Current Branch & Git State
-- Branch: `main`
-- Uncommitted changes: 37 files (32 modified, 5 deleted, 2 new scripts)
+- Branch: `main` (1 commit ahead of origin)
+- Uncommitted changes: 20 modified files + 5 untracked (see below)
 - Last 5 commits:
-  1. `552ab16` feat: major refactor — consolidate into peatlearn/ package + app/ entry points
-  2. `1ee25a3` Delete GEMINI.md
-  3. `9a6ff32` Final Presentation
-  4. `19f72e5` feat: Comprehensive memorial page enhancement
-  5. `a1c2ecf` Add MF recommender loader and blended recommendations
+  1. `ed84cf1` feat: RAG chatbot quality overhaul — 7.0 to 8.6/10 avg score
+  2. `552ab16` feat: major refactor — consolidate into peatlearn/ package + app/ entry points
+  3. `1ee25a3` Delete GEMINI.md
+  4. `9a6ff32` Final Presentation
+  5. `19f72e5` feat: Comprehensive memorial page enhancement
 
 ---
 
 ## What Was Being Worked On
 
-**RAG chatbot quality testing and optimization** — completed all 10 quality test questions, scoring the chatbot across accuracy, source diversity, writing quality, completeness, and follow-up questions.
+### 1. Full SDK Migration: `google.generativeai` → `google.genai` (COMPLETE)
+All files using the deprecated `google-generativeai` SDK have been migrated to the new `google-genai` SDK. This affects 9 files across `peatlearn/`, `preprocessing/`, and `scripts/`. The pattern change: `genai.configure()` + `GenerativeModel()` → `genai.Client(api_key=...)` + `client.models.generate_content(model=..., contents=..., config=...)`. All imports verified working.
 
-**Final scorecard: 8.6/10 average** (up from 7.0 before fixes).
+### 2. Pinecone Re-embedding: 768→3072 Dimensions (IN PROGRESS)
+The corpus (22,557 QA pairs) is being re-embedded with native 3072-dim Gemini vectors to replace the old zero-padded 768→3072 vectors. Progress:
+- First upload run completed: 22,157/22,557 vectors uploaded (400 skipped due to metadata size bug — now fixed)
+- Clean re-run started: hit Gemini daily quota at pair 994/22,557. Progress saved to `data/artifacts/reembed_progress.json`
+- **Currently running** in background (task ID: `bwfoulyev`) — quota reset, resuming from pair 1000
+- The existing 22,157-vector index is live and functional. RAG works.
 
-| Q | Topic | Score |
-|---|-------|-------|
-| 1 | Thyroid & metabolism | 8/10 |
-| 2 | Estrogen effects | 9/10 |
-| 3 | PUFAs | 7/10 (was 4/10) |
-| 4 | CO2 | 9/10 |
-| 5 | Sugar & glucose | 8/10 |
-| 6 | Cortisol & stress | 9/10 (was 1/10) |
-| 7 | Serotonin | 9/10 |
-| 8 | Progesterone | 9/10 |
-| 9 | Light therapy | 9/10 (was 1/10) |
-| 10 | Multi-topic synthesis | 9/10 |
+### 3. Dimension References Updated (COMPLETE)
+All hardcoded `768` dimension references updated to `3072`:
+- `config/settings.py:67` — `EMBEDDING_DIMENSIONS`
+- `peatlearn/rag/upload.py` — default env fallback + `vector_dimension`
+- `peatlearn/rag/utils.py` — `self.dimension` + dummy vector
+- `peatlearn/rag/vector_search.py` — `self.embedding_dimensions`
+- `.claude/rules/embedding.md` — documentation
 
-**7 bugs/improvements fixed this session:**
-
-1. **Groq API key added** (`.env`) — Groq fallback now active for Gemini rate limits.
-2. **Gibberish classifier false rejections** (`app/dashboard.py`) — Q6 "cortisol and stress" and Q9 "light therapy and red light" were rejected because the 5+ consonant check ran on concatenated words. Fixed to check per-word.
-3. **Source deduplication in display** (`app/dashboard.py`) — `_split_answer_and_sources()` now dedupes by filename and renumbers.
-4. **Graceful port 8001 message** (`app/dashboard.py`) — Instead of ugly connection error, shows quiet caption when ML server is down.
-5. **Content-type diversity penalty** (`peatlearn/adaptive/rag_system.py`) — MMR now penalizes repeated content types (transcripts, papers, etc.) at -0.05 per same-type source.
-6. **Two-pass Pinecone query** (`peatlearn/adaptive/rag_system.py`) — Pass 1 fetches 80 results with 4-chunk-per-file cap; Pass 2 excludes dominant files and fetches 40 more. Jumped PUFA query from 4 to 25 unique source files.
-7. **Completeness improvements** (`peatlearn/adaptive/rag_system.py`) — Word count bumped (80-130 to 120-180), added prompt rule to surface practical recommendations.
-
-**Data quality fix — deduplicated 22 bloated processed files:**
-- AI cleaning had duplicated content (up to 403x!) in 22 transcript/publication files
-- Ran `scripts/dedup_processed_files.py` — removed 5,343 duplicate blocks, saved 2.4 MB
-- Deleted 4,380 old vectors from Pinecone
-- Re-embedded 720 of 840 pairs (93%) — 2 files still missing due to Gemini daily quota
+### 4. Cleanup & Personal Details Removal (COMPLETE)
+- Deleted: `DOCUMENTARY_v2.docx`, `v3.docx`, `diagrams/`, `diagrams.html`, `claude_session_qr.png`, `scripts/gen_drawio.py`, `scripts/md_to_docx.py`, Sagaris memory file
+- Replaced all `abanwild` HuggingFace username references with `your-username` or env variable references in DOCUMENTARY.md, README.md, hf_upload.py, hf_download.py, .claude docs
+- Removed "Author: Aban Hasan" from `unified_signal_processor_v2.py`
+- Note: `DOCUMENTARY.docx`, `v4.docx`, `v5.docx` still present — were locked by Word when deletion was attempted
 
 ---
 
 ## Key Decisions Made
-- **Per-word gibberish check** — concatenated-string approach caused false positives on valid multi-word queries
-- **Two-pass Pinecone query** — single-pass couldn't overcome files with 50+ identical-score chunks
-- **Content-type diversity at -0.05** — light enough to not force irrelevant sources, strong enough to break transcript dominance
-- **Dedup at display level** — RAG still sends 2 chunks per file to the LLM for context, but display deduplicates filenames
-- **Gemini embedding quota is 1,000/day free tier** — need to pace re-embedding work across sessions
+
+- **Truncate metadata on upload** — Pinecone has a 40KB/vector metadata limit. Some `ray_peat_response` fields were 137KB. Fixed by truncating `ray_peat_response` to 20,000 chars and `context` to 5,000 chars in `scripts/reembed_full_corpus.py`. Applied at both embed-time and upload-time.
+- **Keep `google-generativeai` package installed** — only usage removed from code. The package can stay in the venv; no need to uninstall.
+- **Inline SDK imports in rag_system.py** — both `peatlearn/rag/rag_system.py` and `peatlearn/adaptive/rag_system.py` use inline imports inside `call_once()` to keep the SDK as a soft fallback (HTTP fallback follows). Used `_genai`/`_gtypes` aliases to avoid namespace pollution.
 
 ---
 
 ## Active Plan
-`parallel-marinating-pearl.md` — session summary and remaining tasks
+`.claude/plans/twinkling-mapping-bird.md` — LLM fine-tuning ideas (exploration only, no implementation planned)
 
 ---
 
 ## What Needs to Happen Next
 
-1. **Finish re-embedding 2 missing files** (9 pairs) — run `python scripts/reembed_deduped_files.py --embed-upload` after Gemini quota resets. Missing files:
-   - `kmud-160715-the-metabolism-of-cancer.mp3-transcript_processed.txt` (4 blocks)
-   - `09.21.21 Peat Ray [1128846532].mp3-transcript_processed.txt` (5 blocks)
-2. **Clean up duplicate vectors** from the second embed run — the script ran twice, creating duplicates for some files
-3. **Commit all pending changes** — 37 files unstaged
-4. **Migrate `quiz_generator.py`** from deprecated `google.generativeai` to `google.genai` SDK
-5. **Investigate Pinecone dimension mismatch** — index reports 3072, config says 768; embeddings are zero-padded to 3072 on upload
+1. **Wait for re-embedding to complete** — background task `bwfoulyev` is running. Once done, the index will have all 22,557 native 3072-dim vectors. Check with:
+   ```bash
+   python -c "from pinecone import Pinecone; import os; from dotenv import load_dotenv; load_dotenv(); pc = Pinecone(api_key=os.environ['PINECONE_API_KEY']); print(pc.Index('ray-peat-corpus').describe_index_stats())"
+   ```
+
+2. **Delete locked Word files** — close Word, then delete:
+   - `DOCUMENTARY.docx`
+   - `DOCUMENTARY_v4.docx`
+   - `DOCUMENTARY_v5.docx`
+
+3. **Commit all changes** — large set of meaningful changes ready to commit:
+   - SDK migration (9 files)
+   - Dimension updates (5 files)
+   - Personal detail cleanup
+   - `scripts/reembed_full_corpus.py` (new file)
+   - `DOCUMENTARY.md` (new file)
+
+4. **Push to origin** — currently 1 commit ahead of origin.
+
+5. **Quiz generator SDK note** — `peatlearn/adaptive/quiz_generator.py` uses `gemini-2.5-flash-lite` but CLAUDE.md says quiz generation should use `gemini-2.5-flash-lite`. Confirm this is intentional (it is correct).
 
 ---
 
 ## Open Questions / Blockers
-- **Gemini embedding daily quota exhausted** — 1,000 req/day free tier. Resets tomorrow.
-- **Pinecone dimension mismatch** — 3072 vs 768. Functional (zero-padded) but wasteful and confusing.
-- **3 bloated files not deduped** — `jf-190427-stress-health.mp3`, `2005 - November`, and `Dr. Ray Peat Day One` are bloated (>200%) but have no duplicate `RAY PEAT:` blocks — different bloat cause, needs investigation.
-- **`torch_geometric` not installed** — advanced ML personalization runs degraded.
+
+- **Re-embedding quota** — Gemini free tier has a daily embedding quota (~1000 calls/day at ~0.7s/call). The 22,557 pairs will take ~22 days if hitting quota each day. Consider using a paid API key to complete in one run.
+- **DOCUMENTARY.docx files** — locked by Word, need to be manually deleted.
+
+---
+
+## Servers Running
+- None at time of handoff (ports 8000, 8001, 8501 all returning 000).
 
 ---
 
 ## Files Modified This Session
 
 ```
-app/dashboard.py                    |  38 changes (gibberish fix, source dedup, port 8001 message)
-peatlearn/adaptive/rag_system.py    | 275 changes (two-pass query, content-type diversity, prompt improvements)
-config/settings.py                  |   8 changes (GROQ_API_KEY)
-.env                                |   2 changes (GROQ_API_KEY value added)
-scripts/dedup_processed_files.py    | new (dedup bloated processed files)
-scripts/reembed_deduped_files.py    | new (delete/re-embed/upload Pinecone vectors)
-data/processed/ai_cleaned/...       |  22 files deduped (2.4 MB of duplicates removed)
-data/artifacts/vectors_to_delete.json | new (scan results for Pinecone cleanup)
-```
+.claude/docs/data-assets-reference.md     | abanwild → env var reference
+.claude/rules/embedding.md                | 768→3072, abanwild → env var
+HANDOFF.md                                | updated
+README.md                                 | abanwild HF link replaced
+config/settings.py                        | EMBEDDING_DIMENSIONS 768→3072
+peatlearn/adaptive/ai_profile_analyzer.py | SDK migration
+peatlearn/adaptive/quiz_generator.py      | SDK migration (done earlier)
+peatlearn/adaptive/rag_system.py          | SDK migration (inline)
+peatlearn/embedding/hf_download.py        | abanwild → your-username
+peatlearn/embedding/hf_upload.py          | abanwild → your-username
+peatlearn/rag/rag_system.py               | SDK migration (inline)
+peatlearn/rag/upload.py                   | 768→3072 (x2)
+peatlearn/rag/utils.py                    | 768→3072 (x2)
+peatlearn/rag/vector_search.py            | 768→3072
+preprocessing/cleaning/ai_powered_cleaners.py     | SDK migration
+preprocessing/cleaning/smart_cleaner.py           | SDK migration
+preprocessing/cleaning/unified_signal_processor_v2.py | SDK migration + removed author name
+preprocessing/quality_analysis/_analyze_and_summarize.py | SDK migration
+scripts/run_peatlearn.py                  | google-generativeai→google-genai dep check
+scripts/utils/diagnose.py                 | google-generativeai→google-genai dep check
 
-## Servers Running
-- Port 8000: RAG FastAPI — running
-- Port 8001: Advanced ML FastAPI — running
-- Port 8501: Streamlit dashboard — NOT running (killed for restart, needs `streamlit run app/dashboard.py`)
+New / Untracked:
+DOCUMENTARY.md                            | full project documentary (keep)
+scripts/reembed_full_corpus.py            | resumable 3072-dim re-embedding script (keep)
+DOCUMENTARY.docx / v4.docx / v5.docx     | Word exports (delete when Word closed)
+```

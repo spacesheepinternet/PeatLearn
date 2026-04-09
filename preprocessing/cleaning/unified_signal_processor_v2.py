@@ -9,7 +9,6 @@ Advanced pipeline with:
 - Real-time signal improvement tracking
 - Production-ready corpus processing
 
-Author: Aban Hasan
 Date: 2025
 """
 
@@ -21,7 +20,8 @@ import argparse
 from pathlib import Path
 import pandas as pd
 from datetime import datetime, timedelta
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from typing import Dict, List, Tuple, Optional
 try:
     from dotenv import load_dotenv
@@ -101,11 +101,11 @@ class EnhancedSignalProcessor:
         """Initialize enhanced processor."""
         self.api_key = api_key or os.getenv('GOOGLE_API_KEY') or os.getenv('GEMINI_API_KEY')
         if self.api_key:
-            genai.configure(api_key=self.api_key)
-            self.ai_model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            self.client = genai.Client(api_key=self.api_key)
+            self._model_name = 'gemini-2.5-flash-lite'
             logger.info("✅ AI enhancement available (Gemini 2.5 Flash Lite)")
         else:
-            self.ai_model = None
+            self.client = None
             logger.warning("⚠️ No API key - AI enhancement disabled")
         
         self.checkpoint_file = checkpoint_file
@@ -385,12 +385,12 @@ Document to process:
                 prompt = ENHANCED_PROMPT.format(content=chunk)
                 input_tokens = self.estimate_tokens(prompt)
                 
-                response = self.ai_model.generate_content(
-                    prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        max_output_tokens=32768,  # Increased from 8192 to prevent truncation
+                response = self.client.models.generate_content(
+                    model=self._model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        max_output_tokens=32768,
                         temperature=0.1,
-                        candidate_count=1
                     )
                 )
                 
