@@ -23,6 +23,7 @@
 14. [Key Algorithms Explained](#14-key-algorithms-explained)
 15. [File-by-File Reference](#15-file-by-file-reference)
 16. [Glossary](#16-glossary)
+17. [Future Plans — LLM Fine-Tuning](#17-future-plans--llm-fine-tuning)
 
 ---
 
@@ -96,7 +97,7 @@ graph TB
     end
 
     subgraph External["External Services & Storage"]
-        Pinecone[("Pinecone\n22,557 vectors\nCloud Vector DB")]
+        Pinecone[("Pinecone\n22,457 vectors\nCloud Vector DB")]
         Gemini["Google Gemini\nLLM + Embeddings"]
         SQLite[("SQLite\nUser Interactions\nLocal Database")]
     end
@@ -199,7 +200,7 @@ A data pipeline is a series of steps that transforms **raw data** into **usable 
 ```mermaid
 flowchart TD
     A["Step 1: Raw Data\ndata/raw/\n552 documents\n(xlsx, pdf, txt)"] --> B["Step 2: Cleaning\npreprocessing/optimized_pipeline.py\n\nRemove timestamps, filler words,\nboilerplate. AI checks quality.\n\nFidelity >= 4.0 | Atomicity >= 5.0 | Noise <= 5.0"]
-    B --> C["Step 3: Chunking\npreprocessing/mega_chunker.py\n\nBreak long docs into ~1000-token pieces\nwith 200-token overlap between chunks"]
+    B --> C["Step 3: Chunking\npreprocessing/cleaning/mega_chunker.py\n\nBreak long docs into ~1000-token pieces\nwith 200-token overlap between chunks"]
     C --> D["Step 4: Cleaned Files\ndata/processed/ai_cleaned/\n\nQA pairs formatted as:\nRAY PEAT: answer text\nCONTEXT: question/topic"]
     D --> E["Step 5: Embedding\npeatlearn/embedding/embed_corpus.py\n\nConvert each text chunk into\n3072 numbers using Gemini API"]
     E --> F["Step 6: Upload to Pinecone\npeatlearn/rag/upload.py\n\n22,557 vectors stored in cloud\nready for similarity search"]
@@ -306,9 +307,11 @@ PeatLearn uses Google's `gemini-embedding-001` model, which produces **3072 numb
 | vec_1 | [0.45, 0.32, ...] | source: "paper_042.txt" |
 | vec_2 | [-0.08, 0.67, ...] | source: "newsletter_015.txt" |
 | ... | ... | ... |
-| vec_22556 | [0.11, -0.44, ...] | source: "transcript_188.txt" |
+| vec_22456 | [0.11, -0.44, ...] | source: "transcript_188.txt" |
 
-**Total: 22,557 vectors** in the `ray-peat-corpus` index.
+**Total: 22,457 vectors** in the `ray-peat-corpus` index.
+
+> Note: The corpus parses **22,557 QA pairs** from source documents, but 100 were skipped during embedding (API errors, retries exhausted). The Pinecone index holds the 22,457 successfully embedded vectors.
 
 ### Key Files
 
@@ -924,7 +927,7 @@ Epsilon starts high (1.0 = all exploration) and decays toward low (0.1 = mostly 
 | `app/dashboard.py` | ~2000 | Main Streamlit UI — chat, quiz, profile, charts |
 | `app/api.py` | ~200 | RAG FastAPI server — search and Q&A endpoints |
 | `app/advanced_api.py` | ~400 | ML FastAPI server — personalisation endpoints |
-| `peatlearn_master.py` | ~100 | Backward-compatible launcher (starts all servers) |
+| `peatlearn_master.py` | ~100 | Backward-compatible launcher → runs `streamlit run app/dashboard.py` only |
 | `scripts/run_servers.py` | ~80 | Multi-service process manager |
 
 ### RAG Package (`peatlearn/rag/`)
@@ -982,7 +985,7 @@ Epsilon starts high (1.0 = all exploration) and decays toward low (0.1 = mostly 
 | `optimized_pipeline.py` | Main data processing pipeline (clean, chunk, validate) |
 | `parallel_processor.py` | Runs pipeline stages in parallel across CPU cores |
 | `checkpoint_system.py` | Saves/resumes processing progress |
-| `mega_chunker.py` | Splits documents into ~1000-token chunks with overlap |
+| `preprocessing/cleaning/mega_chunker.py` | Splits documents into ~1000-token chunks with overlap |
 
 ### Configuration
 
@@ -1052,7 +1055,8 @@ Epsilon starts high (1.0 = all exploration) and decays toward low (0.1 = mostly 
 | Health topics | 98 |
 | Newsletters | 59 |
 | Other documents | ~111 |
-| Total QA pairs (vectors) | 22,557 |
+| Total QA pairs parsed | 22,557 |
+| Vectors in Pinecone | 22,457 |
 | Embedding dimensions | 3072 (native Gemini) |
 | Embedding model | `gemini-embedding-001` |
 | Vector database | Pinecone (`ray-peat-corpus`) |
@@ -1063,4 +1067,107 @@ Epsilon starts high (1.0 = all exploration) and decays toward low (0.1 = mostly 
 
 ---
 
-*This documentary was generated from a comprehensive exploration of every file in the PeatLearn codebase. Last updated: 2026-04-01.*
+## 17. Future Plans — LLM Fine-Tuning
+
+### The Vision
+
+Right now, PeatLearn uses Google Gemini as a general-purpose LLM. It knows about Ray Peat's ideas only because those ideas exist in its training data and because we feed it relevant passages via RAG. A **fine-tuned model** would have Ray Peat's philosophy baked into its weights — it would answer in his style, use his terminology naturally, and reason from his framework without needing to be told.
+
+### What Is Fine-Tuning?
+
+Training a model from scratch costs millions of dollars. Fine-tuning is the cheaper alternative: you take an already-trained model and **continue training it on your specific data**, so it learns domain-specific patterns.
+
+```
+General LLM                   Fine-tuned LLM
+(knows everything broadly)  → (knows Ray Peat's domain deeply)
+
+Input: "What causes fatigue?"
+General: "Fatigue can be caused by many factors..."
+Fine-tuned: "Fatigue is often a sign of cellular hypothyroidism —
+             the cell's inability to oxidise glucose efficiently..."
+```
+
+### What Data We Have
+
+PeatLearn already has the perfect fine-tuning dataset: **22,557 QA pairs** in the format:
+
+```
+CONTEXT: [topic or question]
+RAY PEAT: [Ray Peat's actual words on this topic]
+```
+
+This is already structured as instruction-following data — exactly what modern fine-tuning needs.
+
+### Fine-Tuning Approaches (Best to Worst Fit)
+
+#### Option 1: LoRA / QLoRA (Recommended)
+**Low-Rank Adaptation** — the most practical approach for this project.
+
+Instead of updating all model weights (expensive), LoRA adds small trainable matrices to specific layers:
+
+```mermaid
+flowchart LR
+    Input --> Frozen["Frozen Base Model\n(e.g. Llama 3, Mistral 7B)\nWeights unchanged"]
+    Frozen --> LoRA["LoRA Adapter\n(small trainable matrices\n~1% of parameters)"]
+    LoRA --> Output["Fine-tuned output\nRay Peat style"]
+```
+
+- **QLoRA** = LoRA + quantization (4-bit weights) → runs on a single consumer GPU
+- Library: `peft` + `transformers` (HuggingFace)
+- Training time: ~4-8 hours on a single GPU with 22k examples
+- Cost: Free on Google Colab Pro, or ~$10-30 on a cloud GPU
+
+#### Option 2: Full Fine-Tuning (Expensive)
+Update all model weights. Requires multiple high-end GPUs. Not practical for this project without significant compute budget.
+
+#### Option 3: Gemini Fine-Tuning API (Easiest)
+Google offers fine-tuning for Gemini models through their API. Simpler to set up, but:
+- Costs money per training token
+- Less control over the process
+- The fine-tuned model is locked to Google's platform
+
+### What Would Change
+
+| Capability | Today (RAG only) | With Fine-Tuned LLM |
+|---|---|---|
+| Domain vocabulary | Needs retrieved context to use correctly | Naturally uses T3, PUFA, bioenergetics, etc. |
+| Answer style | General assistant style | Ray Peat's reasoning style |
+| Rare topics | Fails if not in Pinecone | May answer from baked-in knowledge |
+| Hallucination risk | Low (RAG grounds it) | Higher (fine-tuned models can confabulate) |
+| Speed | API call to Gemini | Can run locally if self-hosted |
+
+### Recommended Stack
+
+```
+Base model:    Llama 3.1 8B  or  Mistral 7B
+Method:        QLoRA (4-bit quantization)
+Library:       HuggingFace PEFT + TRL
+Dataset:       data/processed/ai_cleaned/ → 22,557 QA pairs
+Hardware:      Single GPU (16GB+ VRAM) or Google Colab Pro
+Deployment:    Ollama (local) or HuggingFace Inference Endpoints
+```
+
+### Integration with PeatLearn
+
+After fine-tuning, the model would replace (or supplement) Gemini in `peatlearn/rag/rag_system.py`. The RAG pipeline stays identical — only the generation step changes:
+
+```python
+# Current
+response = gemini_client.generate_content(model="gemini-2.5-flash", contents=prompt)
+
+# With fine-tuned model (via Ollama local server)
+response = requests.post("http://localhost:11434/api/generate",
+                         json={"model": "peatlearn-llama3", "prompt": prompt})
+```
+
+This means the entire retrieval system (Pinecone, reranking, dedup) stays untouched — only the final answer generation improves.
+
+### Important Caution
+
+Fine-tuning on a single person's writing carries a risk: the model learns to **sound like Ray Peat** even when it's wrong. RAG is the safety net that grounds answers in actual text. The ideal architecture keeps both:
+
+> **Fine-tuned model** (speaks fluently in the domain) + **RAG** (grounds it in real sources) = best of both worlds.
+
+---
+
+*This documentary was generated from a comprehensive exploration of every file in the PeatLearn codebase. Last updated: 2026-04-10.*
