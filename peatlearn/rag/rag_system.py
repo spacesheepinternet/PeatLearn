@@ -121,55 +121,46 @@ class PineconeRAG:
             )
 
     def _rerank_and_dedupe(self, query: str, results: List[SearchResult], max_sources: int) -> List[SearchResult]:
-        """Rerank by combining vector similarity with simple keyword overlap, and deduplicate by source.
+        """Rerank using cross-encoder (falls back to keyword overlap) and deduplicate by source.
 
-        - Encourages diversity across `source_file`
-        - Prefers passages with higher query term overlap
+        - Cross-encoder scores each (query, passage) pair jointly for accuracy
+        - MMR-style diversity: penalises repeated source files
         """
         if not results:
             return []
 
-        import re
-        from collections import defaultdict
+        from peatlearn.rag.reranker import rerank as _rerank
 
-        def tokenize(text: str) -> List[str]:
-            return re.findall(r"[a-zA-Z][a-zA-Z\-']+", (text or "").lower())
+        # Convert SearchResult objects to dicts for the reranker
+        candidates = [
+            {
+                "context": r.context,
+                "ray_peat_response": r.ray_peat_response,
+                "score": r.similarity_score,
+                "source_file": r.source_file,
+                "_result": r,  # carry original object
+            }
+            for r in results
+        ]
 
-        stop = {
-            "the","a","an","and","or","of","to","in","is","it","on","for","with","as","by","that","this","are","be","at","from","about","into","over","under","than","then","but","if","so","not"
-        }
-        query_tokens = [t for t in tokenize(query) if t not in stop]
-        query_vocab = set(query_tokens)
-        if not query_vocab:
-            query_vocab = set(tokenize(query))
+        reranked = _rerank(query, candidates)
 
-        scored: List[tuple[float, SearchResult]] = []
-        for r in results:
-            text = f"{r.context} {r.ray_peat_response}"
-            toks = [t for t in tokenize(text) if t not in stop]
-            if toks:
-                overlap = len(query_vocab.intersection(toks)) / max(1, len(query_vocab))
-            else:
-                overlap = 0.0
-            score = 0.7 * float(r.similarity_score) + 0.3 * float(overlap)
-            scored.append((score, r))
-
-        # MMR-style: penalise repeated source files softly instead of hard dedup
-        scored.sort(key=lambda x: x[0], reverse=True)
+        # MMR-style diversity: penalise repeated source files
         source_counts: dict[str, int] = {}
         selected: List[SearchResult] = []
-        remaining = list(scored)
+        remaining = list(reranked)
         while remaining and len(selected) < max_sources:
-            best_idx, best_score = 0, -1.0
-            for idx, (raw_score, r) in enumerate(remaining):
-                key = (r.source_file or "").strip()
+            best_idx, best_score = 0, float("-inf")
+            for idx, c in enumerate(remaining):
+                key = (c.get("source_file") or "").strip()
                 n = source_counts.get(key, 0)
-                adjusted = max(raw_score - 0.3 * n, raw_score * 0.1)
+                raw = c["rerank_score"]
+                adjusted = raw - 0.3 * n
                 if adjusted > best_score:
                     best_score, best_idx = adjusted, idx
-            _, winner = remaining.pop(best_idx)
-            selected.append(winner)
-            key = (winner.source_file or "").strip()
+            winner = remaining.pop(best_idx)
+            selected.append(winner["_result"])
+            key = (winner.get("source_file") or "").strip()
             source_counts[key] = source_counts.get(key, 0) + 1
 
         return selected

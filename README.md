@@ -174,6 +174,41 @@ pytest tests/integration/  # integration only
 
 ---
 
+## RAG Quality Benchmark
+
+The RAG chatbot is evaluated against a fixed 30-question benchmark with dual scoring: LLM-as-judge (Gemini 2.5-flash on a 5-dimension rubric) + automated metrics (citations, vocab hit rate, source diversity, topic coverage).
+
+```bash
+python scripts/eval_rag_quality.py               # full 30-question run
+python scripts/eval_rag_quality.py --subset A,B  # only specific categories
+python scripts/eval_rag_quality.py --no-judge    # automated metrics only
+```
+
+Question set lives in `data/eval/questions.json`; results are saved to `data/eval/results_<timestamp>.json`. See `data/eval/README.md` for the full rubric and category breakdown.
+
+### Score history
+
+| Date | Score | Notes |
+|------|------:|-------|
+| commit `ed84cf1` | 8.60 / 10 | Baseline — HyDE + two-pass Pinecone + MMR diversity (ad-hoc score) |
+| 2026-04-11 | **8.95 / 10** | **+0.35** — cross-encoder rerank (`ms-marco-MiniLM-L-6-v2`) + MMR `float('-inf')` fix |
+
+**Latest run (8.95/10, 29/30 judged):**
+
+| Category | Score | | Rubric dimension | Score |
+|----------|------:|---|------------------|------:|
+| core_bioenergetics | 9.10 | | accuracy | 9.40 |
+| disease_clinical | 9.10 | | grounding | 9.24 |
+| cross_concept | 9.03 | | attribution_style | 8.95 |
+| hormones_endocrine | 8.94 | | domain_fluency | 8.45 |
+| nutrition_foods | 8.90 | | completeness | 8.07 |
+| edge_ambiguous | 8.82 | | | |
+| edge_nuanced | 8.56 | | | |
+
+Automated metrics: **source diversity 0.92**, expected-topic coverage 0.71, 100% of answers returned ≥ expected sources, avg 5.0 inline citations per answer.
+
+---
+
 ## Dataset Hosting
 
 Embeddings are hosted on HuggingFace to keep the repo lightweight. Set `HF_DATASET_REPO` in `.env` to your dataset repo. The Pinecone index is the primary retrieval backend and requires no local downloads to use.

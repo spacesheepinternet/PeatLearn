@@ -24,6 +24,10 @@
 15. [File-by-File Reference](#15-file-by-file-reference)
 16. [Glossary](#16-glossary)
 17. [Future Plans — LLM Fine-Tuning](#17-future-plans--llm-fine-tuning)
+    - [Dataset Preparation](#dataset-preparation)
+    - [Phased Implementation Roadmap](#phased-implementation-roadmap)
+    - [Evaluation Plan](#evaluation-plan)
+    - [Training Script Outline](#training-script-outline)
 
 ---
 
@@ -155,7 +159,7 @@ This server has three jobs:
 |---|---|---|
 | `GET /api/search?q=thyroid` | Finds similar passages in the corpus | Returns top 10 passages about thyroid |
 | `GET /api/ask?question=What does Ray Peat say about sugar?` | Finds passages AND generates a written answer | Returns a paragraph + sources |
-| `GET /api/stats` | Returns corpus statistics | "552 documents, 22,557 vectors" |
+| `GET /api/stats` | Returns corpus statistics | "552 documents, 22,457 vectors" |
 
 **Technology:** Built with **FastAPI**, a Python web framework that's fast and easy to use.
 
@@ -203,7 +207,7 @@ flowchart TD
     B --> C["Step 3: Chunking\npreprocessing/cleaning/mega_chunker.py\n\nBreak long docs into ~1000-token pieces\nwith 200-token overlap between chunks"]
     C --> D["Step 4: Cleaned Files\ndata/processed/ai_cleaned/\n\nQA pairs formatted as:\nRAY PEAT: answer text\nCONTEXT: question/topic"]
     D --> E["Step 5: Embedding\npeatlearn/embedding/embed_corpus.py\n\nConvert each text chunk into\n3072 numbers using Gemini API"]
-    E --> F["Step 6: Upload to Pinecone\npeatlearn/rag/upload.py\n\n22,557 vectors stored in cloud\nready for similarity search"]
+    E --> F["Step 6: Upload to Pinecone\npeatlearn/rag/upload.py\n\n22,457 vectors stored in cloud\nready for similarity search"]
     E --> G["Backup: HuggingFace Hub\nyour-username/peatlearn-embeddings\n\nLocal .npy/.pkl files also saved\nin data/embeddings/vectors/"]
 ```
 
@@ -272,11 +276,41 @@ Without RAG, an LLM can only answer from its training data (which might be outda
 ```mermaid
 flowchart TD
     Q["User asks:\nWhat does Ray Peat say about coffee?"] --> EMB["1. Embed the Query\n\nSend question to Gemini API\nGet back 3072 numbers\nrepresenting the meaning"]
-    EMB --> SEARCH["2. Search Pinecone\n\nFind the 10 vectors most\nsimilar to the query vector\n\nResult: passages ranked by similarity\n#1 (0.92) coffee and metabolism\n#2 (0.88) coffee protective effects\n#3 (0.85) caffeine and hormones"]
-    SEARCH --> RERANK["3. Rerank and Deduplicate\n\nRe-score each result:\n70% vector similarity +\n30% keyword overlap\n\nRemove duplicate passages"]
+    EMB --> SEARCH["2. Search Pinecone\n\nFind the 80 vectors most\nsimilar to the query vector\n(two-pass for source diversity)\n\nResult: passages ranked by similarity\n#1 (0.92) coffee and metabolism\n#2 (0.88) coffee protective effects\n#3 (0.85) caffeine and hormones"]
+    SEARCH --> RERANK["3. Cross-Encoder Rerank + MMR\n\nScore each (query, passage) pair\njointly using ms-marco-MiniLM-L-6-v2\n\nMMR diversity loop:\npenalise repeated source files\nselect top 8 diverse chunks"]
     RERANK --> GEN["4. Generate Answer\n\nSend top passages + question\nto Gemini LLM (gemini-2.5-flash)\n\nPrompt: Based on these passages,\nanswer the question..."]
     GEN --> RESP["5. Return Response\n\nanswer: Ray Peat viewed coffee as protective...\nsources: list of passages used\nconfidence: 0.91"]
 ```
+
+### HyDE — Hypothetical Document Embedding
+
+Before searching Pinecone, PeatLearn uses a technique called **HyDE** to improve retrieval quality.
+
+The problem: if you search for `"Diabetes"`, you're embedding a single generic word. The vectors already stored in Pinecone are embeddings of Ray Peat's actual detailed answers — they don't look much like the word "Diabetes" in 3072-dimensional space.
+
+The fix: before searching, ask a cheap LLM to write a fake 3–4 sentence answer in Peat's voice using his specific vocabulary, then embed *that* instead:
+
+```
+Query: "Diabetes"
+
+Step 1 — Generate hypothetical answer (gemini-2.5-flash-lite, 3-4 sentences):
+Prompt instructs the model to use: bioenergetics, oxidative metabolism, T3, PUFAs,
+progesterone, cortisol, ATP, mitochondria, CO2, glucose oxidation, lactic acid...
+
+Output: "Diabetes represents a failure of cellular oxidative metabolism — the cell
+ loses the ability to efficiently oxidise glucose for energy, often driven by PUFA
+ accumulation blocking insulin signalling and suppressing thyroid-driven T3..."
+
+Step 2 — Embed the hypothetical answer (not the original query)
+
+Step 3 — Search Pinecone with that embedding
+```
+
+The hypothetical answer uses the same vocabulary, concepts, and sentence patterns as the corpus. The resulting embedding sits much closer to the real stored vectors, so Pinecone finds far more relevant chunks.
+
+**File:** `peatlearn/adaptive/rag_system.py`, lines 128–156
+
+> If the HyDE call fails (rate limit, timeout), it silently falls back to embedding the original query — so retrieval still works, just less precisely.
 
 ### How Embeddings Work (The Key Insight)
 
@@ -319,6 +353,7 @@ PeatLearn uses Google's `gemini-embedding-001` model, which produces **3072 numb
 |---|---|---|
 | `peatlearn/rag/vector_search.py` | `PineconeVectorSearch` | Handles embedding queries and searching Pinecone |
 | `peatlearn/rag/rag_system.py` | `PineconeRAG` | Orchestrates retrieval, reranking, and generation |
+| `peatlearn/rag/reranker.py` | `rerank()` | Cross-encoder reranker (ms-marco-MiniLM-L-6-v2), keyword fallback |
 | `peatlearn/rag/upload.py` | (functions) | Uploads vectors to Pinecone in batches |
 | `peatlearn/rag/utils.py` | (utilities) | Helper functions for the RAG system |
 
@@ -841,22 +876,25 @@ Measures how similar two vectors are. Used everywhere in the RAG system.
 
 Compare with Vector C = [3, -1, 0]: Cosine(A,C) = 0.085 (very different!).
 
-### 14.2 Reranking Formula
+### 14.2 Cross-Encoder Reranking
 
-After initial vector search, results are re-scored combining two signals:
+After Pinecone returns up to 80 candidates, they are re-scored by a **cross-encoder** (`cross-encoder/ms-marco-MiniLM-L-6-v2`, `peatlearn/rag/reranker.py`).
 
-**`final_score = 0.7 x vector_similarity + 0.3 x keyword_overlap`**
+**Old approach (keyword overlap):**
+```
+final_score = 0.7 × vector_similarity + 0.3 × keyword_overlap
+```
+The query and passage are scored independently. A passage about "thyroid" has a high cosine similarity to the word "thyroid" whether it answers the question or contradicts it.
 
-Where `keyword_overlap = |shared_words| / max(|query_words|, |passage_words|)` (after removing common words like "the", "is", "a").
+**New approach (cross-encoder):**
+The model reads the query and passage *together* in a single pass and outputs a relevance log-odds score (typically −10 to +10). It can detect:
+- Whether the passage actually answers the question (not just mentions the topic)
+- Passages that contradict the query (high cosine sim but low cross-encoder score)
+- Subtle relevance that keywords miss
 
-**Example:**
-- Query: "thyroid hormone production"
-- Passage: "The thyroid gland produces T3 and T4 hormones"
-- Vector similarity: 0.85
-- Shared words: {"thyroid", "hormone"} = 2 words
-- Query words: {"thyroid", "hormone", "production"} = 3 words
-- Keyword overlap: 2/3 = 0.67
-- **Final score: 0.7 x 0.85 + 0.3 x 0.67 = 0.595 + 0.201 = 0.796**
+**Fallback:** If the cross-encoder model is unavailable, the system automatically reverts to the old `0.7 × vector + 0.3 × keyword` formula.
+
+**File:** `peatlearn/rag/reranker.py`
 
 ### 14.3 MMR (Maximal Marginal Relevance)
 
@@ -1168,6 +1206,91 @@ Fine-tuning on a single person's writing carries a risk: the model learns to **s
 
 > **Fine-tuned model** (speaks fluently in the domain) + **RAG** (grounds it in real sources) = best of both worlds.
 
+### Dataset Preparation
+
+The existing QA pairs need to be converted from PeatLearn's internal format into a standard instruction-following format before training.
+
+**Current format** (in `data/processed/ai_cleaned/`):
+```
+CONTEXT: What does Ray Peat say about coffee?
+RAY PEAT: Coffee is one of the most protective foods available...
+```
+
+**Target format** (Alpaca / ChatML for fine-tuning):
+```json
+{
+  "instruction": "Answer the following question about bioenergetic medicine in the style and reasoning of Dr. Ray Peat.",
+  "input": "What does Ray Peat say about coffee?",
+  "output": "Coffee is one of the most protective foods available..."
+}
+```
+
+A conversion script (`scripts/prepare_finetune_dataset.py`) would:
+1. Walk `data/processed/ai_cleaned/` and parse all CONTEXT/RAY PEAT blocks
+2. Filter out low-quality pairs (short outputs < 50 tokens, malformed structure)
+3. Split into 90% train / 10% eval
+4. Write `data/models/finetune/train.jsonl` and `eval.jsonl`
+5. Log stats: total pairs, average output length, topic distribution
+
+**Expected output:** ~20,000 training examples, ~2,200 eval examples (after filtering).
+
+### Phased Implementation Roadmap
+
+| Phase | What | Key Deliverable |
+|---|---|---|
+| **Phase 1 — Dataset** | Run conversion script, review 100 random samples by hand, fix any systematic formatting issues | `data/models/finetune/train.jsonl` (clean, validated) |
+| **Phase 2 — Training** | QLoRA fine-tune on Llama 3.1 8B using HuggingFace TRL's `SFTTrainer` | LoRA adapter saved to `data/models/finetune/peatlearn-adapter/` |
+| **Phase 3 — Evaluation** | Run eval script against held-out 10%, compare scores vs baseline Gemini answers | Eval report: ROUGE-L, BERTScore, topic coverage |
+| **Phase 4 — Integration** | Swap generation step in `peatlearn/rag/rag_system.py` behind a feature flag | `USE_LOCAL_LLM=true` in `.env` toggles between Gemini and fine-tuned |
+| **Phase 5 — Serving** | Package adapter with base model into Ollama for local serving | `ollama run peatlearn-llama3` |
+
+### Evaluation Plan
+
+Three layers of evaluation, from cheapest to most rigorous:
+
+**Automated metrics** (fast, run in CI):
+- **ROUGE-L** — measures n-gram overlap between generated and reference answers
+- **BERTScore** — semantic similarity using BERT embeddings
+- **Domain vocabulary coverage** — % of key terms (T3, PUFA, bioenergetics, etc.) used correctly
+
+**Comparative eval** (semi-automated):
+- Run the same 50 benchmark questions through both Gemini RAG and fine-tuned RAG
+- Score each answer 1-10 on: accuracy, domain fluency, citation quality
+- Fine-tuned model must score ≥ 8.0 avg to replace Gemini as default
+
+**Regression guard** (prevent quality drops):
+- Current avg RAG quality: **8.6/10** (measured in `ed84cf1`)
+- Fine-tuned model must not drop below 8.0/10 on the same benchmark set
+- If it does, fall back to Gemini — the feature flag makes this a one-line rollback
+
+### Training Script Outline
+
+```python
+# scripts/finetune_qlora.py (to be written)
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from peft import LoraConfig, get_peft_model
+from trl import SFTTrainer, SFTConfig
+
+# 1. Load base model in 4-bit
+bnb_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
+model = AutoModelForCausalLM.from_pretrained("meta-llama/Meta-Llama-3.1-8B", quantization_config=bnb_config)
+
+# 2. Attach LoRA adapter
+lora_config = LoraConfig(r=16, lora_alpha=32, target_modules=["q_proj", "v_proj"], lora_dropout=0.05)
+model = get_peft_model(model, lora_config)
+
+# 3. Train on PeatLearn QA pairs
+trainer = SFTTrainer(
+    model=model,
+    train_dataset=load_dataset("json", data_files="data/models/finetune/train.jsonl")["train"],
+    args=SFTConfig(output_dir="data/models/finetune/peatlearn-adapter", num_train_epochs=3, ...),
+)
+trainer.train()
+
+# 4. Save adapter only (not full model)
+model.save_pretrained("data/models/finetune/peatlearn-adapter")
+```
+
 ---
 
-*This documentary was generated from a comprehensive exploration of every file in the PeatLearn codebase. Last updated: 2026-04-10.*
+*This documentary was generated from a comprehensive exploration of every file in the PeatLearn codebase. Last updated: 2026-04-10 (cross-encoder reranker, improved HyDE prompt, Section 17 expanded).*

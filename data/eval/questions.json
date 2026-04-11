@@ -1,0 +1,248 @@
+{
+  "version": "1.0",
+  "created": "2026-04-10",
+  "description": "RAG quality benchmark — 30 questions across 7 categories. Validates HyDE + cross-encoder improvements against the 8.6/10 baseline from commit ed84cf1.",
+  "baseline": 8.6,
+  "questions": [
+    {
+      "id": "A1",
+      "category": "core_bioenergetics",
+      "difficulty": "easy",
+      "question": "What does Ray Peat say about thyroid function and its role in metabolism?",
+      "expected_topics": ["thyroid", "T3", "T4", "metabolism", "hypothyroidism"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "A2",
+      "category": "core_bioenergetics",
+      "difficulty": "easy",
+      "question": "Why does Peat consider polyunsaturated fats (PUFAs) harmful?",
+      "expected_topics": ["PUFA", "unsaturated", "oxidation", "estrogen", "inflammation"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "A3",
+      "category": "core_bioenergetics",
+      "difficulty": "medium",
+      "question": "How does Peat view the role of CO2 in cellular health?",
+      "expected_topics": ["CO2", "carbon dioxide", "respiration", "Bohr effect", "lactic acid"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "A4",
+      "category": "core_bioenergetics",
+      "difficulty": "easy",
+      "question": "What is Peat's view on sugar and fructose?",
+      "expected_topics": ["sugar", "fructose", "glucose", "liver", "fruit"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "A5",
+      "category": "core_bioenergetics",
+      "difficulty": "easy",
+      "question": "Why does Peat favor saturated fats over polyunsaturated fats?",
+      "expected_topics": ["saturated", "coconut", "butter", "PUFA", "stability"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "A6",
+      "category": "core_bioenergetics",
+      "difficulty": "medium",
+      "question": "What role does progesterone play according to Peat?",
+      "expected_topics": ["progesterone", "estrogen", "protective", "pregnancy", "GABA"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "B1",
+      "category": "hormones_endocrine",
+      "difficulty": "medium",
+      "question": "How does Peat describe the relationship between estrogen and cortisol?",
+      "expected_topics": ["estrogen", "cortisol", "stress", "catabolic", "liver"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "B2",
+      "category": "hormones_endocrine",
+      "difficulty": "medium",
+      "question": "What does Peat say about serotonin — is it really the 'happy hormone'?",
+      "expected_topics": ["serotonin", "tryptophan", "inflammation", "stress", "gut"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "B3",
+      "category": "hormones_endocrine",
+      "difficulty": "medium",
+      "question": "How does Peat recommend supporting thyroid function through diet?",
+      "expected_topics": ["thyroid", "sugar", "protein", "saturated fat", "gelatin"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "B4",
+      "category": "hormones_endocrine",
+      "difficulty": "medium",
+      "question": "What is Peat's stance on HRT and bioidentical hormones?",
+      "expected_topics": ["HRT", "progesterone", "estrogen", "bioidentical", "synthetic"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "B5",
+      "category": "hormones_endocrine",
+      "difficulty": "hard",
+      "question": "How does Peat link stress hormones to aging?",
+      "expected_topics": ["cortisol", "aging", "stress", "estrogen", "thyroid"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "C1",
+      "category": "nutrition_foods",
+      "difficulty": "easy",
+      "question": "What does Peat say about milk and dairy consumption?",
+      "expected_topics": ["milk", "calcium", "dairy", "protein", "phosphorus"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "C2",
+      "category": "nutrition_foods",
+      "difficulty": "easy",
+      "question": "Why does Peat recommend orange juice?",
+      "expected_topics": ["orange juice", "fructose", "potassium", "magnesium", "sugar"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "C3",
+      "category": "nutrition_foods",
+      "difficulty": "easy",
+      "question": "What is Peat's view on coconut oil?",
+      "expected_topics": ["coconut oil", "saturated", "medium chain", "thyroid", "metabolism"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "C4",
+      "category": "nutrition_foods",
+      "difficulty": "medium",
+      "question": "How does Peat view cruciferous vegetables like broccoli and kale?",
+      "expected_topics": ["cruciferous", "goitrogen", "thyroid", "raw", "cooked"],
+      "expected_sources_min": 2
+    },
+    {
+      "id": "C5",
+      "category": "nutrition_foods",
+      "difficulty": "medium",
+      "question": "What does Peat say about gelatin and amino acid balance?",
+      "expected_topics": ["gelatin", "glycine", "tryptophan", "muscle meat", "inflammation"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "D1",
+      "category": "disease_clinical",
+      "difficulty": "medium",
+      "question": "What does Peat say about diabetes and blood sugar regulation?",
+      "expected_topics": ["diabetes", "glucose", "insulin", "PUFA", "sugar"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "D2",
+      "category": "disease_clinical",
+      "difficulty": "hard",
+      "question": "How does Peat explain the causes of cancer at the metabolic level?",
+      "expected_topics": ["cancer", "Warburg", "metabolism", "respiration", "estrogen"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "D3",
+      "category": "disease_clinical",
+      "difficulty": "hard",
+      "question": "What is Peat's view on Alzheimer's and neurodegeneration?",
+      "expected_topics": ["Alzheimer", "brain", "inflammation", "estrogen", "glucose"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "D4",
+      "category": "disease_clinical",
+      "difficulty": "medium",
+      "question": "How does Peat approach hypothyroidism diagnosis — are standard lab tests reliable?",
+      "expected_topics": ["TSH", "thyroid", "lab", "temperature", "pulse"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "D5",
+      "category": "disease_clinical",
+      "difficulty": "hard",
+      "question": "What does Peat say about estrogen's role in breast cancer?",
+      "expected_topics": ["estrogen", "breast cancer", "progesterone", "tamoxifen", "proliferation"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "E1",
+      "category": "edge_ambiguous",
+      "difficulty": "hard",
+      "question": "Diabetes",
+      "expected_topics": ["diabetes", "glucose", "insulin", "sugar"],
+      "expected_sources_min": 2
+    },
+    {
+      "id": "E2",
+      "category": "edge_ambiguous",
+      "difficulty": "hard",
+      "question": "Stress",
+      "expected_topics": ["stress", "cortisol", "adrenaline", "thyroid"],
+      "expected_sources_min": 2
+    },
+    {
+      "id": "E3",
+      "category": "edge_ambiguous",
+      "difficulty": "hard",
+      "question": "Aging",
+      "expected_topics": ["aging", "estrogen", "PUFA", "metabolism", "stress"],
+      "expected_sources_min": 2
+    },
+    {
+      "id": "F1",
+      "category": "edge_nuanced",
+      "difficulty": "hard",
+      "question": "When does Peat say polyunsaturated fats might actually be acceptable or unavoidable?",
+      "expected_topics": ["PUFA", "essential", "fish oil", "trace", "minimum"],
+      "expected_sources_min": 2
+    },
+    {
+      "id": "F2",
+      "category": "edge_nuanced",
+      "difficulty": "hard",
+      "question": "Are there cases where Peat recommends against supplementation?",
+      "expected_topics": ["supplement", "iron", "excess", "dose", "food first"],
+      "expected_sources_min": 2
+    },
+    {
+      "id": "F3",
+      "category": "edge_nuanced",
+      "difficulty": "hard",
+      "question": "What does Peat say about the limits or uncertainties of his own recommendations?",
+      "expected_topics": ["individual", "variation", "context", "uncertainty"],
+      "expected_sources_min": 2
+    },
+    {
+      "id": "G1",
+      "category": "cross_concept",
+      "difficulty": "hard",
+      "question": "How does Peat connect the thyroid, liver, and gut in metabolic health?",
+      "expected_topics": ["thyroid", "liver", "gut", "endotoxin", "T3"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "G2",
+      "category": "cross_concept",
+      "difficulty": "hard",
+      "question": "What is the relationship Peat draws between PUFAs, estrogen, and aging?",
+      "expected_topics": ["PUFA", "estrogen", "aging", "oxidation", "inflammation"],
+      "expected_sources_min": 3
+    },
+    {
+      "id": "G3",
+      "category": "cross_concept",
+      "difficulty": "hard",
+      "question": "How does Peat tie CO2, lactic acid, and cellular respiration together?",
+      "expected_topics": ["CO2", "lactic acid", "respiration", "Warburg", "glucose"],
+      "expected_sources_min": 3
+    }
+  ]
+}

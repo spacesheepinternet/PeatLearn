@@ -19,17 +19,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Module-level reranking constants (built once, reused across calls)
-_RERANK_STOP = {
-    "the","a","an","and","or","of","to","in","is","it","on","for","with","as","by",
-    "that","this","are","be","at","from","about","into","over","under","than","then",
-    "but","if","so","not",
-}
-
-def _tok(text: str) -> list:
-    """Tokenize text, removing stop words."""
-    return [t for t in re.findall(r"[a-zA-Z][a-zA-Z\-']+", (text or "").lower()) if t not in _RERANK_STOP]
-
 # Load environment variables
 load_dotenv()
 
@@ -128,13 +117,20 @@ class RayPeatRAG:
         # --- Step 1b: HyDE — re-embed a hypothetical Peat-style answer for better retrieval ---
         hyde_text = query  # fallback default
         try:
+            hyde_prompt = (
+                "You are Ray Peat. Answer the question below in 3-4 sentences in your exact voice. "
+                "Draw on your specific vocabulary: bioenergetics, oxidative metabolism, cellular respiration, "
+                "thyroid, T3, T4, PUFAs, progesterone, cortisol, ATP, mitochondria, CO2, glucose oxidation, "
+                "pro-metabolic, anti-metabolic, estrogen dominance, serotonin, lactic acid, "
+                "unsaturated fatty acids, ray peat diet. Be mechanistic and specific — name the biochemical "
+                "pathway or hormone involved. Do not hedge or use filler phrases. "
+                f"Question: {query}"
+            )
             hyde_resp = requests.post(
                 "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
                 json={
-                    "contents": [{"role": "user", "parts": [{"text":
-                        "Write a 2-3 sentence answer as Ray Peat would, using bioenergetic language. Question: " + query
-                    }]}],
-                    "generationConfig": {"temperature": 0.2, "maxOutputTokens": 150},
+                    "contents": [{"role": "user", "parts": [{"text": hyde_prompt}]}],
+                    "generationConfig": {"temperature": 0.2, "maxOutputTokens": 200},
                 },
                 headers=gemini_headers,
                 timeout=15,
@@ -213,14 +209,9 @@ class RayPeatRAG:
         if not candidates:
             return "I couldn't find relevant information on that topic in Ray Peat's work. Try rephrasing or ask about metabolism, thyroid, hormones, or nutrition."
 
-        # --- Step 2b: Rerank: 70% vector similarity + 30% keyword overlap, dedupe by source ---
-        q_vocab = set(_tok(query)) or set(re.findall(r"[a-zA-Z]+", query.lower()))
-        for c in candidates:
-            toks = _tok(f"{c['context']} {c['ray_peat_response']}")
-            overlap = len(q_vocab.intersection(toks)) / max(1, len(q_vocab)) if toks else 0.0
-            c["rerank_score"] = 0.7 * c["score"] + 0.3 * overlap
-
-        candidates.sort(key=lambda x: x["rerank_score"], reverse=True)
+        # --- Step 2b: Rerank using cross-encoder (falls back to keyword overlap) ---
+        from peatlearn.rag.reranker import rerank as _rerank
+        candidates = _rerank(query, candidates)
 
         # MMR-style: penalise repeated source files AND content types for diversity
         source_counts: dict = {}
@@ -228,7 +219,7 @@ class RayPeatRAG:
         sources = []
         remaining = list(candidates)
         while remaining and len(sources) < max_sources:
-            best_idx, best_score = 0, -1.0
+            best_idx, best_score = 0, float("-inf")
             for idx, c in enumerate(remaining):
                 key = c["source_file"].strip()
                 # Content type = top-level directory (e.g. "01_Audio_Transcripts")
@@ -237,7 +228,7 @@ class RayPeatRAG:
                 n_type = type_counts.get(ctype, 0)
                 raw = c["rerank_score"]
                 # Penalise repeated files (heavy) and repeated content types (lighter)
-                adjusted = max(raw - 0.3 * n_file - 0.05 * n_type, raw * 0.1)
+                adjusted = raw - 0.3 * n_file - 0.05 * n_type
                 if adjusted > best_score:
                     best_score, best_idx = adjusted, idx
             winner = remaining.pop(best_idx)
@@ -291,12 +282,14 @@ class RayPeatRAG:
                 if resp.status_code == 429:
                     daily_limit_hit = True
                     continue
-                if resp.status_code in (404, 400):
+                if resp.status_code in (404, 400, 503, 529):
                     continue
                 if resp.status_code != 200:
                     raise RuntimeError(f"LLM API error {resp.status_code}: {resp.text[:200]}")
             elif resp.status_code in (404, 400):
                 continue  # Model not found or bad request — try next in cascade
+            elif resp.status_code in (503, 529):
+                continue  # Model overloaded/unavailable — try next in cascade
             elif resp.status_code != 200:
                 raise RuntimeError(f"LLM API error {resp.status_code}: {resp.text[:200]}")
             try:
@@ -306,8 +299,8 @@ class RayPeatRAG:
             if answer:
                 break
 
-        # --- Step 4b: Groq fallback when all Gemini models are rate-limited ---
-        if not answer and (rate_limited or daily_limit_hit):
+        # --- Step 4b: Groq fallback when all Gemini models are rate-limited or unavailable ---
+        if not answer:
             groq_key = os.getenv("GROQ_API_KEY")
             if groq_key:
                 try:

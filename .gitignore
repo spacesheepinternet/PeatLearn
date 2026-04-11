@@ -74,6 +74,14 @@ ipython_config.py
 data/analysis/*
 !data/analysis/.gitkeep
 
+# RAG quality eval — track the question set, ignore run artifacts
+!data/eval/questions.json
+data/eval/results_*.json
+
+# Generated DOCUMENTARY exports
+DOCUMENTARY*.docx
+~$*.docx
+
 
 
 # Embedding and vector stores
