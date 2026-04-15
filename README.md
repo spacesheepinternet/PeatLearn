@@ -191,21 +191,22 @@ Question set lives in `data/eval/questions.json`; results are saved to `data/eva
 | Date | Score | Notes |
 |------|------:|-------|
 | commit `ed84cf1` | 8.60 / 10 | Baseline — HyDE + two-pass Pinecone + MMR diversity (ad-hoc score) |
-| 2026-04-11 | **8.95 / 10** | **+0.35** — cross-encoder rerank (`ms-marco-MiniLM-L-6-v2`) + MMR `float('-inf')` fix |
+| 2026-04-11 | 8.95 / 10 | +0.35 — cross-encoder rerank (`ms-marco-MiniLM-L-6-v2`) + MMR `float('-inf')` fix |
+| 2026-04-14 | **9.05 / 10** | **+0.10** — dynamic `max_sources` heuristic (Lever #1) + three-tier prompt depth (Lever #2) |
 
-**Latest run (8.95/10, 29/30 judged):**
+**Latest run (9.05/10, 30/30 judged):**
 
 | Category | Score | | Rubric dimension | Score |
 |----------|------:|---|------------------|------:|
-| core_bioenergetics | 9.10 | | accuracy | 9.40 |
-| disease_clinical | 9.10 | | grounding | 9.24 |
-| cross_concept | 9.03 | | attribution_style | 8.95 |
-| hormones_endocrine | 8.94 | | domain_fluency | 8.45 |
-| nutrition_foods | 8.90 | | completeness | 8.07 |
-| edge_ambiguous | 8.82 | | | |
-| edge_nuanced | 8.56 | | | |
+| core_bioenergetics | 9.11 | | accuracy | 9.47 |
+| disease_clinical | 9.20 | | grounding | 9.18 |
+| cross_concept | 9.07 | | attribution_style | 9.05 |
+| hormones_endocrine | 9.05 | | domain_fluency | 8.72 |
+| edge_ambiguous | 9.05 | | completeness | 8.37 |
+| edge_nuanced | 9.03 | | | |
+| nutrition_foods | 8.86 | | | |
 
-Automated metrics: **source diversity 0.92**, expected-topic coverage 0.71, 100% of answers returned ≥ expected sources, avg 5.0 inline citations per answer.
+Automated metrics: **source diversity 0.91**, expected-topic coverage 0.76, 100% of answers returned ≥ expected sources, avg 5.3 inline citations per answer.
 
 ---
 

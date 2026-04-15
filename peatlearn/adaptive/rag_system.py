@@ -59,7 +59,7 @@ class RayPeatRAG:
         query: str,
         user_profile: Optional[Dict[str, Any]] = None,
         chat_history: Optional[List[Dict[str, Any]]] = None,
-        max_sources: int = 8,
+        max_sources: Optional[int] = None,
     ) -> str:
         """
         Get response using proper RAG with vector search.
@@ -68,13 +68,19 @@ class RayPeatRAG:
             query: User's question
             user_profile: User's learning profile for adaptation
             chat_history: Recent conversation turns (list of {role, content} dicts)
-            max_sources: Max number of source chunks to include (default 8, range 3–15)
+            max_sources: Max number of source chunks to include. If None (the
+                default), the RAG auto-scales based on query complexity — hard
+                multi-concept or ambiguous queries get 12 sources, everything
+                else gets 8. Callers can override with an explicit int (3–15).
 
         Returns:
             Detailed response with sources from Ray Peat's work
         """
         if not self.search_engine or not self.api_key:
             return self._fallback_response(query)
+
+        if max_sources is None:
+            max_sources = self._estimate_max_sources(query)
 
         try:
             return self._get_rag_response_sync(query, user_profile, chat_history, max_sources)
@@ -89,7 +95,51 @@ class RayPeatRAG:
         except Exception as e:
             import traceback; traceback.print_exc()
             return self._fallback_response(query)
-    
+
+    @staticmethod
+    def _estimate_max_sources(query: str) -> int:
+        """Heuristic: scale max_sources up for hard/synthesis queries.
+
+        Returns 12 for queries that look hard (multi-concept synthesis, nuance/
+        exception framing, or very short/ambiguous single-word queries) and 8
+        for everything else. Used when callers don't pass an explicit max_sources.
+
+        Rationale: benchmark showed completeness (8.07) was the lowest rubric
+        dimension — hard questions were retrieval-starved at 8 sources.
+        """
+        q = (query or "").lower().strip()
+        if not q:
+            return 8
+
+        n_words = len(q.split())
+
+        # Ambiguous short/single-word queries — widen retrieval to disambiguate
+        if n_words <= 3:
+            return 12
+
+        # Multi-concept synthesis markers — asking the model to connect things
+        synthesis = (
+            "relationship", "link ", "connect the", "connect ",
+            "tie together", "tie these", "tie ", "fit together",
+            "how do these", "how does it all",
+        )
+        # Nuance / limits / exception framing — sparse in corpus, needs wide net
+        nuance = (
+            "when does", "are there cases", "cases where", "limits",
+            "uncertainties", "might actually", "exceptions to",
+            "counterexample", "are there any",
+        )
+
+        # 2+ "and" usually means listing 3+ concepts
+        if q.count(" and ") >= 2:
+            return 12
+        if any(m in q for m in synthesis):
+            return 12
+        if any(m in q for m in nuance):
+            return 12
+
+        return 8
+
     def _get_rag_response_sync(
         self,
         query: str,
@@ -253,7 +303,9 @@ class RayPeatRAG:
                 f"Peat's words: {s['ray_peat_response']}"
             )
         context = "\n---\n".join(context_parts)
-        prompt = self._create_adaptive_prompt(query, context, user_profile, chat_history)
+        prompt = self._create_adaptive_prompt(
+            query, context, user_profile, chat_history, n_sources=len(sources)
+        )
 
         # --- Step 4: Call Gemini LLM via REST (avoids SDK retry wrapping) ---
         _all_models = [self.llm_model, "gemini-2.5-flash-lite", "gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"]
@@ -385,9 +437,11 @@ class RayPeatRAG:
             )
         
         context = "\n---\n".join(context_parts)
-        
+
         # Create adaptive prompt based on user profile
-        prompt = self._create_adaptive_prompt(question, context, user_profile)
+        prompt = self._create_adaptive_prompt(
+            question, context, user_profile, n_sources=len(sources)
+        )
 
         try:
             answer = await self._call_gemini_llm(prompt)
@@ -411,11 +465,21 @@ class RayPeatRAG:
         context: str,
         user_profile: Optional[Dict[str, Any]] = None,
         chat_history: Optional[List[Dict[str, Any]]] = None,
+        n_sources: int = 8,
     ) -> str:
-        """Create a prompt adapted to the user's learning profile and conversation history."""
+        """Create a prompt tiered by question complexity and retrieved source count.
 
-        # Classify question depth from signals
+        Three tiers:
+        - Deep synthesis (n_sources >= 12 and not single-word): 260-360 words,
+          unpack sub-questions, use the wider source set.
+        - Ambiguous short (query is 1-3 words): 160-220 words, pick ONE angle
+          and go deep rather than laundry-listing.
+        - Default: current two-tier 120-180 / 180-260 logic.
+        """
+
         q_lower = question.lower()
+        n_words = len(q_lower.split())
+
         detail_signals = [
             "explain", "detail", "elaborate", "in depth", "thoroughly",
             "how does", "why does", "mechanism", "relationship between",
@@ -423,7 +487,45 @@ class RayPeatRAG:
         ]
         wants_detail = any(s in q_lower for s in detail_signals)
 
-        if wants_detail:
+        is_ambiguous_short = n_words <= 3
+        is_deep_synthesis = n_sources >= 12 and not is_ambiguous_short
+
+        extra_rules = ""
+
+        if is_deep_synthesis:
+            length_instruction = (
+                "Write up to 360 words across 3–5 tight paragraphs — but go shorter "
+                "when the sources don't justify more. Brevity with precision beats a "
+                "padded answer. Every sentence should add new information."
+            )
+            extra_rules = (
+                "- Answer the literal question FIRST, in the opening sentence or two. "
+                "Only then add depth, mechanism, or related angles. Never dodge the framing.\n"
+                "- If the honest answer is \"Peat didn't really engage with this framing\" "
+                "or \"he was consistent against it with no real exceptions\", say so "
+                "directly and keep the answer shorter. Do not invent nuance the sources don't show.\n"
+                "- When the sources genuinely hedge or show tension, surface it explicitly — "
+                "say \"Peat sometimes emphasized X, in other contexts Y\" rather than smoothing it over."
+            )
+            followup_instruction = (
+                'End with ONE probing follow-up that opens a new mechanistic thread — '
+                'something a researcher would ask next. Keep it under 22 words.'
+            )
+        elif is_ambiguous_short:
+            length_instruction = (
+                "Write 160–220 words picking ONE specific angle. The question is a bare "
+                "term, so the user wants depth, not a tour of every aspect."
+            )
+            extra_rules = (
+                "- Pick the most distinctively Peat-ian angle the sources offer — a specific "
+                "mechanism, hormone, or food he emphasized — and make that the spine. "
+                "Mention other angles only briefly to frame the chosen one.\n"
+                "- Resist laundry-list framing. Don't itemise every related topic."
+            )
+            followup_instruction = (
+                'End with ONE short follow-up (≤15 words) that drills further into the angle you took.'
+            )
+        elif wants_detail:
             length_instruction = "Write 180–260 words across 2–4 tight paragraphs. Go deep on mechanism where sources allow."
             followup_instruction = (
                 'End with ONE specific follow-up question that would genuinely deepen understanding — '
@@ -468,6 +570,7 @@ Rules:
 - Lead with the most interesting or counterintuitive point. Surface it early.
 - Use Peat's exact words only when they're genuinely striking. Avoid academic filler.
 - When sources contain practical advice (foods, supplements, techniques, or lifestyle changes Peat recommended), include it concretely — don't stop at theory.
+{extra_rules}
 - {followup_instruction}
 - If the sources don't cover the question, say so in one sentence and suggest a related angle the user might find useful."""
 

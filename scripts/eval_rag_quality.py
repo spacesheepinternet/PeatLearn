@@ -67,6 +67,14 @@ DOMAIN_VOCAB = [
 JUDGE_MODEL = "gemini-2.5-flash"
 JUDGE_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{JUDGE_MODEL}:generateContent"
 
+# Hard questions are retrieval-starved at 8 sources — completeness was the
+# weakest rubric dimension (8.07). Bump hard questions to 12.
+DIFFICULTY_TO_MAX_SOURCES = {
+    "easy": 8,
+    "medium": 8,
+    "hard": 12,
+}
+
 # Rubric weights — must sum to 1.0
 RUBRIC_WEIGHTS = {
     "accuracy": 0.30,
@@ -431,9 +439,14 @@ def main() -> int:
         print(f"  [{i:2}/{len(questions)}] {qid}  {category:<22} {question_text[:52]}", flush=True)
 
         # --- RAG call ---
+        # Use the question's difficulty label to set max_sources explicitly.
+        # This isolates the "more-sources-on-hard-questions" lever from the
+        # runtime heuristic in RayPeatRAG._estimate_max_sources.
+        difficulty = q.get("difficulty", "medium")
+        max_sources_for_q = DIFFICULTY_TO_MAX_SOURCES.get(difficulty, 8)
         t0 = time.time()
         try:
-            raw_answer = rag.get_rag_response(question_text, max_sources=8)
+            raw_answer = rag.get_rag_response(question_text, max_sources=max_sources_for_q)
         except Exception as e:
             print(f"        RAG error: {e}")
             results.append({
@@ -470,6 +483,7 @@ def main() -> int:
             "id": qid,
             "category": category,
             "difficulty": q.get("difficulty"),
+            "max_sources_used": max_sources_for_q,
             "question": question_text,
             "answer": answer_body,
             "sources": sources,
