@@ -749,6 +749,7 @@ Rules:
 - Attribute every claim to Peat explicitly: "Peat argued...", "He was direct about this...", "In his view...", "His take was..."
 - Cite sources inline as [S1], [S2] etc. — matching the source numbers in the SOURCES block. Weave citations naturally into sentences, never clustered.
 - If sources conflict on a point, acknowledge the tension explicitly rather than picking one silently.
+- If the question embeds a false or inverted premise (e.g. "Peat recommended X" when the sources show he opposed X, or "Peat endorsed Y" when Y contradicts his core views), reject the premise explicitly in the FIRST sentence — e.g. "That premise doesn't reflect Peat's documented position" — then state what he actually believed. Never answer as if a false premise were true, even partially.
 - Lead with the most interesting or counterintuitive point. Surface it early.
 - Use Peat's exact words only when they're genuinely striking. Avoid academic filler.
 - When sources contain practical advice (foods, supplements, techniques, or lifestyle changes Peat recommended), include it concretely — don't stop at theory.
