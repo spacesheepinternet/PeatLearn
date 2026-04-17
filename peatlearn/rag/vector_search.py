@@ -125,8 +125,20 @@ class PineconeVectorSearch:
             except Exception as e:
                 logger.error(f"Embedding API call failed: {e}. Falling back to local embedding.")
 
-        # Local deterministic embedding fallback: hash-based pseudo-embedding
+        # Local deterministic embedding fallback: hash-based pseudo-embedding.
+        # In production this produces meaningless vectors that return random
+        # results — refuse to serve them. The RAG layer catches RuntimeError
+        # and returns an ABSTAIN-level refusal.
         import hashlib
+        if os.getenv("PEATLEARN_ENV") == "production":
+            raise RuntimeError(
+                "Embedding API unavailable; refusing to serve hash-fallback "
+                "in production. This would return meaningless search results."
+            )
+        logger.warning(
+            "Embedding API unavailable — using SHA-256 hash fallback. "
+            "Results will NOT be semantically meaningful."
+        )
         digest = hashlib.sha256(query.encode("utf-8")).digest()
         # Repeat digest to fill the required dimension
         bytes_needed = self.embedding_dimensions

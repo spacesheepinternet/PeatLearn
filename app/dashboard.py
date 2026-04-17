@@ -1045,16 +1045,25 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Helpers ---
-def _split_answer_and_sources(raw: str) -> tuple[str, list[str]]:
-    """Split body and sources list from the model output without escaping.
+def _split_answer_and_sources(raw: str) -> tuple[str, list[str], dict | None]:
+    """Split body, sources list, and confidence info from the model output.
 
-    Returns (body_markdown, sources_lines)
+    Returns (body_markdown, sources_lines, confidence_dict_or_None)
+    where confidence_dict has keys 'tier' and 'reasons'.
     """
     if not raw:
-        return "", []
+        return "", [], None
+
+    # Extract confidence footer first (appended as last line by rag_system)
+    confidence = None
+    conf_match = re.search(r'\n\U0001f512 Confidence:\s*(\w+)\s*\|\s*(.+?)$', raw)
+    if conf_match:
+        confidence = {"tier": conf_match.group(1).upper(), "reasons": conf_match.group(2).strip()}
+        raw = raw[:conf_match.start()]
+
     m = re.search(r"(?:^|\n)\s*(?:Source mapping:|📚\s*Sources[^\n]*:)\s*(.+)$", raw, flags=re.IGNORECASE | re.DOTALL)
     if not m:
-        return raw, []
+        return raw, [], confidence
     body = raw[:m.start()].rstrip()
     tail = m.group(1)
     sources = [l.strip(" -*\t") for l in tail.splitlines() if l.strip()]
@@ -1069,7 +1078,7 @@ def _split_answer_and_sources(raw: str) -> tuple[str, list[str]]:
             # Renumber: replace leading "N. " with new sequential number
             renumbered = re.sub(r"^\d+\.\s*", f"{len(deduped) + 1}. ", s)
             deduped.append(renumbered)
-    return body, deduped
+    return body, deduped, confidence
 
 # Initialize components
 @st.cache_resource
@@ -1503,7 +1512,7 @@ def render_chat_interface():
                 </div>
             """, unsafe_allow_html=True)
         else:
-            body_md, sources = _split_answer_and_sources(message['content'])
+            body_md, sources, confidence = _split_answer_and_sources(message['content'])
             _ts = message.get('timestamp', '')
             _ts_fmt = ''
             if _ts:
@@ -1511,17 +1520,47 @@ def render_chat_interface():
                     _ts_fmt = datetime.fromisoformat(_ts).strftime('%H:%M')
                 except Exception:
                     pass
+
+            # Confidence badge — coloured inline label next to the header
+            _tier = (confidence or {}).get("tier", "").upper()
+            _badge_colors = {
+                "HIGH":    ("background:#1a5c1a;color:#b8f0b8;", "HIGH"),
+                "MEDIUM":  ("background:#6a5a1a;color:#f0e0b8;", "MEDIUM"),
+                "LOW":     ("background:#6a1a1a;color:#f0b8b8;", "LOW"),
+                "ABSTAIN": ("background:#3a3a3a;color:#aaa;",    "ABSTAIN"),
+            }
+            _badge_style, _badge_label = _badge_colors.get(_tier, ("", ""))
+            _badge_html = (
+                f' <span style="{_badge_style}display:inline-block;padding:1px 7px;'
+                f'border-radius:4px;font-size:0.7rem;font-weight:600;'
+                f'margin-left:8px;vertical-align:middle;">{_badge_label}</span>'
+                if _badge_style else ""
+            )
+
             st.markdown(f"""
                 <div class="chat-message assistant-message">
                     <div class="message-header">
                         <span class="avatar avatar-ai">🌿</span>
-                        <span class="msg-name">Ray Peat AI</span>
+                        <span class="msg-name">Ray Peat AI</span>{_badge_html}
                         <span class="msg-time">{_ts_fmt}</span>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            # Render markdown body first (allows headings/lists)
+
+            # LOW confidence warning banner
+            if _tier == "LOW":
+                st.markdown(
+                    '<div style="background:#4a2020;border:1px solid #6a3030;'
+                    'border-radius:6px;padding:8px 12px;margin:4px 0 8px;'
+                    'font-size:0.82rem;color:#f0c0c0;">'
+                    '&#9888;&#65039; Sources only weakly support this answer '
+                    '&mdash; verify independently before acting on it.</div>',
+                    unsafe_allow_html=True,
+                )
+
+            # Render markdown body (allows headings/lists)
             st.markdown(body_md)
+
             # Render sources with hover UI if present
             if sources:
                 sources_list = "".join(f"<li>{html.escape(it)}</li>" for it in sources[:12])
@@ -1586,14 +1625,15 @@ def render_chat_interface():
                     chat_history=recent_history,
                 )
         
-        # Add assistant message (attach parsed sources)
-        body_md_tmp, sources_tmp = _split_answer_and_sources(response)
+        # Add assistant message (attach parsed sources + confidence)
+        body_md_tmp, sources_tmp, conf_tmp = _split_answer_and_sources(response)
         assistant_message = {
-            'role': 'assistant', 
+            'role': 'assistant',
             'content': response,
             'timestamp': datetime.now().isoformat(),
             'user_query': prompt,
-            'sources': sources_tmp
+            'sources': sources_tmp,
+            'confidence': conf_tmp,
         }
         st.session_state.chat_history.append(assistant_message)
         

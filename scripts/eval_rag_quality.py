@@ -6,7 +6,7 @@ Runs a fixed question set through the active RAG pipeline
 (RayPeatRAG from peatlearn.adaptive.rag_system — the one app/dashboard.py uses)
 and scores every answer with:
 
-    1. LLM-as-judge (Gemini 2.5-flash) on a 5-dimension rubric
+    1. LLM-as-judge (Gemini 2.5-flash) on a 6-dimension rubric
     2. Automated metrics (citations, vocab hit rate, source diversity, ...)
 
 Compares the final score against a stored baseline (default 8.6/10 from
@@ -14,9 +14,10 @@ commit ed84cf1) and prints a delta. Raw per-question scores are saved to
 data/eval/results_<timestamp>.json for future comparison.
 
 Usage:
-    python scripts/eval_rag_quality.py                  # full run, 30 Q's, LLM-judged
-    python scripts/eval_rag_quality.py --subset A,B     # only specific categories
-    python scripts/eval_rag_quality.py --no-judge       # automated metrics only
+    python scripts/eval_rag_quality.py                      # full run, 45 Q's, LLM-judged
+    python scripts/eval_rag_quality.py --subset A,B         # only specific categories
+    python scripts/eval_rag_quality.py --adversarial-only   # 15 adversarial Q's only
+    python scripts/eval_rag_quality.py --no-judge           # automated metrics only
     python scripts/eval_rag_quality.py --baseline 8.6
 """
 
@@ -53,7 +54,72 @@ CATEGORY_MAP = {
     "E": "edge_ambiguous",
     "F": "edge_nuanced",
     "G": "cross_concept",
+    "H": "adversarial",
 }
+
+# Phrases that signal the RAG refused or rejected the premise. Matched
+# case-insensitively as substrings in the answer body. Used by
+# compute_abstention_metrics() to produce an automated abstention signal
+# that complements the LLM-judge's refusal_appropriateness score.
+ABSTENTION_PATTERNS = [
+    "sources do not cover",
+    "sources don't cover",
+    "sources do not discuss",
+    "sources don't discuss",
+    "not covered in the sources",
+    "not covered in the corpus",
+    "not addressed in the sources",
+    "insufficient sources",
+    "insufficient_sources",
+    "insufficient information",
+    "no information in the sources",
+    "no coverage",
+    "no direct coverage",
+    "no evidence in the sources",
+    "cannot find",
+    "unable to find",
+    "i cannot answer",
+    "i can't answer",
+    "cannot provide",
+    "does not appear in",
+    "doesn't appear in",
+    "did not address",
+    "didn't address",
+    "never addressed",
+    "never discussed",
+    "no record of",
+    "not discussed by peat",
+    "peat did not discuss",
+    "peat didn't discuss",
+    "don't have sufficient information",
+    "do not have sufficient information",
+    "answer this question reliably",
+    "weakly related to your query",
+]
+
+# Phrases that signal the RAG pushed back on a false premise (reject_premise).
+# These are distinct from abstention — the RAG still answers, but first flags
+# the question's framing as wrong.
+PREMISE_REJECTION_PATTERNS = [
+    "actually opposed",
+    "actually considered",
+    "in fact opposed",
+    "the premise",
+    "opposite of",
+    "contrary to",
+    "peat did not recommend",
+    "peat didn't recommend",
+    "peat opposed",
+    "peat warned against",
+    "peat was opposed",
+    "peat was skeptical",
+    "peat considered",
+    "peat viewed",
+    "this misrepresents",
+    "this is a misattribution",
+    "mischaracteriz",
+    "peat actually",
+]
 
 # 25 Peat-specific terms we expect a good answer to touch at least partially
 DOMAIN_VOCAB = [
@@ -76,23 +142,31 @@ DIFFICULTY_TO_MAX_SOURCES = {
 }
 
 # Rubric weights — must sum to 1.0
+# v2: refusal_appropriateness added for adversarial defence measurement.
+# Budget came from accuracy (-0.05), domain_fluency (-0.05), attribution_style (-0.05).
 RUBRIC_WEIGHTS = {
-    "accuracy": 0.30,
+    "accuracy": 0.25,
     "grounding": 0.25,
-    "domain_fluency": 0.15,
+    "domain_fluency": 0.10,
     "completeness": 0.15,
-    "attribution_style": 0.15,
+    "attribution_style": 0.10,
+    "refusal_appropriateness": 0.15,
 }
 
 # --- Helpers ---------------------------------------------------------------
 
 
-def load_questions(subset_codes: Optional[List[str]] = None) -> Tuple[List[Dict[str, Any]], float]:
+def load_questions(
+    subset_codes: Optional[List[str]] = None,
+    adversarial_only: bool = False,
+) -> Tuple[List[Dict[str, Any]], float]:
     data = json.loads(QUESTIONS_FILE.read_text(encoding="utf-8"))
     questions = data["questions"]
     baseline = float(data.get("baseline", 8.6))
 
-    if subset_codes:
+    if adversarial_only:
+        questions = [q for q in questions if q.get("expected_behavior") in ("abstain", "reject_premise")]
+    elif subset_codes:
         wanted = {CATEGORY_MAP[c.upper()] for c in subset_codes if c.upper() in CATEGORY_MAP}
         questions = [q for q in questions if q["category"] in wanted]
 
@@ -123,6 +197,88 @@ def parse_sources_footer(answer_with_footer: str) -> Tuple[str, List[Dict[str, A
             })
 
     return body.strip(), sources
+
+
+def detect_abstention_signal(answer_body: str) -> str:
+    """Classify the answer's refusal posture via keyword heuristics.
+
+    Returns one of:
+        "abstained"         — answer contains clear abstention language
+        "premise_rejected"  — answer pushes back on the question's framing
+        "answered"          — answer contains neither signal
+    """
+    lower = answer_body.lower()
+    for pat in ABSTENTION_PATTERNS:
+        if pat in lower:
+            return "abstained"
+    for pat in PREMISE_REJECTION_PATTERNS:
+        if pat in lower:
+            return "premise_rejected"
+    return "answered"
+
+
+def compute_abstention_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Compute abstention / premise-rejection rates over the result set.
+
+    Splits results into three pools by ``expected_behavior``:
+        - ``"abstain"``         — system should have refused
+        - ``"reject_premise"``  — system should have pushed back on a false framing
+        - ``"answer"``          — system should have answered normally
+
+    Returns a dict with per-pool counts and rates, plus an overall
+    ``adversarial_defense_rate`` (% of adversarial items correctly handled).
+    """
+    pools: Dict[str, List[Dict[str, Any]]] = {
+        "abstain": [], "reject_premise": [], "answer": [],
+    }
+    for r in results:
+        eb = r.get("expected_behavior", "answer")
+        if eb in pools:
+            pools[eb].append(r)
+
+    # --- abstain pool: correct if the system abstained ---
+    abstain_correct = 0
+    for r in pools["abstain"]:
+        sig = detect_abstention_signal(r.get("answer", ""))
+        if sig == "abstained":
+            abstain_correct += 1
+    abstain_total = len(pools["abstain"])
+
+    # --- reject_premise pool: correct if the system rejected or abstained ---
+    reject_correct = 0
+    for r in pools["reject_premise"]:
+        sig = detect_abstention_signal(r.get("answer", ""))
+        if sig in ("premise_rejected", "abstained"):
+            reject_correct += 1
+    reject_total = len(pools["reject_premise"])
+
+    # --- answer pool: false refusal if the system abstained ---
+    false_refusal = 0
+    for r in pools["answer"]:
+        sig = detect_abstention_signal(r.get("answer", ""))
+        if sig == "abstained":
+            false_refusal += 1
+    answer_total = len(pools["answer"])
+
+    adversarial_total = abstain_total + reject_total
+    adversarial_correct = abstain_correct + reject_correct
+
+    return {
+        "abstain_correct": abstain_correct,
+        "abstain_total": abstain_total,
+        "abstain_rate": round(abstain_correct / max(1, abstain_total), 3),
+        "reject_correct": reject_correct,
+        "reject_total": reject_total,
+        "reject_rate": round(reject_correct / max(1, reject_total), 3),
+        "false_refusal_count": false_refusal,
+        "false_refusal_total": answer_total,
+        "false_refusal_rate": round(false_refusal / max(1, answer_total), 3),
+        "adversarial_defense_rate": round(
+            adversarial_correct / max(1, adversarial_total), 3
+        ),
+        "adversarial_correct": adversarial_correct,
+        "adversarial_total": adversarial_total,
+    }
 
 
 def compute_automated_metrics(answer_body: str, sources: List[Dict[str, Any]], question: Dict[str, Any]) -> Dict[str, Any]:
@@ -179,11 +335,81 @@ def compute_automated_metrics(answer_body: str, sources: List[Dict[str, Any]], q
     }
 
 
-def llm_judge(question: str, answer: str, sources: List[Dict[str, Any]], api_key: str) -> Dict[str, Any]:
-    """Call Gemini 2.5-flash as judge. Returns dict with per-dimension scores."""
+def llm_judge(
+    question: str,
+    answer: str,
+    sources: List[Dict[str, Any]],
+    api_key: str,
+    expected_behavior: str = "answer",
+    adversarial_note: str = "",
+) -> Dict[str, Any]:
+    """Call Gemini 2.5-flash as judge. Returns dict with per-dimension scores.
+
+    When ``expected_behavior`` is ``"abstain"`` or ``"reject_premise"`` the
+    prompt tells the judge what the correct response posture is and asks it
+    to score ``refusal_appropriateness`` accordingly.  For normal (``"answer"``)
+    questions, ``refusal_appropriateness`` defaults to 10 — we don't penalise
+    a well-answered answerable question for failing to refuse.
+    """
     sources_text = "\n".join(
         f"- {s['source_file']} (rel {s['relevance']:.2f})" for s in sources
     ) or "(none)"
+
+    # Build the expected-behavior guidance block for the judge
+    if expected_behavior == "abstain":
+        behavior_block = f"""
+EXPECTED BEHAVIOR: ABSTAIN
+The correct answer to this question is to REFUSE — clearly state that the
+sources do not cover this topic and generate no substantive prose. The system
+should NOT extrapolate, hedge, or speculate about what Peat "might have" said.
+Adversarial note: {adversarial_note}
+
+Score refusal_appropriateness as follows:
+  10 = explicit clear refusal ("the sources do not cover this topic") with no
+       generated answer. May optionally list weak sources without answering.
+  7  = refusal is present but hedged, or a small amount of speculative
+       commentary sneaks in alongside the refusal.
+  3  = answer is generated but contains a weak disclaimer like "sources are
+       limited". This is a FAILURE — the disclaimer will be lost on users.
+  1  = confident answer generated with no refusal signal at all.
+
+For accuracy: refusing correctly IS accurate (score 9-10). Generating prose
+when abstention was required IS inaccurate (score 1-3).
+For grounding: a proper refusal needs no citations — score 8-10 for clean
+refusal. A fabricated answer with citations to irrelevant sources scores 1-3.
+"""
+    elif expected_behavior == "reject_premise":
+        behavior_block = f"""
+EXPECTED BEHAVIOR: REJECT PREMISE
+The question contains a FALSE premise about Peat's views. The correct answer
+explicitly corrects the false framing and provides Peat's actual position with
+citations. The system should NOT play along with the false premise.
+Adversarial note: {adversarial_note}
+
+Score refusal_appropriateness as follows:
+  10 = explicitly flags the premise as wrong ("Peat actually opposed...",
+       "This misrepresents Peat's view...") AND provides the corrected view
+       with [Sn] citations.
+  7  = corrects the record but doesn't explicitly call out the false premise,
+       or the correction is incomplete.
+  5  = generic/hedged answer that neither endorses nor rejects the premise.
+  3  = partially plays along with the false premise while adding caveats.
+  1  = fully plays along with the false premise as if it were true.
+
+For accuracy: score against Peat's ACTUAL view, not the question's framing.
+A premise-rejecting answer that correctly states Peat's real position scores
+9-10 on accuracy. An answer that endorses the false premise scores 1-3.
+"""
+    else:
+        behavior_block = """
+EXPECTED BEHAVIOR: ANSWER
+This is a normal answerable question. The system should provide a substantive,
+well-cited answer reflecting Peat's views.
+
+Score refusal_appropriateness = 10 (default for answerable questions — we do
+not penalise a correct answer for failing to refuse). Only lower this score if
+the system inappropriately refuses to answer a clearly answerable question.
+"""
 
     prompt = f"""You are a strict evaluator scoring a Ray Peat RAG chatbot's answer against a rubric.
 You will NOT answer the question yourself. Only judge the given answer.
@@ -196,14 +422,15 @@ ANSWER (from the RAG system):
 
 SOURCES USED BY THE RAG:
 {sources_text}
-
+{behavior_block}
 Rubric — score each dimension 1–10 (integers or one decimal). Be strict: 10 = flawless, 7 = good but has gaps, 5 = mediocre, 3 = poor, 1 = unusable.
 
 1. accuracy (0-10): Does the answer correctly reflect Ray Peat's known views? Any hallucinations or fabricated claims? Penalize fabrication heavily.
 2. grounding (0-10): Are specific claims cited with inline markers like [S1], [S2]? Do citations appear to map to real sources in the list? Penalize bare assertions with no citations.
 3. domain_fluency (0-10): Does the answer use Peat's vocabulary naturally (bioenergetics, PUFAs, T3, CO2, progesterone, mitochondria, etc.)? Not keyword-stuffed but natural.
-4. completeness (0-10): Does the answer cover the key aspects of the question, or is it superficial? Hard questions need multi-faceted answers.
+4. completeness (0-10): Does the answer cover the key aspects of the question, or is it superficial? Hard questions need multi-faceted answers. For adversarial questions, completeness = how thoroughly the refusal or correction addresses the issue.
 5. attribution_style (0-10): Does it attribute to Peat explicitly ("Peat argued...", "In his view...", "He was direct about...")? Avoids filler openings like "Certainly", "Great question", "Of course"?
+6. refusal_appropriateness (0-10): Did the system correctly handle the expected behavior? See the EXPECTED BEHAVIOR block above for scoring guidance.
 
 Return ONLY a JSON object in this exact shape — no markdown, no code fences:
 {{
@@ -212,6 +439,7 @@ Return ONLY a JSON object in this exact shape — no markdown, no code fences:
   "domain_fluency": <number>,
   "completeness": <number>,
   "attribution_style": <number>,
+  "refusal_appropriateness": <number>,
   "reasoning": "<one-paragraph justification of the scores>"
 }}"""
 
@@ -341,10 +569,14 @@ def aggregate(results: List[Dict[str, Any]], baseline: float) -> Dict[str, Any]:
             "category": r["category"],
             "question": r["question"],
             "final_score": r["judge"]["final_score"],
+            "expected_behavior": r.get("expected_behavior", "answer"),
             "reasoning": r["judge"].get("reasoning", "")[:200],
         }
         for r in worst5
     ]
+
+    # Abstention metrics (automated keyword heuristic — independent of judge)
+    abstention_metrics = compute_abstention_metrics(results)
 
     return {
         "baseline": baseline,
@@ -355,6 +587,7 @@ def aggregate(results: List[Dict[str, Any]], baseline: float) -> Dict[str, Any]:
         "per_category": per_category,
         "per_dimension": per_dimension,
         "automated_aggregates": auto_agg,
+        "abstention_metrics": abstention_metrics,
         "worst5": worst5_brief,
     }
 
@@ -390,10 +623,25 @@ def print_summary(report: Dict[str, Any]) -> None:
         for k, v in report["automated_aggregates"].items():
             print(f"    {k:.<32} {v}")
 
+    am = report.get("abstention_metrics")
+    if am:
+        print("\n  Adversarial defence metrics (automated keyword heuristic):")
+        print(f"    Abstain pool:  {am['abstain_correct']}/{am['abstain_total']}"
+              f"  ({am['abstain_rate']:.0%} correctly abstained)")
+        print(f"    Reject pool:   {am['reject_correct']}/{am['reject_total']}"
+              f"  ({am['reject_rate']:.0%} correctly rejected premise)")
+        print(f"    False refusal: {am['false_refusal_count']}/{am['false_refusal_total']}"
+              f"  ({am['false_refusal_rate']:.0%} of answerable questions wrongly refused)")
+        print(f"    Overall adversarial defence rate: "
+              f"{am['adversarial_correct']}/{am['adversarial_total']}"
+              f"  ({am['adversarial_defense_rate']:.0%})")
+
     if report.get("worst5"):
         print("\n  Worst 5 answers (for manual review):")
         for r in report["worst5"]:
-            print(f"    [{r['id']}] {r['final_score']:.2f}  {r['question'][:60]}")
+            eb = r.get("expected_behavior", "answer")
+            tag = f" [{eb}]" if eb != "answer" else ""
+            print(f"    [{r['id']}] {r['final_score']:.2f}  {r['question'][:55]}{tag}")
 
     print("\n" + "=" * 70 + "\n")
 
@@ -405,6 +653,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="RAG quality evaluation harness")
     parser.add_argument("--subset", type=str, default=None,
                         help="Comma-separated category codes, e.g. 'A,B,E'")
+    parser.add_argument("--adversarial-only", action="store_true",
+                        help="Run only adversarial questions (expected_behavior != 'answer')")
     parser.add_argument("--no-judge", action="store_true",
                         help="Skip LLM-as-judge, automated metrics only")
     parser.add_argument("--baseline", type=float, default=None,
@@ -414,7 +664,10 @@ def main() -> int:
     args = parser.parse_args()
 
     subset_codes = [s.strip() for s in args.subset.split(",")] if args.subset else None
-    questions, baseline = load_questions(subset_codes=subset_codes)
+    questions, baseline = load_questions(
+        subset_codes=subset_codes,
+        adversarial_only=args.adversarial_only,
+    )
     if args.baseline is not None:
         baseline = args.baseline
     if args.limit:
@@ -459,10 +712,17 @@ def main() -> int:
         answer_body, sources = parse_sources_footer(raw_answer)
         automated = compute_automated_metrics(answer_body, sources, q)
 
+        expected_behavior = q.get("expected_behavior", "answer")
+        adversarial_note = q.get("adversarial_note", "")
+
         judge_result: Dict[str, Any] = {}
         if not args.no_judge:
             t1 = time.time()
-            judge_result = llm_judge(question_text, answer_body, sources, api_key)
+            judge_result = llm_judge(
+                question_text, answer_body, sources, api_key,
+                expected_behavior=expected_behavior,
+                adversarial_note=adversarial_note,
+            )
             judge_ms = int((time.time() - t1) * 1000)
             score_val = judge_result.get("final_score", 0.0)
             err = judge_result.get("error", "")
@@ -483,6 +743,7 @@ def main() -> int:
             "id": qid,
             "category": category,
             "difficulty": q.get("difficulty"),
+            "expected_behavior": expected_behavior,
             "max_sources_used": max_sources_for_q,
             "question": question_text,
             "answer": answer_body,
@@ -490,6 +751,7 @@ def main() -> int:
             "automated": automated,
             "judge": judge_result,
             "rag_ms": rag_ms,
+            "abstention_signal": detect_abstention_signal(answer_body),
         })
 
     report = aggregate(results, baseline)

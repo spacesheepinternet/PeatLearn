@@ -50,6 +50,8 @@ class QuestionResponse(BaseModel):
     answer: str
     confidence: float
     sources: List[dict]
+    confidence_tier: Optional[str] = None
+    confidence_reasons: Optional[List[str]] = None
 
 class CorpusStatsResponse(BaseModel):
     """Response model for corpus statistics."""

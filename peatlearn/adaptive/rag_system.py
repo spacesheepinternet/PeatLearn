@@ -150,6 +150,20 @@ class RayPeatRAG:
         """Fully synchronous RAG path — safe to call from Streamlit or any context."""
         gemini_headers = {"x-goog-api-key": self.api_key, "Content-Type": "application/json"}
 
+        # --- Step 0: Temporal guard — auto-ABSTAIN on post-2022 topics ---
+        from peatlearn.rag.temporal_guard import check_temporal as _check_temporal
+        temporal_reason = _check_temporal(query)
+        if temporal_reason:
+            confidence_footer = f"\n\n\U0001f512 Confidence: ABSTAIN | Temporal guard: {temporal_reason}"
+            return (
+                "I can't answer this question because it references a topic "
+                "that emerged after Ray Peat's death in October 2022. Peat's "
+                "corpus does not cover this subject, and any answer would be "
+                "speculation rather than grounded in his actual work.\n\n"
+                f"Reason: {temporal_reason}"
+                + confidence_footer
+            )
+
         # --- Step 1: Generate query embedding via Gemini REST (sync) ---
         emb_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent"
         emb_resp = requests.post(
@@ -163,33 +177,53 @@ class RayPeatRAG:
         embedding = emb_resp.json().get("embedding", {}).get("values")
         if not embedding:
             raise RuntimeError("Empty embedding returned")
+        raw_query_embedding = list(embedding)  # preserve for HyDE divergence fallback
 
-        # --- Step 1b: HyDE — re-embed a hypothetical Peat-style answer for better retrieval ---
-        hyde_text = query  # fallback default
-        try:
-            hyde_prompt = (
-                "You are Ray Peat. Answer the question below in 3-4 sentences in your exact voice. "
-                "Draw on your specific vocabulary: bioenergetics, oxidative metabolism, cellular respiration, "
-                "thyroid, T3, T4, PUFAs, progesterone, cortisol, ATP, mitochondria, CO2, glucose oxidation, "
-                "pro-metabolic, anti-metabolic, estrogen dominance, serotonin, lactic acid, "
-                "unsaturated fatty acids, ray peat diet. Be mechanistic and specific — name the biochemical "
-                "pathway or hormone involved. Do not hedge or use filler phrases. "
-                f"Question: {query}"
-            )
-            hyde_resp = requests.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
-                json={
-                    "contents": [{"role": "user", "parts": [{"text": hyde_prompt}]}],
-                    "generationConfig": {"temperature": 0.2, "maxOutputTokens": 200},
-                },
-                headers=gemini_headers,
-                timeout=15,
-            )
-            if hyde_resp.status_code == 200:
-                hyde_text = hyde_resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip() or query
-        except Exception:
-            pass
+        # --- Step 1b: Dual HyDE — academic + email style, sequential to avoid RPM bursts ---
+        # Academic HyDE: mechanistic Peat vocabulary → surfaces written articles + transcripts.
+        # Email HyDE:    direct Q&A style → surfaces email corpus (2.6k+ vectors of direct
+        #                Peat quotes invisible to academic-style embeddings).
+        # Both calls are sequential (not concurrent) to prevent rate-limit silent failures.
+        # Each call validates output: must be ≥ 20 words and meaningfully different from query;
+        # a single retry fires on 429 after a short wait.
+        _hyde_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
 
+        def _robust_hyde(prompt: str) -> str | None:
+            """Call Flash-Lite for a HyDE answer. Returns text or None on failure."""
+            payload = {
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.2, "maxOutputTokens": 200},
+            }
+            for attempt in range(2):
+                try:
+                    r = requests.post(_hyde_url, json=payload, headers=gemini_headers, timeout=20)
+                    if r.status_code == 429:
+                        time.sleep(8)
+                        continue
+                    if r.status_code != 200:
+                        return None
+                    text = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    # Validate: must be ≥ 20 words and not a trivial repeat of the query
+                    if text and len(text.split()) >= 20 and text.lower() != query.lower():
+                        return text
+                except Exception:
+                    pass
+            return None
+
+        # Academic HyDE (always fires — replaces original single HyDE)
+        academic_prompt = (
+            "You are Ray Peat. Answer the question below in 3-4 sentences in your exact voice. "
+            "Draw on your specific vocabulary: bioenergetics, oxidative metabolism, cellular respiration, "
+            "thyroid, T3, T4, PUFAs, progesterone, cortisol, ATP, mitochondria, CO2, glucose oxidation, "
+            "pro-metabolic, anti-metabolic, estrogen dominance, serotonin, lactic acid, "
+            "unsaturated fatty acids, ray peat diet. Be mechanistic and specific — name the biochemical "
+            "pathway or hormone involved. Do not hedge or use filler phrases. "
+            f"Question: {query}"
+        )
+        _academic_hyde_result = _robust_hyde(academic_prompt)
+        hyde_text = _academic_hyde_result or query
+
+        academic_hyde_embedding = None  # saved for confidence scoring (Phase 2)
         hyde_emb = requests.post(
             emb_url,
             json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": hyde_text}]}},
@@ -199,7 +233,54 @@ class RayPeatRAG:
         if hyde_emb.status_code == 200:
             hyde_vals = hyde_emb.json().get("embedding", {}).get("values")
             if hyde_vals:
-                embedding = hyde_vals  # overwrite — Pinecone query uses this transparently
+                embedding = hyde_vals  # primary embedding used for Pinecone
+                if _academic_hyde_result:
+                    academic_hyde_embedding = hyde_vals
+
+        # Email HyDE (fires second, after academic — sequential to avoid RPM bursts)
+        email_prompt = (
+            "You are Ray Peat replying to a direct email question. "
+            "Give a short, specific, opinionated answer — 2-3 sentences. "
+            "Name specific foods, supplements, or practical recommendations. "
+            "Be direct: state what you do or don't recommend, and briefly say why. "
+            "No hedging, no academic framing. Write as you would in a personal email reply. "
+            f"Question: {query}"
+        )
+        hyde_email_text = _robust_hyde(email_prompt)
+
+        # Embed email HyDE — only if it produced a valid, distinct answer
+        email_embedding = None
+        if hyde_email_text:
+            try:
+                email_emb_resp = requests.post(
+                    emb_url,
+                    json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": hyde_email_text}]}},
+                    headers=gemini_headers,
+                    timeout=30,
+                )
+                if email_emb_resp.status_code == 200:
+                    ev = email_emb_resp.json().get("embedding", {}).get("values")
+                    if ev:
+                        email_embedding = ev
+            except Exception:
+                pass
+
+        # --- Step 1c: HyDE divergence guard ---
+        # If the two HyDE embeddings disagree strongly, both are unreliable —
+        # a bad HyDE is worse than no HyDE because it pulls retrieval off-topic.
+        # Discard both and retrieve from the raw query embedding only.
+        if academic_hyde_embedding and email_embedding:
+            from peatlearn.rag.confidence import _cosine_similarity
+            hyde_cos = _cosine_similarity(academic_hyde_embedding, email_embedding)
+            if hyde_cos < 0.55:
+                import logging as _lg
+                _lg.getLogger(__name__).warning(
+                    f"HyDE divergence detected (cosine={hyde_cos:.3f}) — "
+                    f"discarding both HyDE embeddings, falling back to raw query"
+                )
+                embedding = raw_query_embedding
+                academic_hyde_embedding = None
+                email_embedding = None
 
         # --- Step 2: Query Pinecone with two-pass diversity strategy ---
         # Some files have 50+ near-identical chunks that drown out diverse results.
@@ -238,6 +319,38 @@ class RayPeatRAG:
         )
         candidates, file_counts = _collect_candidates(pinecone_resp.get("matches", []))
 
+        # Email HyDE pass — fires only for specific food/supplement topics where the email
+        # corpus holds direct Peat quotes not well-represented in written articles or audio.
+        # Trigger: query contains a known food/supplement term. This is precise — it fires
+        # for "milk", "gelatin", "cruciferous", "coconut oil" etc. but NOT for broad topics
+        # like "stress", "aging", or hormone-mechanism questions where audio/written articles
+        # are the right primary source and email injection causes noise.
+        _EMAIL_FOOD_TERMS = {
+            "milk", "dairy", "cheese", "cream", "kefir",
+            "gelatin", "collagen", "glycine", "broth",
+            "crucifer", "broccoli", "kale", "cabbage", "cauliflower", "goitrogen",
+            "coconut", "orange juice", "oj", "juice",
+            "oyster", "liver", "sardine", "fish",
+            "potato", "starch", "carrot", "fruit",
+            "coffee", "caffeine",
+            "aspirin", "supplement", "vitamin", "mineral", "magnesium", "calcium",
+            "progesterone cream", "dhea", "pregnenolone",
+            "salt", "sodium", "sugar", "fructose", "sucrose",
+        }
+        _q_lower = query.lower()
+        _query_has_food_term = any(t in _q_lower for t in _EMAIL_FOOD_TERMS)
+        _email_pass_needed = email_embedding is not None and _query_has_food_term
+        if _email_pass_needed:
+            try:
+                email_pass_resp = self.search_engine.index.query(
+                    vector=email_embedding, top_k=40, include_metadata=True,
+                )
+                candidates, file_counts = _collect_candidates(
+                    email_pass_resp.get("matches", []), candidates, file_counts
+                )
+            except Exception:
+                pass
+
         # Pass 2: if not enough unique files, re-query excluding dominant files
         unique_files = len(file_counts)
         if unique_files < _MIN_UNIQUE_FILES:
@@ -262,6 +375,35 @@ class RayPeatRAG:
         # --- Step 2b: Rerank using cross-encoder (falls back to keyword overlap) ---
         from peatlearn.rag.reranker import rerank as _rerank
         candidates = _rerank(query, candidates)
+
+        # --- Step 2c: Confidence scoring — decide if retrieval supports answering ---
+        from peatlearn.rag.confidence import score_retrieval as _score_retrieval
+        confidence = _score_retrieval(
+            candidates,
+            academic_hyde_embedding=academic_hyde_embedding,
+            email_hyde_embedding=email_embedding,
+        )
+
+        if confidence.tier == "ABSTAIN":
+            # Short-circuit: refuse to answer, list top weak sources for transparency
+            weak_sources = candidates[:3]
+            source_lines = "\n".join(
+                f"  - {s['source_file']} (rerank score: {s.get('rerank_score', 0):.2f})"
+                for s in weak_sources
+            )
+            reasons_text = "; ".join(confidence.reasons)
+            confidence_footer = f"\n\n\U0001f512 Confidence: {confidence.tier} | {reasons_text}"
+            return (
+                "I don't have sufficient information in Ray Peat's corpus to "
+                "answer this question reliably. The retrieved sources are only "
+                "weakly related to your query.\n\n"
+                f"Reason: {reasons_text}\n\n"
+                f"Top (weak) sources found:\n{source_lines}\n\n"
+                "Try rephrasing your question, or ask about a topic that Ray "
+                "Peat directly addressed in his writings, interviews, or email "
+                "correspondence."
+                + confidence_footer
+            )
 
         # MMR-style: penalise repeated source files AND content types for diversity
         source_counts: dict = {}
@@ -295,12 +437,18 @@ class RayPeatRAG:
             return "I couldn't find relevant information on that topic in Ray Peat's work."
 
         # --- Step 3: Build prompt ---
+        # Truncate oversized chunks to prevent one source from monopolising
+        # the prompt window — 1200 chars is ~300 tokens, plenty for grounding.
+        _CHUNK_CAP = 1200
         context_parts = []
         for i, s in enumerate(sources, 1):
+            peat_text = s['ray_peat_response']
+            if len(peat_text) > _CHUNK_CAP:
+                peat_text = peat_text[:_CHUNK_CAP] + "..."
             context_parts.append(
                 f"[S{i}] {s['source_file']} (relevance {s['score']:.2f})\n"
-                f"Topic context: {s['context']}\n"
-                f"Peat's words: {s['ray_peat_response']}"
+                f"Topic context: {s['context'][:400]}\n"
+                f"Peat's words: {peat_text}"
             )
         context = "\n---\n".join(context_parts)
         prompt = self._create_adaptive_prompt(
@@ -352,15 +500,25 @@ class RayPeatRAG:
                 break
 
         # --- Step 4b: Groq fallback when all Gemini models are rate-limited or unavailable ---
+        # llama-3.3-70b is more prone to instruction-drift than Gemini, so we
+        # prepend an extra grounding instruction specific to this fallback path.
         if not answer:
             groq_key = os.getenv("GROQ_API_KEY")
             if groq_key:
+                groq_prompt = (
+                    "CRITICAL: You will be penalised for any claim not directly "
+                    "supported by verbatim text in the SOURCES below. If you "
+                    "cannot find a supporting quote for a claim, do NOT include "
+                    "that claim. If the SOURCES are insufficient to answer the "
+                    "question, output exactly: INSUFFICIENT_SOURCES\n\n"
+                    + prompt
+                )
                 try:
                     groq_resp = requests.post(
                         "https://api.groq.com/openai/v1/chat/completions",
                         json={
                             "model": "llama-3.3-70b-versatile",
-                            "messages": [{"role": "user", "content": prompt}],
+                            "messages": [{"role": "user", "content": groq_prompt}],
                             "temperature": 0.25,
                             "max_tokens": 4096,
                         },
@@ -377,12 +535,24 @@ class RayPeatRAG:
                 raise RuntimeError("RATE_LIMITED_DAILY")
             raise RuntimeError("RATE_LIMITED")
 
-        # --- Step 5: Append sources footer ---
+        # --- Step 5: Grounding verifier — strip unsupported claims ---
+        from peatlearn.rag.verifier import verify_claims as _verify_claims
+        verification = _verify_claims(answer, sources, api_key=self.api_key)
+        if verification.unsupported:
+            answer = verification.revised_answer
+            import logging as _lg
+            _lg.getLogger(__name__).warning(
+                f"Verifier stripped {len(verification.unsupported)} unsupported claim(s)"
+            )
+
+        # --- Step 6: Append sources + confidence footer ---
         source_info = "\n\n📚 Sources:\n" + "".join(
             f"{i}. {s['source_file']} (relevance: {s['score']:.2f})\n"
             for i, s in enumerate(sources, 1)
         )
-        return answer + source_info
+        reasons_text = "; ".join(confidence.reasons)
+        confidence_footer = f"\n\U0001f512 Confidence: {confidence.tier} | {reasons_text}"
+        return answer + source_info + confidence_footer
 
     async def _answer_question_async(
         self, 
@@ -538,18 +708,16 @@ class RayPeatRAG:
                 'next step in the conversation — not a quiz question.'
             )
 
-        # Build optional conversation history block
+        # Build optional conversation history block — USER TURNS ONLY.
+        # Prior assistant text is excluded to prevent hallucination propagation:
+        # if turn 1 hallucinated, injecting that text into turn 2's context
+        # causes the LLM to treat the hallucination as established fact.
         history_block = ""
         if chat_history:
-            recent = [m for m in chat_history if m.get("role") in ("user", "assistant")][-6:]
-            if recent:
-                lines = []
-                for m in recent:
-                    role_label = "User" if m["role"] == "user" else "Assistant"
-                    # Truncate long assistant messages to keep prompt focused
-                    content = (m.get("content") or "")[:400]
-                    lines.append(f"{role_label}: {content}")
-                history_block = "\n\nCONVERSATION SO FAR (for context — do not repeat):\n" + "\n".join(lines)
+            recent_user = [m for m in chat_history if m.get("role") == "user"][-4:]
+            if recent_user:
+                lines = [f"User: {(m.get('content') or '')[:200]}" for m in recent_user]
+                history_block = "\n\nPRIOR USER QUESTIONS (for topic continuity — do not repeat answers):\n" + "\n".join(lines)
 
         base_prompt = f"""You are Ray Peat AI — a knowledgeable, warm guide to Ray Peat's bioenergetic philosophy. You speak like an informed friend who has read everything Peat ever wrote: direct, curious, never preachy.
 

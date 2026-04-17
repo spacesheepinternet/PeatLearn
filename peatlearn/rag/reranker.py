@@ -11,6 +11,7 @@ Falls back to keyword-overlap scoring automatically if the model fails to load
 
 import logging
 import re
+import threading
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,8 @@ logger = logging.getLogger(__name__)
 # Module-level singleton — loaded once, reused across all requests
 _model = None
 _model_load_attempted = False
+# Signals when the warmup thread has finished (success or failure)
+_load_done = threading.Event()
 
 
 _STOP = {
@@ -42,6 +45,8 @@ def _get_model():
     except Exception as e:
         logger.warning(f"Cross-encoder unavailable — falling back to keyword overlap: {e}")
         _model = None
+    finally:
+        _load_done.set()
     return _model
 
 
@@ -91,6 +96,10 @@ def rerank(query: str, candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]
     if not candidates:
         return candidates
 
+    # Block until the warmup thread finishes. The event is always set (finally block
+    # in _get_model guarantees it), so this never hangs — it only waits as long as
+    # the model actually takes to load. Subsequent calls return immediately.
+    _load_done.wait()
     model = _get_model()
 
     if model is not None:
@@ -119,11 +128,18 @@ def rerank(query: str, candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]
         except Exception as e:
             logger.warning(f"Cross-encoder scoring failed: {e} — using keyword fallback")
 
-    # Keyword overlap fallback
+    # Keyword overlap fallback — rerank scores from this path are NOT
+    # calibrated for the abstention thresholds in peatlearn.rag.confidence.
+    # Flag candidates so the confidence scorer can downgrade by one tier.
+    logger.warning(
+        "Cross-encoder unavailable — using keyword-overlap fallback. "
+        "Confidence tiers may be less reliable."
+    )
     result = []
     for c in candidates:
         entry = dict(c)
         entry["rerank_score"] = _keyword_score(query, c)
+        entry["_keyword_fallback"] = True
         result.append(entry)
     result.sort(key=lambda x: x["rerank_score"], reverse=True)
     return result
