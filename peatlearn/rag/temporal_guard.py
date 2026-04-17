@@ -57,7 +57,7 @@ _POST_2022_TERMS: list[Tuple[str, str]] = [
     ("nutrisense", "Nutrisense CGM company — post-2020"),
 
     # Post-2022 supplement/drug trends
-    ("rapamycin longevity", "Rapamycin for longevity — post-dates Peat's engagement"),
+    ("rapamycin", "Rapamycin for longevity — post-dates Peat's engagement"),
     ("bryan johnson", "Bryan Johnson's 'Blueprint' protocol is post-2022"),
     ("blueprint protocol", "Bryan Johnson's 'Blueprint' protocol is post-2022"),
 ]

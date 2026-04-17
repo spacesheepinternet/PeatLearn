@@ -384,6 +384,20 @@ class RayPeatRAG:
             email_hyde_embedding=email_embedding,
         )
 
+        # --- Step 2d: Entity grounding check ---
+        # If the query mentions a specific entity (e.g. "berberine", "psilocybin")
+        # that appears in ZERO retrieved sources, the LLM would fabricate Peat's
+        # views on it. Downgrade to ABSTAIN when the majority of key entities
+        # are missing and confidence isn't already HIGH.
+        from peatlearn.rag.confidence import check_entity_grounding as _check_grounding
+        _missing, _should_downgrade = _check_grounding(query, candidates)
+        if _should_downgrade and confidence.tier != "HIGH":
+            confidence.tier = "ABSTAIN"
+            confidence.reasons.append(
+                f"Key entity not found in any source: {', '.join(_missing)} "
+                f"— Peat likely never discussed this specifically"
+            )
+
         if confidence.tier == "ABSTAIN":
             # Short-circuit: refuse to answer, list top weak sources for transparency
             weak_sources = candidates[:3]
