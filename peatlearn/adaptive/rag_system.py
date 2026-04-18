@@ -164,11 +164,18 @@ class RayPeatRAG:
                 + confidence_footer
             )
 
+        # --- Step 0.5: Query vocabulary normalization ---
+        # Map colloquial terms ("carbs", "seed oils", "gut health") to Peat's
+        # corpus vocabulary so embedding, HyDE, and cross-encoder all operate
+        # on terms that actually exist in the corpus.
+        from peatlearn.rag.query_normalizer import normalize_query as _normalize
+        search_query = _normalize(query)
+
         # --- Step 1: Generate query embedding via Gemini REST (sync) ---
         emb_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent"
         emb_resp = requests.post(
             emb_url,
-            json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": query}]}},
+            json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": search_query}]}},
             headers=gemini_headers,
             timeout=30,
         )
@@ -218,7 +225,7 @@ class RayPeatRAG:
             "pro-metabolic, anti-metabolic, estrogen dominance, serotonin, lactic acid, "
             "unsaturated fatty acids, ray peat diet. Be mechanistic and specific — name the biochemical "
             "pathway or hormone involved. Do not hedge or use filler phrases. "
-            f"Question: {query}"
+            f"Question: {search_query}"
         )
         _academic_hyde_result = _robust_hyde(academic_prompt)
         hyde_text = _academic_hyde_result or query
@@ -244,7 +251,7 @@ class RayPeatRAG:
             "Name specific foods, supplements, or practical recommendations. "
             "Be direct: state what you do or don't recommend, and briefly say why. "
             "No hedging, no academic framing. Write as you would in a personal email reply. "
-            f"Question: {query}"
+            f"Question: {search_query}"
         )
         hyde_email_text = _robust_hyde(email_prompt)
 
@@ -390,7 +397,7 @@ class RayPeatRAG:
         # views on it. Downgrade to ABSTAIN when the majority of key entities
         # are missing and confidence isn't already HIGH.
         from peatlearn.rag.confidence import check_entity_grounding as _check_grounding
-        _missing, _should_downgrade = _check_grounding(query, candidates)
+        _missing, _should_downgrade = _check_grounding(search_query, candidates)
         if _should_downgrade and confidence.tier != "HIGH":
             confidence.tier = "ABSTAIN"
             confidence.reasons.append(
