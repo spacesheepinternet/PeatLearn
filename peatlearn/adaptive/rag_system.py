@@ -398,11 +398,19 @@ class RayPeatRAG:
         # are missing and confidence isn't already HIGH.
         from peatlearn.rag.confidence import check_entity_grounding as _check_grounding
         _missing, _should_downgrade = _check_grounding(search_query, candidates)
-        if _should_downgrade and confidence.tier != "HIGH":
+        if _should_downgrade and confidence.tier not in ("HIGH", "LOW"):
+            # Only upgrade to ABSTAIN from MEDIUM — if the confidence scorer
+            # already set LOW (e.g. via cosine-divergence override), the topic
+            # IS present and the entity check shouldn't override that.
             confidence.tier = "ABSTAIN"
             confidence.reasons.append(
                 f"Key entity not found in any source: {', '.join(_missing)} "
                 f"— Peat likely never discussed this specifically"
+            )
+        elif _should_downgrade and confidence.tier == "LOW":
+            confidence.reasons.append(
+                f"Note: key terms {', '.join(_missing)} not in sources "
+                f"(but topic appears present via cosine signal)"
             )
 
         if confidence.tier == "ABSTAIN":
