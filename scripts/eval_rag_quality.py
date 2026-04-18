@@ -14,7 +14,7 @@ commit ed84cf1) and prints a delta. Raw per-question scores are saved to
 data/eval/results_<timestamp>.json for future comparison.
 
 Usage:
-    python scripts/eval_rag_quality.py                      # full run, 45 Q's, LLM-judged
+    python scripts/eval_rag_quality.py                      # full run, 55 Q's, LLM-judged
     python scripts/eval_rag_quality.py --subset A,B         # only specific categories
     python scripts/eval_rag_quality.py --adversarial-only   # 15 adversarial Q's only
     python scripts/eval_rag_quality.py --no-judge           # automated metrics only
@@ -55,6 +55,7 @@ CATEGORY_MAP = {
     "F": "edge_nuanced",
     "G": "cross_concept",
     "H": "adversarial",
+    "I": "colloquial_user",
 }
 
 # Phrases that signal the RAG refused or rejected the premise. Matched

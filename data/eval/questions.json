@@ -2,7 +2,7 @@
   "version": "2.0",
   "created": "2026-04-10",
   "updated": "2026-04-15",
-  "description": "RAG quality benchmark \u2014 45 questions. 30 answerable across 7 categories (A\u2013G) + 15 adversarial in category H (5 never-discussed, 5 anti-Peat framings, 5 subtle misattributions). Validates abstention + premise-rejection in addition to answer quality.",
+  "description": "RAG quality benchmark \u2014 55 questions. 30 answerable across 7 categories (A\u2013G), 15 adversarial in category H (5 never-discussed, 5 anti-Peat framings, 5 subtle misattributions), 10 colloquial-phrased in category I (real-user language). Validates abstention, premise-rejection, and vocabulary bridging.",
   "baseline": 8.6,
   "adversarial_baseline_note": "Before Phase 2 abstention gates land, adversarial abstention/rejection rate is expected near 0%. Track improvement over phases.",
   "questions": [
@@ -443,6 +443,107 @@
       "expected_sources_min": 2,
       "expected_behavior": "reject_premise",
       "adversarial_note": "Inversion. Peat called estrogen an 'aging hormone' \u2014 he linked excess estrogen to tissue damage, oxidative stress, and accelerated aging. Progesterone was protective in his framework."
+    },
+
+    {
+      "id": "I1",
+      "category": "colloquial_user",
+      "difficulty": "easy",
+      "question": "explain how carbs are important for metabolic health",
+      "expected_topics": ["carbohydrates", "glucose", "fructose", "thyroid", "metabolism"],
+      "expected_sources_min": 3,
+      "expected_behavior": "answer",
+      "colloquial_note": "Uses 'carbs' (not in corpus) and 'metabolic health' (colloquial framing). Tests query normalizer bridging to Peat vocabulary."
+    },
+    {
+      "id": "I2",
+      "category": "colloquial_user",
+      "difficulty": "easy",
+      "question": "are seed oils bad for you?",
+      "expected_topics": ["PUFA", "polyunsaturated", "linoleic", "oxidation", "inflammation"],
+      "expected_sources_min": 3,
+      "expected_behavior": "answer",
+      "colloquial_note": "Casual yes/no framing. 'Seed oils' is internet-speak for PUFAs — not a term Peat used."
+    },
+    {
+      "id": "I3",
+      "category": "colloquial_user",
+      "difficulty": "easy",
+      "question": "what should I eat for gut health?",
+      "expected_topics": ["intestinal", "endotoxin", "bacteria", "digestion", "fiber"],
+      "expected_sources_min": 2,
+      "expected_behavior": "answer",
+      "colloquial_note": "'Gut health' is wellness-culture phrasing. Peat uses 'intestinal', 'endotoxin', 'bacterial'."
+    },
+    {
+      "id": "I4",
+      "category": "colloquial_user",
+      "difficulty": "medium",
+      "question": "how to fix low energy and brain fog",
+      "expected_topics": ["thyroid", "metabolism", "T3", "sugar", "mitochondria"],
+      "expected_sources_min": 2,
+      "expected_behavior": "answer",
+      "colloquial_note": "'Brain fog' and 'low energy' are symptom-based lay terms. Peat discusses the underlying metabolic and thyroid mechanisms."
+    },
+    {
+      "id": "I5",
+      "category": "colloquial_user",
+      "difficulty": "medium",
+      "question": "is keto good or bad?",
+      "expected_topics": ["ketogenic", "low-carb", "fatty acid", "glucose", "stress", "cortisol"],
+      "expected_sources_min": 2,
+      "expected_behavior": "answer",
+      "colloquial_note": "Minimal query with slang term. Peat opposed ketogenic diets but the word 'keto' rarely appears in his writings."
+    },
+    {
+      "id": "I6",
+      "category": "colloquial_user",
+      "difficulty": "medium",
+      "question": "why does ray peat hate vegetable oils so much",
+      "expected_topics": ["PUFA", "polyunsaturated", "oxidation", "estrogen", "linoleic"],
+      "expected_sources_min": 3,
+      "expected_behavior": "answer",
+      "colloquial_note": "'Vegetable oils' and casual 'hate' framing. Tests both vocabulary bridging and tone handling."
+    },
+    {
+      "id": "I7",
+      "category": "colloquial_user",
+      "difficulty": "easy",
+      "question": "can drinking milk help with weight loss",
+      "expected_topics": ["milk", "calcium", "metabolism", "thyroid", "protein"],
+      "expected_sources_min": 2,
+      "expected_behavior": "answer",
+      "colloquial_note": "Personal action-oriented query. 'Weight loss' is lay framing — Peat discusses metabolism, not dieting."
+    },
+    {
+      "id": "I8",
+      "category": "colloquial_user",
+      "difficulty": "hard",
+      "question": "what does peat think about depression and mental health",
+      "expected_topics": ["serotonin", "learned helplessness", "PUFA", "stress", "thyroid"],
+      "expected_sources_min": 2,
+      "expected_behavior": "answer",
+      "colloquial_note": "'Mental health' is broad lay term. Peat discusses serotonin, learned helplessness, metabolic underpinnings of mood."
+    },
+    {
+      "id": "I9",
+      "category": "colloquial_user",
+      "difficulty": "medium",
+      "question": "should i take supplements for my thyroid or just eat better",
+      "expected_topics": ["thyroid", "supplement", "T3", "selenium", "diet", "sugar"],
+      "expected_sources_min": 2,
+      "expected_behavior": "answer",
+      "colloquial_note": "First-person practical question with 'eat better' (vague lay phrasing). Tests retrieval on thyroid + supplementation intersection."
+    },
+    {
+      "id": "I10",
+      "category": "colloquial_user",
+      "difficulty": "medium",
+      "question": "does intermittent fasting actually work or is it just stress",
+      "expected_topics": ["fasting", "stress", "cortisol", "adrenaline", "metabolism"],
+      "expected_sources_min": 2,
+      "expected_behavior": "answer",
+      "colloquial_note": "'Intermittent fasting' is a modern wellness term. The user half-answers their own question — tests whether RAG confirms or expands on the stress angle."
     }
   ]
 }
