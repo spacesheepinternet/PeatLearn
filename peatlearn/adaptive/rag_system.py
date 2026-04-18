@@ -289,6 +289,11 @@ class RayPeatRAG:
                 academic_hyde_embedding = None
                 email_embedding = None
 
+        # --- EXPERIMENT: bypass HyDE, use raw query embedding only ---
+        embedding = raw_query_embedding
+        academic_hyde_embedding = None
+        email_embedding = None
+
         # --- Step 2: Query Pinecone with two-pass diversity strategy ---
         # Some files have 50+ near-identical chunks that drown out diverse results.
         # Pass 1: fetch results, cap per file. Pass 2: if too few unique files,

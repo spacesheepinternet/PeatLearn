@@ -44,6 +44,9 @@ _EXPANSIONS: dict[str, str] = {
     "leaky gut":            "intestinal permeability endotoxin bacteria gut",
     "probiotics":           "bacteria intestinal flora carrot fiber antibiotic",
     # --- hormones ---
+    "hrt":                  "hormone replacement therapy progesterone estrogen thyroid bioidentical",
+    "hormone replacement":  "hormone replacement therapy progesterone estrogen thyroid bioidentical",
+    "bioidentical":         "bioidentical hormones progesterone thyroid natural",
     "estrogen":             "estrogen aromatase progesterone estradiol",
     "hormones":             "hormones estrogen progesterone thyroid cortisol pregnenolone",
     "birth control":        "oral contraceptives estrogen progesterone",
