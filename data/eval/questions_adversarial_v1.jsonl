@@ -1,0 +1,25 @@
+{"id": "adv_001", "question": "Is white sugar actually better for you than honey? That seems completely backwards from everything I've been told.", "category": "colloquial", "false_premise": false}
+{"id": "adv_002", "question": "I heard serotonin is supposed to be the happy chemical but someone said Peat thinks it's bad — which is it?", "category": "colloquial", "false_premise": false}
+{"id": "adv_003", "question": "Why does Peat say avoid unsaturated fats when avocados and olive oil are supposed to be the healthiest fats?", "category": "colloquial", "false_premise": false}
+{"id": "adv_004", "question": "Does drinking orange juice actually spike your insulin or is that a myth Peat debunks?", "category": "colloquial", "false_premise": false}
+{"id": "adv_005", "question": "I keep seeing people on forums say to eat liver once a week because of Peat — how much and why?", "category": "colloquial", "false_premise": false}
+{"id": "adv_006", "question": "If stress raises cortisol and cortisol raises blood sugar, does Peat think diabetes is partly a stress problem?", "category": "compound", "false_premise": false}
+{"id": "adv_007", "question": "My morning temperature is 97.2°F and my pulse is 58 — is that a sign of slow metabolism according to Peat's framework?", "category": "compound", "false_premise": false}
+{"id": "adv_008", "question": "I'm eating more sugar like Peat recommends but I'm gaining weight — does that mean the approach isn't working or am I doing something wrong?", "category": "compound", "false_premise": false}
+{"id": "adv_009", "question": "If PUFA suppresses thyroid function, does that mean someone who ate a lot of vegetable oils their whole life has to wait years for it to clear before they'd feel better?", "category": "compound", "false_premise": false}
+{"id": "adv_010", "question": "Can you follow Peat's ideas while doing intermittent fasting, or does he think skipping meals is inherently harmful?", "category": "compound", "false_premise": false}
+{"id": "adv_011", "question": "Peat recommends eating fish regularly for the omega-3s, right?", "category": "false_premise", "false_premise": true}
+{"id": "adv_012", "question": "Does Peat support taking melatonin supplements for sleep since he cares so much about circadian rhythm?", "category": "false_premise", "false_premise": true}
+{"id": "adv_013", "question": "I heard Peat thinks all hormones decline with age and you should just replace them all — is that his view?", "category": "false_premise", "false_premise": true}
+{"id": "adv_014", "question": "Since Peat is pro-metabolism, he'd probably say keto is good because it forces your body to use fat for fuel, right?", "category": "false_premise", "false_premise": true}
+{"id": "adv_015", "question": "Peat recommends progesterone — isn't that basically the same thing as the progestins in birth control?", "category": "false_premise", "false_premise": true}
+{"id": "adv_016", "question": "What does Peat say about cancer? I heard he had a totally different explanation for what causes it.", "category": "edge", "false_premise": false}
+{"id": "adv_017", "question": "Does Peat think CO2 is good for you? I saw that mentioned somewhere and didn't understand it.", "category": "edge", "false_premise": false}
+{"id": "adv_018", "question": "Is there anything in Peat's work specifically about autism or ADHD, or is that too far outside his scope?", "category": "edge", "false_premise": false}
+{"id": "adv_019", "question": "My doctor prescribed me estrogen patches for menopause symptoms — would Peat say that's dangerous?", "category": "edge", "false_premise": false}
+{"id": "adv_020", "question": "Does Peat have a view on EMF or 5G or is that not something he wrote about?", "category": "edge", "false_premise": false}
+{"id": "adv_021", "question": "Has Peat ever recommended a specific brand of thyroid medication over others?", "category": "hallucination_trap", "false_premise": false}
+{"id": "adv_022", "question": "Did Peat ever change his mind about anything major over his career, like reverse a position he was known for?", "category": "hallucination_trap", "false_premise": false}
+{"id": "adv_023", "question": "What studies does Peat cite most often when he talks about PUFA being harmful?", "category": "hallucination_trap", "false_premise": false}
+{"id": "adv_024", "question": "Is there a specific Peat article where he explains why he thinks lactic acid is bad?", "category": "hallucination_trap", "false_premise": false}
+{"id": "adv_025", "question": "Did Peat ever address the criticism that his ideas aren't supported by randomized controlled trials?", "category": "hallucination_trap", "false_premise": false}

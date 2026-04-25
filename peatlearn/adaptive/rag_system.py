@@ -164,6 +164,37 @@ class RayPeatRAG:
                 + confidence_footer
             )
 
+        # --- Step 0.25: Citation-request hard gate ---
+        # Queries asking for specific studies, papers, or citations Peat referenced
+        # are structurally unanswerable from the corpus — Peat rarely cited by name,
+        # and the LLM will confabulate specific experiments if allowed to proceed.
+        # Block early rather than risk a fabricated citation reaching the user.
+        _CITATION_TRIGGERS = (
+            "which study", "what study", "which studies", "what studies",
+            "which paper", "what paper", "which papers", "what papers",
+            "which article", "what article", "which articles",
+            "which research", "what research",
+            "specific study", "specific paper", "specific article",
+            "cites ", " cite ", "citations", "citation",
+            "which experiment", "what experiment",
+            "reference for", "source for", "where does peat say",
+            "where did peat say", "which book", "what book",
+        )
+        _q_normalized = query.lower()
+        if any(t in _q_normalized for t in _CITATION_TRIGGERS):
+            confidence_footer = "\n\n\U0001f512 Confidence: ABSTAIN | Citation request — corpus does not contain reliable bibliographic data"
+            return (
+                "Ray Peat's corpus doesn't consistently include named citations or "
+                "bibliographic references, so I can't reliably identify which specific "
+                "studies, papers, or experiments he referenced. Any answer to this "
+                "question would risk fabricating citation details that aren't in the "
+                "source material.\n\n"
+                "What I can tell you is what Peat argued and the general lines of "
+                "evidence he drew on — ask about the topic itself and I can ground "
+                "that in his actual words."
+                + confidence_footer
+            )
+
         # --- Step 0.5: Query vocabulary normalization ---
         # Map colloquial terms ("carbs", "seed oils", "gut health") to Peat's
         # corpus vocabulary so embedding, HyDE, and cross-encoder all operate
@@ -171,20 +202,14 @@ class RayPeatRAG:
         from peatlearn.rag.query_normalizer import normalize_query as _normalize
         search_query = _normalize(query)
 
-        # --- Step 1: Generate query embedding via Gemini REST (sync) ---
-        emb_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent"
-        emb_resp = requests.post(
-            emb_url,
-            json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": search_query}]}},
-            headers=gemini_headers,
-            timeout=30,
-        )
-        if emb_resp.status_code != 200:
-            raise RuntimeError(f"Embedding API error {emb_resp.status_code}: {emb_resp.text[:200]}")
-        embedding = emb_resp.json().get("embedding", {}).get("values")
-        if not embedding:
-            raise RuntimeError("Empty embedding returned")
+        # --- Step 1: Generate query embedding (routes to correct model by index dim) ---
+        embedding = self.search_engine.embed_query(search_query)
         raw_query_embedding = list(embedding)  # preserve for HyDE divergence fallback
+
+        # NOTE: emb_url is only used by the HyDE code below, which is currently bypassed.
+        # If HyDE is re-enabled, these embedding calls should be migrated to use
+        # peatlearn.rag.embedder.get_embedding() instead of the Gemini REST API.
+        emb_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent"
 
         # --- Step 1b: Dual HyDE — academic + email style, sequential to avoid RPM bursts ---
         # Academic HyDE: mechanistic Peat vocabulary → surfaces written articles + transcripts.

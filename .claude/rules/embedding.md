@@ -1,7 +1,11 @@
 ---
 paths:
   - peatlearn/embedding/**
+  - peatlearn/rag/embedder.py
   - scripts/embedding/**
+  - scripts/finetune_embeddings.py
+  - scripts/reembed_corpus.py
+  - scripts/generate_training_pairs.py
 ---
 
 # Embedding Subsystem Rules
@@ -10,19 +14,22 @@ paths:
 
 | File | Purpose |
 |------|---------|
-| `peatlearn/embedding/embed_corpus.py` | `CorpusEmbedder` — batches docs, calls Gemini, saves `.npy`+`.pkl` |
+| `peatlearn/rag/embedder.py` | **Active** — singleton loader for fine-tuned EmbeddingGemma; `get_embedding()` |
+| `peatlearn/embedding/embed_corpus.py` | Legacy `CorpusEmbedder` — batches docs via Gemini API (no longer primary) |
+| `scripts/generate_training_pairs.py` | Generates (query, positive, negative) triples for contrastive fine-tuning |
+| `scripts/finetune_embeddings.py` | Fine-tunes EmbeddingGemma with MultipleNegativesRankingLoss |
+| `scripts/reembed_corpus.py` | Re-embeds full corpus with fine-tuned model |
+| `scripts/upload_gemma_pinecone.py` | Uploads 768-dim vectors to `ray-peat-corpus-v2` |
 | `peatlearn/embedding/download_from_hf.py` | Downloads embeddings from HuggingFace |
 | `peatlearn/embedding/upload_to_hf.py` | Uploads embeddings to HuggingFace |
-| `peatlearn/embedding/check_vectors.py` | Validates local embedding files |
-| `peatlearn/embedding/setup_env.py` | Environment/dependency checker |
-| `peatlearn/embedding/monitor_progress.py` | Live progress monitor for long embed runs |
 
 ## Embedding Spec
 
-- Model: `gemini-embedding-001`
-- Dimensions: **3072** — native Gemini output, hardcoded in Pinecone index and `config/settings.py`
-- Batch size: 10 (Gemini rate limit safe)
-- Output format: `data/embeddings/vectors/embeddings_<timestamp>.npy` + matching `.pkl` metadata
+- Model: Fine-tuned `google/embeddinggemma-300m` → `data/models/embeddings/peat-embeddinggemma-ft/`
+- Dimensions: **768** — configured in `config/settings.py` and Pinecone index `ray-peat-corpus-v2`
+- Runs locally on GPU (RTX 4070, ~1400 texts/sec) or CPU
+- Training data: 256 (query, positive, negative) triples in `data/training/embedding_pairs.jsonl`
+- Output format: `data/embeddings/vectors/embeddings_gemma_ft_<timestamp>.npy` + `.json` metadata
 
 ## HuggingFace Sync
 
@@ -42,8 +49,13 @@ paths:
 - Source: `data/raw/Ray Peat Anthology.xlsx` + `data/raw/new_content_2026/*.pdf`
 - Latest embedding file: `data/embeddings/vectors/embeddings_20250728_221826.npy`
 
+## Rollback
+- Old index `ray-peat-corpus` (3072-dim, Gemini) is still alive for rollback.
+- Set `PINECONE_INDEX_NAME=ray-peat-corpus` + `EMBEDDING_MODEL=gemini-embedding-001` + `EMBEDDING_DIMENSIONS=3072` to revert.
+
 ## Do Not
-- Do not change embedding dimensions from 3072 — would require re-creating the Pinecone index and re-embedding all 552 docs.
+- Do not change embedding dimensions from 768 without re-embedding the corpus and creating a new Pinecone index.
+- Do not delete `data/models/embeddings/peat-embeddinggemma-ft/` — it is the active model.
 - Do not embed in the main thread during a server request — it blocks.
-- Do not delete `data/embeddings/cache/` — it saves API cost on re-runs.
+- Do not delete `data/embeddings/cache/` — it saves API cost on legacy re-runs.
 - Do not commit `.npy`/`.pkl` embedding files to git — they are large binary assets.

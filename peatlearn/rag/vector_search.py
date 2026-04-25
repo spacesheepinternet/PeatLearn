@@ -44,17 +44,18 @@ class SearchResult:
     tokens: int
     original_id: str = ""
     truncated: bool = False
+    primary_topic: str = ""
+    source_type: str = ""
 
 class PineconeVectorSearch:
     """Vector search engine using Pinecone for the Ray Peat corpus."""
     
-    def __init__(self, index_name: str = "ray-peat-corpus"):
+    def __init__(self, index_name: str | None = None):
         """Initialize the Pinecone vector search engine."""
-        self.index_name = index_name
+        self.index_name = index_name or settings.PINECONE_INDEX_NAME
         self.index = None
         self.pc = None
-        self.embedding_model = "gemini-embedding-001"
-        self.embedding_dimensions = 3072  # Will be updated from index stats if available
+        self.embedding_dimensions = settings.EMBEDDING_DIMENSIONS  # Updated from index stats if available
         
         # Load environment variables
         load_dotenv(Path(__file__).parent.parent.parent / ".env")
@@ -96,58 +97,47 @@ class PineconeVectorSearch:
     async def generate_query_embedding(self, query: str) -> Optional[np.ndarray]:
         """Generate embedding for a search query.
 
-        Falls back to a deterministic local embedding if external API is unavailable
-        or rate-limited, so Pinecone integration can be tested offline.
+        Routes to the correct embedder based on detected index dimension:
+          768-dim  → local fine-tuned EmbeddingGemma (peat-embeddinggemma-ft)
+          3072-dim → Gemini gemini-embedding-001 API
         """
-        # Prefer external embedding if configured
-        if settings.GEMINI_API_KEY:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.embedding_model}:embedContent"
-            headers = {
-                "Content-Type": "application/json",
-                "x-goog-api-key": settings.GEMINI_API_KEY
-            }
-            payload = {
-                "model": f"models/{self.embedding_model}",
-                "content": {"parts": [{"text": query}]}
-            }
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.post(url, json=payload, headers=headers) as response:
-                        if response.status == 200:
-                            result = await response.json()
-                            embedding = result.get("embedding", {}).get("values")
-                            if embedding:
-                                return np.array(embedding, dtype=float)
-                        else:
-                            # Log and fall back to local embedding
-                            error_text = await response.text()
-                            logger.error(f"Embedding API error {response.status}: {error_text}. Falling back to local embedding.")
-            except Exception as e:
-                logger.error(f"Embedding API call failed: {e}. Falling back to local embedding.")
-
-        # Local deterministic embedding fallback: hash-based pseudo-embedding.
-        # In production this produces meaningless vectors that return random
-        # results — refuse to serve them. The RAG layer catches RuntimeError
-        # and returns an ABSTAIN-level refusal.
-        import hashlib
-        if os.getenv("PEATLEARN_ENV") == "production":
-            raise RuntimeError(
-                "Embedding API unavailable; refusing to serve hash-fallback "
-                "in production. This would return meaningless search results."
+        if self.embedding_dimensions == 768:
+            return await asyncio.get_event_loop().run_in_executor(
+                None, self._embed_local, query
             )
-        logger.warning(
-            "Embedding API unavailable — using SHA-256 hash fallback. "
-            "Results will NOT be semantically meaningful."
-        )
-        digest = hashlib.sha256(query.encode("utf-8")).digest()
-        # Repeat digest to fill the required dimension
-        bytes_needed = self.embedding_dimensions
-        arr = np.frombuffer((digest * ((bytes_needed // len(digest)) + 1))[:bytes_needed], dtype=np.uint8).astype(np.float32)
-        # Normalize to unit length to mimic real embeddings
-        norm = np.linalg.norm(arr)
-        if norm > 0:
-            arr = arr / norm
-        return arr
+
+        from peatlearn.rag.embedder import get_embedding_async
+        try:
+            vec = await get_embedding_async(query)
+            return np.array(vec, dtype=float)
+        except RuntimeError:
+            raise  # production guard — don't swallow
+        except Exception as e:
+            logger.error(f"Embedding generation failed: {e}")
+            return None
+
+    def _embed_local(self, query: str) -> np.ndarray:
+        """Embed with local fine-tuned EmbeddingGemma (768-dim). Lazy-loaded singleton."""
+        if not hasattr(self, "_ft_model") or self._ft_model is None:
+            import torch
+            from sentence_transformers import SentenceTransformer
+            model_dir = Path(__file__).parent.parent.parent / "data" / "models" / "embeddings" / "peat-embeddinggemma-ft"
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            logger.info(f"Loading local EmbeddingGemma ft model on {device}")
+            self._ft_model = SentenceTransformer(str(model_dir), trust_remote_code=True, device=device)
+        vec = self._ft_model.encode([query], normalize_embeddings=True)[0]
+        return np.array(vec, dtype=float)
+
+    def embed_query(self, query: str) -> list[float]:
+        """Sync embedding that routes to the correct model based on index dimension.
+
+        768-dim index  → local fine-tuned EmbeddingGemma
+        3072-dim index → Gemini gemini-embedding-001 API
+        """
+        if self.embedding_dimensions == 768:
+            return self._embed_local(query).tolist()
+        from peatlearn.rag.embedder import get_embedding
+        return get_embedding(query)
     
     async def search(
         self, 
@@ -204,10 +194,12 @@ class PineconeVectorSearch:
                     similarity_score=score,
                     tokens=metadata.get('tokens', 0),
                     original_id=metadata.get('original_id', ''),
-                    truncated=metadata.get('truncated', False)
+                    truncated=metadata.get('truncated', False),
+                    primary_topic=metadata.get('primary_topic', ''),
+                    source_type=metadata.get('source_type', ''),
                 )
                 results.append(result)
-            
+
             logger.info(f"Found {len(results)} results for query: '{query[:50]}...'")
             return results
             

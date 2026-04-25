@@ -12,6 +12,7 @@ Falls back to keyword-overlap scoring automatically if the model fails to load
 import logging
 import re
 import threading
+from pathlib import Path
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -30,18 +31,29 @@ _STOP = {
 }
 
 
+_FT_MODEL_DIR = str(Path(__file__).resolve().parent.parent.parent / "data" / "models" / "reranker" / "peat-reranker-ft")
+
+
 def _get_model():
     global _model, _model_load_attempted
     if _model_load_attempted:
         return _model
     _model_load_attempted = True
     try:
-        from sentence_transformers import CrossEncoder
-        _model = CrossEncoder(
-            "cross-encoder/ms-marco-MiniLM-L-6-v2",
-            max_length=512,
-        )
-        logger.info("Cross-encoder reranker loaded: ms-marco-MiniLM-L-6-v2")
+        from sentence_transformers.cross_encoder import CrossEncoder
+        # Prefer domain-fine-tuned reranker if available
+        if Path(_FT_MODEL_DIR).exists():
+            _model = CrossEncoder(
+                _FT_MODEL_DIR,
+                max_length=512,
+            )
+            logger.info(f"Cross-encoder reranker loaded: peat-reranker-ft (fine-tuned)")
+        else:
+            _model = CrossEncoder(
+                "cross-encoder/ms-marco-MiniLM-L-6-v2",
+                max_length=512,
+            )
+            logger.info("Cross-encoder reranker loaded: ms-marco-MiniLM-L-6-v2 (base)")
     except Exception as e:
         logger.warning(f"Cross-encoder unavailable — falling back to keyword overlap: {e}")
         _model = None

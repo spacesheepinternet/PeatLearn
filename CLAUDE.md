@@ -14,8 +14,8 @@ Domain: bioenergetic medicine, nutrition, hormonal science.
 | RAG Backend | FastAPI, port 8000 (`app/api.py`) |
 | ML Backend | FastAPI, port 8001 (`app/advanced_api.py`) |
 | LLM | Google Gemini (`gemini-2.5-flash`, `gemini-2.5-flash-lite`) |
-| Embeddings | `gemini-embedding-001`, 768 dimensions |
-| Vector DB | Pinecone (index: `ray-peat-corpus`) |
+| Embeddings | Fine-tuned EmbeddingGemma (`peat-embeddinggemma-ft`), 768 dimensions, local GPU |
+| Vector DB | Pinecone (index: `ray-peat-corpus-v2`, 768-dim) |
 | Local DB | SQLite (`data/user_interactions/interactions.db`) |
 | Python | 3.12, venv at `venv/` |
 
@@ -87,10 +87,11 @@ python scripts/run_servers.py
 ### LLM / Gemini
 - Default generation model: `gemini-2.5-flash-lite` (fast, cheap).
 - Upgrade to `gemini-2.5-flash` only when response quality matters (RAG answers, quiz generation).
-- Embedding model: `gemini-embedding-001` (768-dim). Do not change dimensions without re-embedding the corpus.
+- Embedding model: Fine-tuned EmbeddingGemma (`data/models/embeddings/peat-embeddinggemma-ft/`), 768-dim, runs locally on GPU.
+- Embedding singleton: `peatlearn.rag.embedder.get_embedding()` — loads model once, thread-safe, SHA-256 hash fallback for offline use.
 
 ### Pinecone
-- Index name: `ray-peat-corpus`. Do not create new indices without explicit user instruction.
+- Index name: `ray-peat-corpus-v2` (768-dim). Old `ray-peat-corpus` (3072-dim) kept for rollback.
 - `PineconeVectorSearch` has a SHA-256 hash fallback for offline use — do not remove it.
 
 ### Data
