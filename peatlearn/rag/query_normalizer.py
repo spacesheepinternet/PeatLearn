@@ -71,6 +71,7 @@ _EXPANSIONS: dict[str, str] = {
     "fasting":              "fasting stress cortisol adrenaline metabolism",
     # --- appearance / body ---
     "skin health":          "skin estrogen PUFA collagen",
+    "skin care":            "skin estrogen PUFA collagen",
     "hair loss":            "hair loss thyroid DHT estrogen stress cortisol",
     "acne":                 "acne estrogen PUFA skin hormones",
     "aging":                "aging oxidative metabolism PUFA cellular respiration progesterone",
@@ -83,6 +84,8 @@ _EXPANSIONS: dict[str, str] = {
     "cholesterol":          "cholesterol thyroid steroids pregnenolone progesterone",
     "bone health":          "bone calcium vitamin D phosphate parathyroid",
     "fertility":            "fertility progesterone estrogen thyroid pregnenolone",
+    "breast size":          "breast estrogen prolactin progesterone thyroid",
+    "breast growth":        "breast estrogen prolactin progesterone thyroid",
     "muscle":               "muscle protein metabolism thyroid anabolic",
     # --- supplements (common lay names) ---
     "vitamin d":            "vitamin D calcium cholecalciferol",
