@@ -89,6 +89,11 @@ _EXPANSIONS: dict[str, str] = {
     "magnesium":            "magnesium calcium mineral stress",
     "aspirin":              "aspirin anti-inflammatory prostaglandins",
     "coconut oil":          "coconut oil saturated fat thyroid",
+    # --- vegetables with anti-thyroid properties ---
+    "cruciferous vegetables": "goitrogenic cruciferous broccoli cauliflower cabbage kale thyroid suppressive anti-thyroid",
+    "cruciferous":          "goitrogenic broccoli cauliflower cabbage kale thyroid suppressive anti-thyroid",
+    "broccoli":             "goitrogenic broccoli cauliflower cabbage thyroid suppressive goitrogen",
+    "kale":                 "kale goitrogenic thyroid suppressive vitamin K green leafy",
 }
 
 # Sort phrases by length (longest first) so multi-word matches take priority.
