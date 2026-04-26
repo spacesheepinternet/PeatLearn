@@ -206,118 +206,101 @@ class RayPeatRAG:
         embedding = self.search_engine.embed_query(search_query)
         raw_query_embedding = list(embedding)  # preserve for HyDE divergence fallback
 
-        # NOTE: emb_url is only used by the HyDE code below, which is currently bypassed.
-        # If HyDE is re-enabled, these embedding calls should be migrated to use
-        # peatlearn.rag.embedder.get_embedding() instead of the Gemini REST API.
-        emb_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent"
-
-        # --- Step 1b: Dual HyDE — academic + email style, sequential to avoid RPM bursts ---
-        # Academic HyDE: mechanistic Peat vocabulary → surfaces written articles + transcripts.
-        # Email HyDE:    direct Q&A style → surfaces email corpus (2.6k+ vectors of direct
-        #                Peat quotes invisible to academic-style embeddings).
-        # Both calls are sequential (not concurrent) to prevent rate-limit silent failures.
-        # Each call validates output: must be ≥ 20 words and meaningfully different from query;
-        # a single retry fires on 429 after a short wait.
-        _hyde_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
-
-        def _robust_hyde(prompt: str) -> str | None:
-            """Call Flash-Lite for a HyDE answer. Returns text or None on failure."""
-            payload = {
-                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-                "generationConfig": {"temperature": 0.2, "maxOutputTokens": 200},
-            }
-            for attempt in range(2):
-                try:
-                    r = requests.post(_hyde_url, json=payload, headers=gemini_headers, timeout=20)
-                    if r.status_code == 429:
-                        time.sleep(8)
-                        continue
-                    if r.status_code != 200:
-                        return None
-                    text = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-                    # Validate: must be ≥ 20 words and not a trivial repeat of the query
-                    if text and len(text.split()) >= 20 and text.lower() != query.lower():
-                        return text
-                except Exception:
-                    pass
-            return None
-
-        # Academic HyDE (always fires — replaces original single HyDE)
-        academic_prompt = (
-            "You are Ray Peat. Answer the question below in 3-4 sentences in your exact voice. "
-            "Draw on your specific vocabulary: bioenergetics, oxidative metabolism, cellular respiration, "
-            "thyroid, T3, T4, PUFAs, progesterone, cortisol, ATP, mitochondria, CO2, glucose oxidation, "
-            "pro-metabolic, anti-metabolic, estrogen dominance, serotonin, lactic acid, "
-            "unsaturated fatty acids, ray peat diet. Be mechanistic and specific — name the biochemical "
-            "pathway or hormone involved. Do not hedge or use filler phrases. "
-            f"Question: {search_query}"
-        )
-        _academic_hyde_result = _robust_hyde(academic_prompt)
-        hyde_text = _academic_hyde_result or query
-
-        academic_hyde_embedding = None  # saved for confidence scoring (Phase 2)
-        hyde_emb = requests.post(
-            emb_url,
-            json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": hyde_text}]}},
-            headers=gemini_headers,
-            timeout=30,
-        )
-        if hyde_emb.status_code == 200:
-            hyde_vals = hyde_emb.json().get("embedding", {}).get("values")
-            if hyde_vals:
-                embedding = hyde_vals  # primary embedding used for Pinecone
-                if _academic_hyde_result:
-                    academic_hyde_embedding = hyde_vals
-
-        # Email HyDE (fires second, after academic — sequential to avoid RPM bursts)
-        email_prompt = (
-            "You are Ray Peat replying to a direct email question. "
-            "Give a short, specific, opinionated answer — 2-3 sentences. "
-            "Name specific foods, supplements, or practical recommendations. "
-            "Be direct: state what you do or don't recommend, and briefly say why. "
-            "No hedging, no academic framing. Write as you would in a personal email reply. "
-            f"Question: {search_query}"
-        )
-        hyde_email_text = _robust_hyde(email_prompt)
-
-        # Embed email HyDE — only if it produced a valid, distinct answer
-        email_embedding = None
-        if hyde_email_text:
-            try:
-                email_emb_resp = requests.post(
-                    emb_url,
-                    json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": hyde_email_text}]}},
-                    headers=gemini_headers,
-                    timeout=30,
-                )
-                if email_emb_resp.status_code == 200:
-                    ev = email_emb_resp.json().get("embedding", {}).get("values")
-                    if ev:
-                        email_embedding = ev
-            except Exception:
-                pass
-
-        # --- Step 1c: HyDE divergence guard ---
-        # If the two HyDE embeddings disagree strongly, both are unreliable —
-        # a bad HyDE is worse than no HyDE because it pulls retrieval off-topic.
-        # Discard both and retrieve from the raw query embedding only.
-        if academic_hyde_embedding and email_embedding:
-            from peatlearn.rag.confidence import _cosine_similarity
-            hyde_cos = _cosine_similarity(academic_hyde_embedding, email_embedding)
-            if hyde_cos < 0.55:
-                import logging as _lg
-                _lg.getLogger(__name__).warning(
-                    f"HyDE divergence detected (cosine={hyde_cos:.3f}) — "
-                    f"discarding both HyDE embeddings, falling back to raw query"
-                )
-                embedding = raw_query_embedding
-                academic_hyde_embedding = None
-                email_embedding = None
-
-        # --- EXPERIMENT: bypass HyDE, use raw query embedding only ---
-        embedding = raw_query_embedding
+        # --- Step 1b: HyDE (disabled) ---
+        # Dual HyDE (academic + email style) was benchmarked and disabled in
+        # commit 057580e — raw query embedding outperformed HyDE (9.25 vs lower).
+        # The full implementation is preserved below behind _HYDE_ENABLED = False.
+        # To re-enable: set _HYDE_ENABLED = True and ensure HyDE embedding calls
+        # are routed through self.search_engine.embed_query() not the REST API.
+        _HYDE_ENABLED = False
         academic_hyde_embedding = None
         email_embedding = None
+
+        if _HYDE_ENABLED:
+            emb_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent"
+            _hyde_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
+
+            def _robust_hyde(prompt: str) -> str | None:
+                payload = {
+                    "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                    "generationConfig": {"temperature": 0.2, "maxOutputTokens": 200},
+                }
+                for attempt in range(2):
+                    try:
+                        r = requests.post(_hyde_url, json=payload, headers=gemini_headers, timeout=20)
+                        if r.status_code == 429:
+                            time.sleep(8)
+                            continue
+                        if r.status_code != 200:
+                            return None
+                        text = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                        if text and len(text.split()) >= 20 and text.lower() != query.lower():
+                            return text
+                    except Exception:
+                        pass
+                return None
+
+            academic_prompt = (
+                "You are Ray Peat. Answer the question below in 3-4 sentences in your exact voice. "
+                "Draw on your specific vocabulary: bioenergetics, oxidative metabolism, cellular respiration, "
+                "thyroid, T3, T4, PUFAs, progesterone, cortisol, ATP, mitochondria, CO2, glucose oxidation, "
+                "pro-metabolic, anti-metabolic, estrogen dominance, serotonin, lactic acid, "
+                "unsaturated fatty acids, ray peat diet. Be mechanistic and specific — name the biochemical "
+                "pathway or hormone involved. Do not hedge or use filler phrases. "
+                f"Question: {search_query}"
+            )
+            _academic_hyde_result = _robust_hyde(academic_prompt)
+            hyde_text = _academic_hyde_result or query
+
+            hyde_emb = requests.post(
+                emb_url,
+                json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": hyde_text}]}},
+                headers=gemini_headers,
+                timeout=30,
+            )
+            if hyde_emb.status_code == 200:
+                hyde_vals = hyde_emb.json().get("embedding", {}).get("values")
+                if hyde_vals:
+                    embedding = hyde_vals
+                    if _academic_hyde_result:
+                        academic_hyde_embedding = hyde_vals
+
+            email_prompt = (
+                "You are Ray Peat replying to a direct email question. "
+                "Give a short, specific, opinionated answer — 2-3 sentences. "
+                "Name specific foods, supplements, or practical recommendations. "
+                "Be direct: state what you do or don't recommend, and briefly say why. "
+                "No hedging, no academic framing. Write as you would in a personal email reply. "
+                f"Question: {search_query}"
+            )
+            hyde_email_text = _robust_hyde(email_prompt)
+
+            if hyde_email_text:
+                try:
+                    email_emb_resp = requests.post(
+                        emb_url,
+                        json={"model": "models/gemini-embedding-001", "content": {"parts": [{"text": hyde_email_text}]}},
+                        headers=gemini_headers,
+                        timeout=30,
+                    )
+                    if email_emb_resp.status_code == 200:
+                        ev = email_emb_resp.json().get("embedding", {}).get("values")
+                        if ev:
+                            email_embedding = ev
+                except Exception:
+                    pass
+
+            if academic_hyde_embedding and email_embedding:
+                from peatlearn.rag.confidence import _cosine_similarity
+                hyde_cos = _cosine_similarity(academic_hyde_embedding, email_embedding)
+                if hyde_cos < 0.55:
+                    import logging as _lg
+                    _lg.getLogger(__name__).warning(
+                        f"HyDE divergence detected (cosine={hyde_cos:.3f}) — falling back to raw query"
+                    )
+                    embedding = raw_query_embedding
+                    academic_hyde_embedding = None
+                    email_embedding = None
 
         # --- Step 2: Query Pinecone with two-pass diversity strategy ---
         # Some files have 50+ near-identical chunks that drown out diverse results.
