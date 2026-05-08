@@ -134,6 +134,11 @@ DOMAIN_VOCAB = [
 JUDGE_MODEL = "gemini-2.5-flash"
 JUDGE_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{JUDGE_MODEL}:generateContent"
 
+# OpenRouter judge — used instead of Gemini when OPENROUTER_API_KEY is set,
+# saving Gemini quota for RAG answers only.
+OPENROUTER_JUDGE_MODEL = "openai/gpt-4o-mini"
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
+
 # Hard questions are retrieval-starved at 8 sources — completeness was the
 # weakest rubric dimension (8.07). Bump hard questions to 12.
 DIFFICULTY_TO_MAX_SOURCES = {
@@ -353,7 +358,11 @@ def llm_judge(
     a well-answered answerable question for failing to refuse.
     """
     sources_text = "\n".join(
-        f"- {s['source_file']} (rel {s['relevance']:.2f})" for s in sources
+        f"[S{i+1}] {s.get('source_file', s.get('source_file','?'))} "
+        f"(rel {s.get('relevance', s.get('score', 0.0)):.2f})\n"
+        f"  Context: {s.get('context', '')[:200]}\n"
+        f"  Peat's words: {s.get('ray_peat_response', '')[:400]}"
+        for i, s in enumerate(sources)
     ) or "(none)"
 
     # Build the expected-behavior guidance block for the judge
@@ -421,12 +430,12 @@ QUESTION:
 ANSWER (from the RAG system):
 {answer}
 
-SOURCES USED BY THE RAG:
+SOURCES USED BY THE RAG (with verbatim excerpt — use these as ground truth):
 {sources_text}
 {behavior_block}
 Rubric — score each dimension 1–10 (integers or one decimal). Be strict: 10 = flawless, 7 = good but has gaps, 5 = mediocre, 3 = poor, 1 = unusable.
 
-1. accuracy (0-10): Does the answer correctly reflect Ray Peat's known views? Any hallucinations or fabricated claims? Penalize fabrication heavily.
+1. accuracy (0-10): Compare each claim in the answer against the source excerpts above. A claim supported by verbatim text in the excerpts scores well. A claim that contradicts or is absent from all source excerpts is a potential hallucination — penalize heavily. Do NOT rely on your own knowledge of Ray Peat; judge only against the provided source text.
 2. grounding (0-10): Are specific claims cited with inline markers like [S1], [S2]? Do citations appear to map to real sources in the list? Penalize bare assertions with no citations.
 3. domain_fluency (0-10): Does the answer use Peat's vocabulary naturally (bioenergetics, PUFAs, T3, CO2, progesterone, mitochondria, etc.)? Not keyword-stuffed but natural.
 4. completeness (0-10): Does the answer cover the key aspects of the question, or is it superficial? Hard questions need multi-faceted answers. For adversarial questions, completeness = how thoroughly the refusal or correction addresses the issue.
@@ -444,7 +453,15 @@ Return ONLY a JSON object in this exact shape — no markdown, no code fences:
   "reasoning": "<one-paragraph justification of the scores>"
 }}"""
 
-    payload = {
+    openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
+
+    max_retries = 5
+    text = ""
+    last_err = ""
+    gemini_quota_exhausted = False
+
+    # --- Primary: Gemini 2.5-flash judge ---
+    gemini_payload = {
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "generationConfig": {
             "temperature": 0.1,
@@ -455,21 +472,25 @@ Return ONLY a JSON object in this exact shape — no markdown, no code fences:
             "thinkingConfig": {"thinkingBudget": 0},
         },
     }
-    headers = {"x-goog-api-key": api_key, "Content-Type": "application/json"}
-
-    # Retry loop with exponential backoff — free-tier Gemini is RPM-limited
-    max_retries = 5
-    wait = 30  # seconds — free-tier 2.5-flash is ~10 RPM, so 30s between retries
-    text = ""
-    last_err = ""
+    gemini_headers = {"x-goog-api-key": api_key, "Content-Type": "application/json"}
+    wait = 30  # free-tier 2.5-flash is ~10 RPM
     for attempt in range(max_retries):
         try:
-            resp = requests.post(JUDGE_URL, json=payload, headers=headers, timeout=60)
-            if resp.status_code in (429, 503, 529):
-                last_err = f"judge_http_{resp.status_code} (attempt {attempt + 1}/{max_retries})"
-                # 503/529 = overloaded, usually transient — wait less than rate-limit backoff
-                time.sleep(wait if resp.status_code == 429 else 10)
+            resp = requests.post(JUDGE_URL, json=gemini_payload, headers=gemini_headers, timeout=60)
+            if resp.status_code == 429:
+                # Check if this is a daily quota exhaustion vs RPM limit
+                err_text = resp.text.lower()
+                if "quota" in err_text or "daily" in err_text or "exceeded" in err_text:
+                    gemini_quota_exhausted = True
+                    last_err = "gemini_quota_exhausted"
+                    break
+                last_err = f"judge_http_429 (attempt {attempt + 1}/{max_retries})"
+                time.sleep(wait)
                 wait = min(wait * 1.5, 120)
+                continue
+            if resp.status_code in (503, 529):
+                last_err = f"judge_http_{resp.status_code} (attempt {attempt + 1}/{max_retries})"
+                time.sleep(10)
                 continue
             if resp.status_code != 200:
                 return {
@@ -483,6 +504,36 @@ Return ONLY a JSON object in this exact shape — no markdown, no code fences:
             last_err = f"judge_exception: {e}"
             time.sleep(wait)
             wait = min(wait * 1.5, 120)
+
+    # --- Fallback: OpenRouter (only on Gemini quota exhaustion) ---
+    if not text and gemini_quota_exhausted and openrouter_key:
+        or_payload = {
+            "model": OPENROUTER_JUDGE_MODEL,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.1,
+            "max_tokens": 2048,
+            "response_format": {"type": "json_object"},
+        }
+        or_headers = {"Authorization": f"Bearer {openrouter_key}", "Content-Type": "application/json"}
+        wait = 5
+        for attempt in range(max_retries):
+            try:
+                resp = requests.post(OPENROUTER_BASE_URL, json=or_payload, headers=or_headers, timeout=60)
+                if resp.status_code in (429, 503):
+                    last_err = f"openrouter_http_{resp.status_code} (attempt {attempt + 1}/{max_retries})"
+                    time.sleep(wait)
+                    wait = min(wait * 2, 60)
+                    continue
+                if resp.status_code != 200:
+                    return {"error": f"openrouter_http_{resp.status_code}", "detail": resp.text[:300], "final_score": 0.0}
+                text = resp.json()["choices"][0]["message"]["content"]
+                last_err = ""
+                break
+            except Exception as e:
+                last_err = f"openrouter_exception: {e}"
+                time.sleep(wait)
+                wait = min(wait * 2, 60)
+
     if not text:
         return {"error": last_err or "judge_no_text", "final_score": 0.0}
 
@@ -675,10 +726,39 @@ def main() -> int:
         questions = questions[: args.limit]
 
     print(f"\n  Loaded {len(questions)} questions. Baseline = {baseline}")
-    print(f"  LLM judge: {'OFF' if args.no_judge else 'ON (' + JUDGE_MODEL + ')'}")
+    openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
+    judge_label = "OFF" if args.no_judge else (
+        f"ON ({JUDGE_MODEL}, OpenRouter/{OPENROUTER_JUDGE_MODEL} fallback)" if openrouter_key
+        else f"ON ({JUDGE_MODEL})"
+    )
+    print(f"  LLM judge: {judge_label}")
     print(f"  Initializing RayPeatRAG...\n")
 
     rag = RayPeatRAG()
+
+    # Health check — abort if Pinecone failed to initialize. Without this,
+    # the eval silently runs against a broken RAG (vector_search.py raises
+    # at module import on Pinecone failure, rag_system.py swallows it and
+    # sets the search engine to None) and produces an entire run of 1.00
+    # scores that look like a model regression.
+    if rag.search_engine is None:
+        print(
+            "\n  ABORT: RayPeatRAG initialized without a vector search engine.\n"
+            "  This usually means Pinecone is unreachable (api.pinecone.io timeout)\n"
+            "  or PINECONE_API_KEY is missing/wrong. Eval would produce garbage scores.\n"
+        )
+        sys.exit(2)
+    # Verify the underlying index is actually queryable, not just constructed.
+    try:
+        _stats = rag.search_engine.index.describe_index_stats()
+        _vc = _stats.get("total_vector_count", 0) if hasattr(_stats, "get") else getattr(_stats, "total_vector_count", 0)
+        if _vc < 1000:
+            print(f"\n  ABORT: Pinecone index reports only {_vc} vectors — looks empty/wrong index.\n")
+            sys.exit(2)
+        print(f"  Pinecone index health: {_vc:,} vectors\n")
+    except Exception as _e:
+        print(f"\n  ABORT: Pinecone index health check failed: {_e}\n")
+        sys.exit(2)
 
     api_key = os.getenv("GEMINI_API_KEY", "")
     if not args.no_judge and not api_key:
@@ -716,11 +796,15 @@ def main() -> int:
         expected_behavior = q.get("expected_behavior", "answer")
         adversarial_note = q.get("adversarial_note", "")
 
+        # Use full source objects (with chunk text) for the judge when available.
+        # rag._last_sources is set by _get_rag_response_sync after MMR selection.
+        full_sources_for_judge = getattr(rag, "_last_sources", None) or sources
+
         judge_result: Dict[str, Any] = {}
         if not args.no_judge:
             t1 = time.time()
             judge_result = llm_judge(
-                question_text, answer_body, sources, api_key,
+                question_text, answer_body, full_sources_for_judge, api_key,
                 expected_behavior=expected_behavior,
                 adversarial_note=adversarial_note,
             )

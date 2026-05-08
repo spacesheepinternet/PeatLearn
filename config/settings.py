@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
     PINECONE_API_KEY: Optional[str] = Field(default=None, env="PINECONE_API_KEY")
     GROQ_API_KEY: Optional[str] = Field(default=None, env="GROQ_API_KEY")
+    OPENROUTER_API_KEY: Optional[str] = Field(default=None, env="OPENROUTER_API_KEY")
     
     # Database Configuration
     DATABASE_URL: str = Field(

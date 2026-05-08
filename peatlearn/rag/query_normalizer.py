@@ -60,6 +60,12 @@ _EXPANSIONS: dict[str, str] = {
     "stress":               "stress cortisol adrenaline serotonin endorphin",
     "stress response":      "cortisol adrenaline serotonin aldosterone stress",
     "adrenal fatigue":      "adrenal cortisol adrenaline stress exhaustion",
+    # --- fruits / foods ---
+    "fruits":               "orange juice fruit fructose glucose sucrose tropical ripe fruit sugar",
+    "fruit":                "orange juice fruit fructose glucose sucrose tropical ripe sugar",
+    "best foods":           "orange juice milk gelatin gelatin coconut oil saturated fat thyroid pro-metabolic",
+    "what to eat":          "orange juice milk gelatin sugar thyroid pro-metabolic diet",
+    "diet":                 "orange juice milk gelatin coconut oil sugar starch thyroid pro-metabolic",
     # --- lifestyle ---
     "sleep":                "sleep melatonin serotonin cortisol tryptophan",
     "red light":            "red light therapy photobiomodulation infrared mitochondria",

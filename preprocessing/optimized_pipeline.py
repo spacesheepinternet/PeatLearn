@@ -64,7 +64,7 @@ class OptimizedPipeline:
         print(f"\n📁 Discovering documents in {self.input_dir}...")
         
         # Support multiple formats
-        extensions = ['.txt', '.pdf', '.docx', '.md', '.json']
+        extensions = ['.txt', '.pdf', '.docx', '.md', '.json', '.html']
         documents = []
         
         for ext in extensions:

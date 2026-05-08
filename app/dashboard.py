@@ -1045,6 +1045,16 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Helpers ---
+_CORPUS_ROOT = Path("data/processed/ai_cleaned")
+
+@st.cache_data(show_spinner=False)
+def _load_full_document(source_file: str) -> str | None:
+    path = _CORPUS_ROOT / source_file
+    if path.exists():
+        return path.read_text(encoding="utf-8", errors="replace")
+    return None
+
+
 def _split_answer_and_sources(raw: str) -> tuple[str, list[str], dict | None]:
     """Split body, sources list, and confidence info from the model output.
 
@@ -1089,7 +1099,13 @@ def init_adaptive_system():
     content_selector = ContentSelector(ai_profiler)
     quiz_generator = QuizGenerator(ai_profiler)
     dashboard = Dashboard()
-    rag_system = RayPeatRAG()
+    # RAG is the only component that can fail at init (Pinecone connectivity).
+    # Don't let it take down quizzes, profile, etc. — log and continue.
+    try:
+        rag_system = RayPeatRAG()
+    except Exception as e:
+        print(f"WARNING: RAG init failed ({e}); chat disabled, quizzes/profile still work.")
+        rag_system = None
     # Load topic model if available
     try:
         topic_model = CorpusTopicModel(model_dir="data/models/topics")
@@ -1127,8 +1143,16 @@ def init_session_state():
 
 @st.cache_resource
 def _get_rag_system():
-    """Create RayPeatRAG once and cache it for the lifetime of the Streamlit process."""
-    return RayPeatRAG()
+    """Create RayPeatRAG once and cache it for the lifetime of the Streamlit process.
+
+    Returns None if Pinecone is unreachable so the dashboard can still serve
+    quizzes/profile features instead of crashing the whole app.
+    """
+    try:
+        return RayPeatRAG()
+    except Exception as e:
+        print(f"WARNING: _get_rag_system init failed ({e}); chat will be disabled.")
+        return None
 
 _GREETING_PREFIXES = ("hello", "hi ", "hi!", "hey", "howdy", "yo ", "yo!", "hiya", "good morning", "good afternoon", "good evening", "what's up", "whats up", "sup")
 _GREETING_ROOTS = {"hello", "helo", "hi", "hey", "hiya", "howdy", "yo", "sup", "wassup"}
@@ -1561,19 +1585,36 @@ def render_chat_interface():
             # Render markdown body (allows headings/lists)
             st.markdown(body_md)
 
-            # Render sources with hover UI if present
+            # Render sources with expandable chunk excerpts
             if sources:
-                sources_list = "".join(f"<li>{html.escape(it)}</li>" for it in sources[:12])
-                st.markdown(f"""
-                    <div class="rag-answer">
-                        <div class="sources-container">
-                            <div class="sources-toggle">📚 Sources</div>
-                            <div class="sources-content">
-                                <ul>{sources_list}</ul>
-                            </div>
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
+                st.markdown("📚 **Sources**")
+                source_objects = message.get('source_objects', [])
+                for idx, src_line in enumerate(sources[:12]):
+                    obj = source_objects[idx] if idx < len(source_objects) else None
+                    if obj:
+                        context = (obj.get('context') or '').strip()
+                        peat_text = (obj.get('ray_peat_response') or '').strip()
+                        source_file = (obj.get('source_file') or '').strip()
+                        with st.expander(src_line, expanded=False):
+                            if context:
+                                st.markdown(f"**Context:** {context[:350]}")
+                            if peat_text:
+                                st.markdown(f"**Peat's words:** {peat_text[:700]}")
+                            if source_file:
+                                with st.expander("📄 Read full document", expanded=False):
+                                    doc_text = _load_full_document(source_file)
+                                    if doc_text:
+                                        st.text_area(
+                                            label=source_file,
+                                            value=doc_text,
+                                            height=400,
+                                            disabled=True,
+                                            key=f"fulldoc_{i}_{idx}",
+                                        )
+                                    else:
+                                        st.caption(f"File not found: {source_file}")
+                    else:
+                        st.markdown(f"- {src_line}")
             
             # Show rating slider for assistant messages (1-10)
             if 'feedback' not in message:
@@ -1618,21 +1659,36 @@ def render_chat_interface():
             # Pass the last 3 turns (6 messages) as context so the model can
             # reference the conversation without relying solely on pronoun resolution.
             recent_history = st.session_state.chat_history[:-1][-6:] if len(st.session_state.chat_history) > 1 else []
-            with st.spinner("Ray Peat AI is thinking..."):
-                response = _get_rag_system().get_rag_response(
-                    resolved_query,
-                    st.session_state.user_profile,
-                    chat_history=recent_history,
+            _rag = _get_rag_system()
+            if _rag is None:
+                response = (
+                    "Chat is unavailable right now — the vector database (Pinecone) "
+                    "is unreachable. Quizzes and profile features still work. "
+                    "Please try again in a few minutes."
                 )
+            else:
+                with st.spinner("Ray Peat AI is thinking..."):
+                    response = _rag.get_rag_response(
+                        resolved_query,
+                        st.session_state.user_profile,
+                        chat_history=recent_history,
+                    )
         
         # Add assistant message (attach parsed sources + confidence)
         body_md_tmp, sources_tmp, conf_tmp = _split_answer_and_sources(response)
+        # Capture full source objects (with chunk text) for expandable excerpts.
+        # Only populated for real RAG responses, not canned small-talk replies.
+        _rag_source_objects = (
+            list(getattr(_get_rag_system(), '_last_sources', []))
+            if not canned else []
+        )
         assistant_message = {
             'role': 'assistant',
             'content': response,
             'timestamp': datetime.now().isoformat(),
             'user_query': prompt,
             'sources': sources_tmp,
+            'source_objects': _rag_source_objects,
             'confidence': conf_tmp,
         }
         st.session_state.chat_history.append(assistant_message)
@@ -1850,13 +1906,16 @@ def render_quiz_interface():
                 st.rerun()
         return
 
-    # Config to start a new quiz
+    # Config to start a new quiz. Topic labels MUST match the canonical
+    # `topic` column in `quiz_items` (SQL is exact-match WHERE topic IN ...).
+    # Verbose labels like "thyroid function and metabolism" return 0 items
+    # because the bank stores them as just "thyroid".
     topic_mastery = (st.session_state.user_profile or {}).get('topic_mastery', {})
     topics = list(topic_mastery.keys()) if topic_mastery else [
-        "thyroid function and metabolism",
-        "progesterone and estrogen balance",
-        "sugar and cellular energy",
-        "carbon dioxide and metabolism",
+        "thyroid",
+        "progesterone",
+        "serotonin",
+        "general",
     ]
     selected_topic = st.selectbox("Choose a topic for your quiz (optional):", [""] + topics)
     num_q = st.slider("Number of questions", 3, 10, 5)

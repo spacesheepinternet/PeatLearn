@@ -327,3 +327,14 @@ dev-debug.log
 # Task files
 # tasks.json
 # tasks/
+
+# Council session outputs (auto-generated, large)
+council-report-*.html
+council-transcript-*.md
+
+# Generated corpus data (re-buildable)
+data/corpus_v3/
+data/_missing_files_staging/
+
+# Claude Code runtime
+.claude/scheduled_tasks.lock

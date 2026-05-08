@@ -121,8 +121,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize components (Pinecone-based)
-rag_system = RayPeatRAG()
+# Initialize components (Pinecone-based). Wrap in try/except so quiz/recs
+# endpoints stay alive when Pinecone is unreachable (RAG endpoints will 503).
+try:
+    rag_system = RayPeatRAG()
+except Exception as _e:
+    print(f"WARNING: RayPeatRAG init failed ({_e}); RAG endpoints disabled, quiz/recs OK.")
+    rag_system = None
 
 # Lightweight MF recommender loader
 MF_MODEL_PATH = PROJECT_ROOT / "data" / "models" / "recs" / "mf_model.npz"
@@ -503,17 +508,35 @@ def _select_items(user_id: str, topics: list[str] | None, num_questions: int, ta
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     try:
+        cols = "item_id, topic, stem, options, correct_index, explanation, passage_excerpt, source_file, difficulty_b, discrimination_a, guessing_c, type, validated"
+        rows = []
         if topics:
             placeholders = ",".join(["?"] * len(topics))
             cur.execute(
-                f"SELECT item_id, topic, stem, options, correct_index, explanation, passage_excerpt, source_file, difficulty_b, discrimination_a, guessing_c, type, validated FROM quiz_items WHERE topic IN ({placeholders})",
+                f"SELECT {cols} FROM quiz_items WHERE topic IN ({placeholders})",
                 topics,
             )
+            rows = cur.fetchall()
+            # Fallback: verbose topic ("thyroid function and metabolism") won't
+            # match the bank's short tags ("thyroid"). Retry with substring
+            # match against each topic word so users can still get items.
+            if not rows:
+                like_clauses = []
+                like_params: list[str] = []
+                for t in topics:
+                    for word in (t or "").lower().split():
+                        if len(word) >= 4:  # skip stopwords like "and", "the"
+                            like_clauses.append("LOWER(topic) LIKE ?")
+                            like_params.append(f"%{word}%")
+                if like_clauses:
+                    cur.execute(
+                        f"SELECT {cols} FROM quiz_items WHERE " + " OR ".join(like_clauses),
+                        like_params,
+                    )
+                    rows = cur.fetchall()
         else:
-            cur.execute(
-                "SELECT item_id, topic, stem, options, correct_index, explanation, passage_excerpt, source_file, difficulty_b, discrimination_a, guessing_c, type, validated FROM quiz_items"
-            )
-        rows = cur.fetchall()
+            cur.execute(f"SELECT {cols} FROM quiz_items")
+            rows = cur.fetchall()
     finally:
         conn.close()
     items = [_row_to_item(r) for r in rows]

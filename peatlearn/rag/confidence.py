@@ -41,10 +41,13 @@ class ConfidenceReport:
 #           Category H (adversarial) must become ABSTAIN/LOW.
 # These are starting points — recalibrate after each defence phase.
 
-RERANK_ABSTAIN = -1.5     # top-1 below this → definitely no match
-RERANK_LOW = 0.0          # top-1 below this → weak match
-RERANK_MEDIUM = 2.0       # top-1 below this → moderate match
-STRONG_CANDIDATE_THR = 1.0  # rerank score above this = "strong"
+# ms-marco-MiniLM scores on health/dietary queries sit ~1.5–2 logits lower
+# than on web queries (the model's training domain). The ladder is shifted
+# down accordingly so that valid Ray Peat retrievals don't flood the LOW tier.
+RERANK_ABSTAIN = -3.0     # top-1 below this → definitely no match
+RERANK_LOW = -1.0         # top-1 below this → weak match
+RERANK_MEDIUM = 1.5       # top-1 below this → moderate match
+STRONG_CANDIDATE_THR = -0.5  # rerank score above this = "strong"
 STRONG_MIN_LOW = 2        # fewer strong → LOW
 STRONG_MIN_MEDIUM = 4     # fewer strong → MEDIUM
 HYDE_DIVERGENCE_THR = 0.55  # HyDE cosine below this → out-of-distribution
@@ -56,6 +59,11 @@ HYDE_DIVERGENCE_THR = 0.55  # HyDE cosine below this → out-of-distribution
 # sources and correct the premise.
 COSINE_PRESENT_THR = 0.45   # avg Pinecone cosine of top-5 above this → topic is present
 COSINE_DIVERGENCE_N = 5     # number of top candidates to average
+# When the cross-encoder scores LOW due to domain mismatch, but the Pinecone
+# cosine (Gemini embedding-001 or fine-tuned EmbeddingGemma, depending on
+# active index) is strong, the topic IS genuinely present. Promote LOW →
+# MEDIUM — the corpus embedding is more domain-appropriate than ms-marco-MiniLM.
+COSINE_PROMOTE_THR = 0.70   # avg cosine above this → promote LOW to MEDIUM
 
 
 # --- Entity grounding check -----------------------------------------------
@@ -346,18 +354,28 @@ def score_retrieval(
                 f"HyDE divergence ({hyde_agreement:.2f}) — query likely "
                 f"out-of-distribution for the corpus"
             )
-    # LOW: marginal retrieval
+    # LOW: marginal retrieval — but promote to MEDIUM if domain-tuned cosine
+    # is strong, since the cross-encoder is calibrated on web queries and
+    # systematically undershoots on bioenergetics/health corpus text.
     elif top_rerank < RERANK_LOW or strong_count < STRONG_MIN_LOW:
-        tier = "LOW"
-        if top_rerank < RERANK_LOW:
+        if avg_cosine >= COSINE_PROMOTE_THR:
+            tier = "MEDIUM"
             reasons.append(
-                f"Top rerank score ({top_rerank:.2f}) below zero — weak relevance"
+                f"Cross-encoder score ({top_rerank:.2f}) below LOW threshold, "
+                f"but Pinecone cosine ({avg_cosine:.2f}) is strong — "
+                f"ms-marco-MiniLM domain mismatch likely; promoted to MEDIUM"
             )
-        if strong_count < STRONG_MIN_LOW:
-            reasons.append(
-                f"Only {strong_count} strong candidate(s) (rerank > "
-                f"{STRONG_CANDIDATE_THR})"
-            )
+        else:
+            tier = "LOW"
+            if top_rerank < RERANK_LOW:
+                reasons.append(
+                    f"Top rerank score ({top_rerank:.2f}) below zero — weak relevance"
+                )
+            if strong_count < STRONG_MIN_LOW:
+                reasons.append(
+                    f"Only {strong_count} strong candidate(s) (rerank > "
+                    f"{STRONG_CANDIDATE_THR})"
+                )
     # MEDIUM: decent but not rock-solid
     elif top_rerank < RERANK_MEDIUM or strong_count < STRONG_MIN_MEDIUM:
         tier = "MEDIUM"

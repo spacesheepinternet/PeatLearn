@@ -392,7 +392,14 @@ class PineconeVectorSearch:
             logger.error(f"Error updating metadata: {e}")
             return False
 
-# Global instance for the API (same pattern as the original)
-search_engine = PineconeVectorSearch()
+# Global instance for the API (same pattern as the original).
+# Wrapped so module import doesn't fail when Pinecone is unreachable —
+# callers that need search must construct PineconeVectorSearch() themselves
+# and handle initialization errors at call site.
+try:
+    search_engine = PineconeVectorSearch()
+except Exception as _e:
+    logger.error(f"Module-level PineconeVectorSearch init failed: {_e}")
+    search_engine = None
 
 

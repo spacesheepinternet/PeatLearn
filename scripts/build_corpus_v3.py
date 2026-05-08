@@ -273,8 +273,17 @@ def quality_gate(chunks: list[dict], min_tokens: int = 25) -> tuple[list[dict], 
     passed = []
     removed = 0
 
+    transcription_gap = re.compile(r"_{8,}")
+
     for c in chunks:
         if c["tokens"] < min_tokens:
+            removed += 1
+            continue
+
+        # Remove chunks with transcription gap placeholders (e.g. "________________"
+        # marking inaudible audio). Serving these to users shows literal underscores
+        # in mid-sentence and the gap distorts the meaning of Peat's claim.
+        if transcription_gap.search(c["text"]):
             removed += 1
             continue
 

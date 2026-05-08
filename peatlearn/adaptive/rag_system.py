@@ -53,6 +53,9 @@ class RayPeatRAG:
             print("Warning: Vector search engine not available. Using fallback mode.")
         if not self.api_key:
             print("Warning: Google API key not found. Using fallback mode.")
+        # Stores the full MMR-selected source objects from the last get_rag_response()
+        # call. Used by eval_rag_quality.py to pass chunk text to the LLM judge.
+        self._last_sources: list = []
         
     def get_rag_response(
         self,
@@ -129,6 +132,16 @@ class RayPeatRAG:
             "uncertainties", "might actually", "exceptions to",
             "counterexample", "are there any",
         )
+        # Practical / dietary / lifestyle — user wants actionable advice;
+        # needs wide corpus coverage to surface all relevant Peat guidance
+        practical = (
+            "practically", "practical", "how might", "how can i",
+            "how should i", "adjust", "adjust my", "adjust their",
+            "what to eat", "what should i eat", "what should i",
+            "how to improve", "how to support", "how to boost",
+            "what foods", "which foods", "best foods", "diet for",
+            "how do i", "what can i do", "daily routine", "lifestyle",
+        )
 
         # 2+ "and" usually means listing 3+ concepts
         if q.count(" and ") >= 2:
@@ -136,6 +149,8 @@ class RayPeatRAG:
         if any(m in q for m in synthesis):
             return 12
         if any(m in q for m in nuance):
+            return 12
+        if any(m in q for m in practical):
             return 12
 
         return 8
@@ -488,7 +503,7 @@ class RayPeatRAG:
             if len(peat_text) > _CHUNK_CAP:
                 peat_text = peat_text[:_CHUNK_CAP] + "..."
             context_parts.append(
-                f"[S{i}] {s['source_file']} (relevance {s['score']:.2f})\n"
+                f"[S{i}] {s['source_file']} (relevance {s.get('rerank_score', s['score']):.2f})\n"
                 f"Topic context: {s['context'][:400]}\n"
                 f"Peat's words: {peat_text}"
             )
@@ -504,6 +519,7 @@ class RayPeatRAG:
         payload = {
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.25, "maxOutputTokens": 4096, "topP": 0.85, "topK": 40, "candidateCount": 1},
+            "thinkingConfig": {"thinkingBudget": 0},
         }
         answer = ""
         rate_limited = False
@@ -581,15 +597,29 @@ class RayPeatRAG:
         from peatlearn.rag.verifier import verify_claims as _verify_claims
         verification = _verify_claims(answer, sources, api_key=self.api_key)
         if verification.unsupported:
-            answer = verification.revised_answer
             import logging as _lg
-            _lg.getLogger(__name__).warning(
-                f"Verifier stripped {len(verification.unsupported)} unsupported claim(s)"
-            )
+            revised = verification.revised_answer
+            if revised and len(revised.strip()) > 50:
+                answer = revised
+                _lg.getLogger(__name__).warning(
+                    f"Verifier stripped {len(verification.unsupported)} unsupported claim(s)"
+                )
+            else:
+                # Verifier gutted the answer (premise rejections look "unsupported"
+                # because the retrieved chunks don't contain the corrected view).
+                # Keep the original rather than returning an empty response.
+                _lg.getLogger(__name__).warning(
+                    f"Verifier would have emptied the answer — keeping original "
+                    f"({len(verification.unsupported)} flagged claims)"
+                )
+
+        # Store for eval harness (eval_rag_quality.py reads this to pass chunk
+        # content to the LLM judge — not used by the production serving path).
+        self._last_sources = list(sources)
 
         # --- Step 6: Append sources + confidence footer ---
         source_info = "\n\n📚 Sources:\n" + "".join(
-            f"{i}. {s['source_file']} (relevance: {s['score']:.2f})\n"
+            f"{i}. {s['source_file']} (relevance: {s.get('rerank_score', s['score']):.2f})\n"
             for i, s in enumerate(sources, 1)
         )
         reasons_text = "; ".join(confidence.reasons)
@@ -777,12 +807,12 @@ Rules:
 - Attribute every claim to Peat explicitly: "Peat argued...", "He was direct about this...", "In his view...", "His take was..."
 - Cite sources inline as [S1], [S2] etc. — matching the source numbers in the SOURCES block. Weave citations naturally into sentences, never clustered.
 - If sources conflict on a point, acknowledge the tension explicitly rather than picking one silently.
-- If the question embeds a false or inverted premise (e.g. "Peat recommended X" when the sources show he opposed X, or "Peat endorsed Y" when Y contradicts his core views), reject the premise explicitly in the FIRST sentence — e.g. "That premise doesn't reflect Peat's documented position" — then state what he actually believed. Never answer as if a false premise were true, even partially.
+- CRITICAL — False premise check: Before generating any answer, verify the premise. Questions framed as "Why did Peat recommend X", "What made Peat favor Y", "Peat said Z — what's his evidence" assert a fact about Peat's position. Check the sources: do they confirm Peat actually held that view? If the sources contradict the assertion, show he opposed it, or simply don't support it, you MUST open with a premise rejection — e.g. "That premise is incorrect — Peat actually opposed X" or "The sources contradict this; Peat's documented view was the opposite." Then state what he actually believed. Never answer as if a false premise were true, even if the sources discuss the topic in passing. A question that asserts Peat recommended something he warned against is a false-premise question — treat it as one. Beware of partial-match traps: the sources must contain an explicit, affirmative endorsement from Peat of the claimed behavior — e.g. "Peat said he recommends X", "Peat explicitly preferred X". Peat discussing X in a neutral or cautionary context, mentioning that others do X, or noting that processing can reduce X's toxicity is NOT confirmation that Peat endorsed X. Apply this test: "Did Peat himself recommend or prefer this specific thing?" If you cannot point to a source sentence where he did, the premise is unsupported — reject it.
 - Lead with the most interesting or counterintuitive point. Surface it early.
 - Use Peat's exact words only when they're genuinely striking. Avoid academic filler.
 - When sources contain practical advice (foods, supplements, techniques, or lifestyle changes Peat recommended), include it concretely — don't stop at theory.
+- For questions about a food category, substance, or compound (e.g. PUFAs, dairy, sugar, a hormone), cover ALL THREE: (1) what Peat thought / the mechanism, (2) specific named examples he recommended or warned against, (3) any practical dosage or preparation notes the sources mention. Do not answer only the "why" while omitting the "what specifically."
 {extra_rules}
-- {followup_instruction}
 - If the sources don't cover the question, say so in one sentence and suggest a related angle the user might find useful."""
 
         return base_prompt + "\n\nAnswer:"

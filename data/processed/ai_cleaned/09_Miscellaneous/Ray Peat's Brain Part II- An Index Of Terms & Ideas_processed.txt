@@ -1,0 +1,157 @@
+
+
+**RAY PEAT:** "I have looked for the best workers in many scientific fields, and it seems that their discoveries fit into a meaningful picture of life. Warburg, Shute, Biskind, Lipshutz, Selye, Szent-Gyorgyi, Barnes, Ling, Meerson, and other have revolutionised biology and medicine, but their work has never supported the dominant corporate view, and so it has been actively suppressed by the forces that control science education. The therapeutic methods that have grown out of their discoveries are simple, basic, inexpensive, and extremely effective."
+
+**CONTEXT:** The document introduces Ray Peat's perspective on suppressed scientific discoveries and their therapeutic potential.
+
+**RAY PEAT:** "Context is everything. The idea of balance—physiological, hormonal, or nutritional balance, for example—requires contextual thinking. Environmentalism is a form of contextual thinking. There are no closed systems, anywhere. Before the Second World War, there were many influential people and institutions devoted to contextual thinking. With the rise of overwhelming corporate/state influence in the world, manipulate "public relations" has replaced critical thinking even, to a great extent, in the universities."
+
+**CONTEXT:** Ray Peat emphasizes the importance of contextual thinking in understanding biological systems and contrasts it with the current corporate-influenced approach to science.
+
+**RAY PEAT:** "The ability of cells to consume oxygen and produce useful biological energy."
+
+**CONTEXT:** Definition of Cellular Respiration (Mitochondrial Respiration, Oxidative Energy).
+
+**RAY PEAT:** "The structure inside the cell in which energy is produced by respiration is called the mitochondria. The vitality of the mitochondria, their capacity for oxidative energy production, is influenced by nutrition and hormones. In healthy people, mitochondria work efficiently at almost any altitude, but people with damaged or poorly regulated mitochondria are extremely susceptible to stress and hyperventilation. Progesterone, testosterone, and thyroid (T3 and T2) are protective of normal mitochondrial function, by both local and systemic effects."
+
+**CONTEXT:** Explanation of mitochondria and the role of nutrition and hormones in their function, highlighting the protective effects of progesterone, testosterone, and thyroid hormones.
+
+**RAY PEAT:** "Carbon dioxide, produced in the cells, releases oxygen into the tissues, relaxes blood vessels, prevents edema, eliminates ammonia, and increases the efficiency of oxidative metabolism."
+
+**CONTEXT:** The crucial functions of carbon dioxide in cellular metabolism and physiological regulation.
+
+**RAY PEAT:** "Oxidation refers to the combination of a substance with oxygen. This can be beneficial, as in normal respiration that produces energy, or harmful, as in rancidity, irradiation, or stress reactions."
+
+**CONTEXT:** Definition of oxidation and its dual nature, beneficial in respiration and harmful in other contexts.
+
+**RAY PEAT:** "Thyroid hormone is necessary for respiration on the cellular level, and makes possible all higher biological functions. Without the metabolic efficiency, which is promoted by thyroid hormone, life couldn’t get much beyond the single-cell stage. Without adequate thyroid, we become sluggish, clumsy, cold, anemic, and subject to infections, heart disease, headaches, cancer, and many other diseases, and seem to be prematurely aged, because none of our tissues can function normally."
+
+**CONTEXT:** The fundamental role of thyroid hormone in cellular respiration, higher biological functions, and overall health, detailing the consequences of its deficiency.
+
+**RAY PEAT:** "The metabolic rate is very closely related to thyroid hormone function, but defining it and measuring it have to be done with awareness of its complexity. 'Basal' body temperature is influenced by many things besides thyroid. The resting heart rate helps to interpret the temperature. In a cool environment, the temperature of the extremities is sometimes a better indicator than the oral or eardrum temperature. The 'basal' metabolic rate, especially if the rate of carbon dioxide production is measured, is very useful. The amount of water and calories disposed of in a day can give a rough idea of the metabolic rate."
+
+**CONTEXT:** Nuances in understanding and measuring metabolic rate, emphasizing the influence of thyroid hormone and other factors, and suggesting practical indicators.
+
+**RAY PEAT:** "The conversion of glucose to lactic acid, providing some usable energy, but many times less than oxidation provides. Lactic acid, produced by splitting glucose to pyruvic acid followed by its reduction, is associated with calcium uptake and nitric oxide production, depletes energy, contributing to cell death.... The presence of oxygen normally restrains glycolysis so that glucose is converted to carbon dioxide instead of lactic acid. A point made by O. Warburg and A. Szent-Gyorgyi and others is that there is an important difference between the energy provided by glycolysis and that provided by mitochondrial respiration. They felt that glycolysis was a more primitive form of energy production, and supported only primitive function and cell division, while the more efficient respiration supported cell differentiation and complex functioning."
+
+**CONTEXT:** Explanation of glycolysis, its energy yield compared to oxidation, the role of oxygen in restraining it, and the historical perspective from Warburg and Szent-Gyorgyi on its primitive nature versus efficient respiration.
+
+**RAY PEAT:** "Lactic acid and carbon dioxide have opposing effects. Intense exercise damages cells in ways that cumulatively impair metabolism. There is clear evidence that glycolysis, producing lactic acid from glucose, has toxic effects, suppressing respiration and killing cells. Within five minutes, exercise lowers the activity of enzymes that oxidize glucose. Diabetes, Alzheimer's disease, and general aging involve increased lactic acid production and accumulated metabolic (mitochondrial) damage."
+
+**CONTEXT:** The toxic effects of lactic acid, its link to exercise, and its association with degenerative diseases and aging.
+
+**RAY PEAT:** "In animals, cholesterol is the basic sterol molecule, which is massively converted into other substances, including the steroid hormones. Thyroid hormone and vitamin A are required for this conversion."
+
+**CONTEXT:** The role of cholesterol as a precursor to steroid hormones and the requirement of thyroid hormone and vitamin A for this conversion.
+
+**RAY PEAT:** "To produce pregnenolone, thyroid, vitamin A, and cholesterol have to be delivered to the mitochondria in the right proportion and sufficient quantity. Normally, stress is balanced by increased synthesis of pregnenolone, which improves the ability to cope with stress. Lipid peroxidation, resulting from the accumulation of unsaturated fatty acids, iron, and energy deficiency, damages the mitochondrias' ability to produce pregnenolone. When pregnenolone is inadequate, cortisol is over-produced. When progesterone is deficient, estrogen's effect is largely unopposed. When both thyroid and progesterone are deficient, even fat cells synthesize estrogen."
+
+**CONTEXT:** The synthesis of pregnenolone, its role in stress management, and the factors that impair its production, leading to hormonal imbalances.
+
+**RAY PEAT:** "Progesterone is the main female hormone, and is a protective hormone during pregnancy, but it is also important in men since it is a general brain regulating and protective hormone. Progesterone, because of its normal anesthetic function (which prevents the pain of childbirth when its level is adequate), directly quiets nerves, and in this way suppresses many of the excitotoxic processes. It has direct effects on mitochondria, promoting energy production, and it facilitates thyroid hormone functions in various ways. It promotes the elimination of estrogen from tissues, and is a 'diuretic' in several benign ways, that are compatible with maintenance of blood volume. Progesterone is an anti-androgen and blocks testosterone's effects."
+
+**CONTEXT:** The multifaceted protective and regulatory roles of progesterone in both women and men, including its effects on the nervous system, mitochondria, estrogen metabolism, and androgen activity.
+
+**RAY PEAT:** "Known as the youth hormone, is very similar to progesterone, but is present in both men and women at very high levels. It can be turned into either estrogen or testosterone."
+
+**CONTEXT:** Description of Dehydroepiandrosterone (DHEA) and its relationship to progesterone and its conversion to estrogen or testosterone.
+
+**RAY PEAT:** "If we named hormones according to their place of origin, as Selye suggested, we could call estrogen folliculin (as Selye did because it is produced abundantly in the ovarian follicle), or adipin, because it is sometimes produced in fat cells. But it can be produced by many cells when they are under stress, and it seems to be normal for some to be produced in the testicle. Estrogen steals oxygen from mitochondria, shifting patterns of growth and adaptation. It has recently been demonstrated that estrogen stimulates the adrenal glands, independently of the pituitary's ACTH. This can increase the production of androgens, leading to hirsutism, and other male traits, including anabolic effects."
+
+**CONTEXT:** The origins and functions of estrogen, its role in stealing oxygen from mitochondria, and its stimulatory effect on adrenal glands.
+
+**RAY PEAT:** "Testosterone is the main male hormone, though it is present in females too. Progesterone, testosterone, and thyroid (T3 and T2) are protective of normal mitochondrial function, by both local and systemic effects. Testosterone (Suzuki, et al., 1996) and progesterone are estrogen antagonists that inhibit carbonic anhydrase."
+
+**CONTEXT:** The role of testosterone, its protective effects on mitochondria, and its estrogen-antagonistic properties alongside progesterone.
+
+**RAY PEAT:** "Adrenaline, besides leading to increased production of cortisol, is lipolytic, releasing the fatty acids which, if they are polyunsaturated, inhibit the production and transport of thyroid hormone, and also interfere directly with the respiratory functions of the mitochondria. Adrenaline decreases the conversion to T4 to T3, and increases the formation of the antagonistic reverse T3 (Nauman, et al., 1980, 1984). Adrenalin mobilizes fat from storage, and the free fatty acids create a chronic problem involving 1) blocked ATP production, 2) activation of the protein kinase C system (increasing tension in blood vessels), 3) inhibition of thyroid function with its energetic, hormonal, and tissue-structure consequences, 4) availability of fats for prostaglandin synthesis, and 5) possibly a direct effect on clot dissolving, besides the PAI-1 (plasminogen activator inhibitor) effect seen in diabetes (Ceriello, et al., Udvardy, et al., Vague, et al.)"
+
+**CONTEXT:** The detrimental effects of adrenaline, particularly its lipolytic action and the subsequent impact of polyunsaturated fatty acids on thyroid function, mitochondrial respiration, and overall metabolism.
+
+**RAY PEAT:** "Cortisol, for example, inhibits the conversion of T4 to T3, which is responsible for the respiratory production of energy and carbon dioxide. Excessive serotonin and estrogen cause a relatively uncontrolled production of cortisol. A vicious circle of inflammatory mediators and amino acid imbalance can result."
+
+**CONTEXT:** How cortisol interferes with thyroid hormone conversion and the factors that contribute to its excessive production, leading to a cycle of inflammation.
+
+**RAY PEAT:** "Aldosterone causes less sodium to be lost in the urine and sweat, but it achieves that at the expense of the increased loss of potassium, magnesium, and probably calcium. Aldosterone secretion increases during the night, and its rise is greater in depressed and stressed people. It inhibits energy metabolism, increases insulin resistance, and increases the formation of proinflammatory substances in fat cells (Kraus, et al., 2005). During aging, salt restriction can produce an exaggerated nocturnal rise in aldosterone."
+
+**CONTEXT:** The effects of aldosterone on mineral balance, its association with stress and depression, and its negative impact on energy metabolism and insulin resistance.
+
+**RAY PEAT:** "Just friction, or scratching or stretching the intestine is enough to cause it to release serotonin into the bloodstream. Serotonin increases the permeability of the intestine and blood vessels, and so is likely to be a major cause of the absorption of endotoxin (and other harmful material) during intestinal irritation or stress. The biological meaning of serotonin might be very different without endotoxin, but that hasn't been investigated. In the brain, serotonin regulates circulation and mitochondrial function, temperature, respiration and appetite, alertness and learning, secretion of prolactin, growth hormones and stress hormones, and participates in the most complex biochemical webs. The simple availability of oxygen, and the ability to use it, are regulated by carbon dioxide and serotonin, which act in opposite directions. Carbon dioxide inhibits the release of serotonin. Carbon dioxide and serotonin are regulated most importantly by thyroid function."
+
+**CONTEXT:** The role of serotonin in intestinal permeability, endotoxin absorption, and its complex regulatory functions in the brain, highlighting its opposition to carbon dioxide and its regulation by thyroid function.
+
+**RAY PEAT:** "Bacteria and plants produce a variety of lipids that serve some purposes analogous to our cholesterol phospholipids. Some of the common intestinal bacteria produce a molecule containing amino sugars and fatty acids (lipopolysaccharide, LPS), that's called endotoxin. The 'endo' root distinguishes it from the 'exotoxins' secreted by some bacteria, because the endotoxin is a structural part of the bacterium, that protects the bacteria against some of the exotoxins produced by other microorganisms. Normally, our intestine and liver destroy most of the LPS endotoxin before it reaches the general circulation. The bile acids, a major end product of cholesterol, have detergent action in the intestine that usually keeps endotoxin in solution, away from the absorptive surfaces of the intestine. If the flow of bile is obstructed, end toxin is allowed to enter the system (Bertok, 2004). Estrogen can inhibit the flow of bile (Stieger, et al., 2000). A mucus lining is part of the protective barrier, but the microscopic integrity of the intestinal cells themselves finally regulated the passage of materials into the blood and lymphatic vessels. Stress and shock tend to increase our absorption of bacterial endotoxin from the intestine, and endotoxin causes the release of serotonin from platelets in the blood. Chronic constipation, and anxiety which decreases blood circulation in the intestine, can increase the liver's exposure to endotoxin. Antibiotics, for example, lower endotoxin formation in the intestine, protect against the induction by endotoxin of serotonin, histamine, estrogen, and cortisol."
+
+**CONTEXT:** Detailed explanation of endotoxin (LPS), its bacterial origin, its interaction with the intestinal barrier, the role of bile acids and estrogen, and how stress, constipation, and antibiotics influence its absorption and subsequent hormonal responses.
+
+**RAY PEAT:** "The parathyroid hormone (PTH) is an important regulator of calcium metabolism. If dietary calcium isn't sufficient, causing blood calcium to decrease, the PTH increases, and removes calcium from bones to maintain a normal amount in the blood. PTH has many other effects, contributing to inflammation, calcification of soft tissues, and decreased respiratory energy production."
+
+**CONTEXT:** The role of parathyroid hormone (PTH) in calcium regulation and its negative impacts on inflammation, tissue calcification, and energy production.
+
+**RAY PEAT:** "The pituitary gland sits at the base of the brain, where it receives signals from the brain, and secretes hormones that regulate the production of various other hormones and secretions. Removing the pituitary gland (or its equivalent) and providing thyroid hormone, he found that animals lacking the pituitary lived much longer than intact animals, and maintained a high metabolic rate. Making extracts of pituitary glands, he found a fraction (closely related to prolactin and growth hormone) that suppressed tissue oxygen consumption, and accelerated the degenerative changes of aging."
+
+**CONTEXT:** The function of the pituitary gland and research indicating that its removal, coupled with thyroid hormone administration, can extend lifespan and maintain metabolic rate, while pituitary extracts can accelerate aging.
+
+**RAY PEAT:** "TSH itself can produce lipolysis, raising the level of circulating free fatty acids. This suggests that a high level of TSH could sometimes contribute to functional hypothyroidism, because of the antimetabolic effects of the unsaturated fatty acids."
+
+**CONTEXT:** The paradoxical effect of TSH in potentially contributing to hypothyroidism through lipolysis and the antimetabolic effects of unsaturated fatty acids.
+
+**RAY PEAT:** "Prolactin is a hormone secreted by the pituitary gland during pregnancy, and during stress. It promotes milk production, removes calcium from the bones, and inhibits progesterone formation. Arachidonic acid stimulates prolactin secretion, and prolactin acts on the thyroid gland to decrease its activity, and on other tissues to increase their glycolysis (with lactate production), while decreasing oxidative metabolism (Spatling, et al., 1982; Strizhkov, 1991)."
+
+**CONTEXT:** The functions of prolactin, its stimulation by arachidonic acid, and its negative impact on thyroid activity and oxidative metabolism, favoring glycolysis.
+
+**RAY PEAT:** "The thymus gland is important for growth and fertility, but it is now considered to be an important regulator of the immune system. As the gland shrinks with aging, the incidence of 'autoimmune diseases' increases possibly because the regulatory functions of the gland have been lost. The thymus gland is extremely sensitive to stress, and atrophies quicker under the influence of cortisone or the sex steroids, but it can also regenerate under the influence of thyroid and progesterone (and under some circumstances, probably DHEA) or just good nutrition. Chronic atrophy of the thymus produces immunological weakness. Infectious diseases, then, are not so difference from the degenerative diseases, since the failure of biological energy, and the resulting stress response, can be responsible for both classes of sickness. Even radiation damage, which seems like a fairly exotic problem in comparison to infections and aging, is ameliorated by things like thyroxin, which increases energy production (Timechenko and Antipenko, 'Conditions for the use of thyroxine as an antimutagen after total-body x-irradiation,' Radiobiologiya 21(2), page 204, 1981). Cells of the thymus are sensitive to glucose deprivation, and even in the presence of glucose, cortisol prevents them from using glucose, causing them to take up fatty acids. The thymic cells die easily when exposed either to excess cortisol, or deficient glucose. The polyunsaturated fatty acids linoleate, arachidonate, and eicosapentaenoic, are especially toxic to thymic cells by preventing their inactivation of cortisol, increasing its action. (Klein, et al., 1987, 1989, 1990)."
+
+**CONTEXT:** The role of the thymus gland in immunity, its sensitivity to stress and steroids, its regeneration with thyroid and progesterone, and the detrimental effects of cortisol and polyunsaturated fatty acids on thymic cells.
+
+**RAY PEAT:** "HDL and LDL are often called 'good cholesterol' (High Density Lipoproteins) and 'bad cholesterol' (Low Density Lipoproteins) because of a slight association between their ratio and heart disease, but in fact the ratio that suggests freedom from heart disease suggests susceptibility to cancer. LDL ('bad') is extremely good because it is used as the source for producing progesterone and DHEA."
+
+**CONTEXT:** The mischaracterization of HDL and LDL, emphasizing the importance of LDL as a precursor for progesterone and DHEA production.
+
+**RAY PEAT:** "Albumin, besides maintaining blood volume and preventing edema, serves to protect respiration, by binding free fatty acids. Estrogen blocks the liver's ability to produce albumin, and increases the level of circulating free fatty acids. The decrease of albumin increases the concentration of free fatty acids and tryptophan, which would normally be bound to albumin."
+
+**CONTEXT:** The protective role of albumin in respiration by binding free fatty acids and how estrogen interferes with this process.
+
+**RAY PEAT:** "Or pineal hormone: the pineal gland in the brain responds to an absence of light (or to any stress which increases the adrenalin systems) by secreting a hormone called melatonin, which lightens the skin, makes the brain sluggish, turns off thyroid and progesterone production, and suppresses immunity and fertility."
+
+**CONTEXT:** The function of melatonin, its secretion in response to darkness or stress, and its suppressive effects on thyroid, progesterone, immunity, and fertility.
+
+**RAY PEAT:** "When the body doesn't have enough glucose, free fatty acids are released from the tissues, and their oxidation blocks the oxidation of glucose even when it becomes available from the breakdown of protein caused by cortisol, which is released during glucose deprivation."
+
+**CONTEXT:** The mechanism by which free fatty acids inhibit glucose oxidation, particularly during periods of glucose deprivation and cortisol release.
+
+**RAY PEAT:** "The inhibition of the oxidation of glucose by an excess of fatty acids. This lowers metabolic efficiency. Estrogen promotes this effect."
+
+**CONTEXT:** Definition of the Randle Cycle (Randle Effect) and its negative impact on metabolic efficiency, exacerbated by estrogen.
+
+**RAY PEAT:** "The liberation of free fatty acids from triglycerides, the neutral form in which fats are stored, bound to glycerine."
+
+**CONTEXT:** Definition of lipolysis.
+
+**RAY PEAT:** "Essential fatty acids are, according to the textbooks, linoleic acid and linolenic acid, and they are supposed to have the status of 'vitamins,' which must be taken in the diet to make life possible. However, we are able to synthesize our own unsaturated fats when we don't eat the 'EFA,' so they are not 'essential.' The term thus appears to be a misnomer. [M. E. Hanke, 'Biochemistry,' Encycl. Brit. Book of the Year, 1948]"
+
+**CONTEXT:** Ray Peat's critique of the concept of "essential fatty acids," arguing that they are not truly essential as the body can synthesize unsaturated fats.
+
+**RAY PEAT:** "When an oil is saturated that means that the molecule has all the hydrogen atoms it can hold. Unsaturation means that some hydrogen atoms have been removed, and this opens the structure of the molecule in a way that makes it susceptible to attack by free radicals. In good health, especially in children, the stress hormones are produced only in the amount needed, because of negative feedback from the free saturated fatty acids, which inhibit the production of adrenalin and adrenal steroids, and eating protein and carbohydrate will quickly end the stress. But when the fat stores contain mainly PUFA, the free fatty acids in the serum will be mostly linoleic acid and arachidonic acid, and smaller amounts of other unsaturated fatty acids. These PUFA stimulate the stress hormones, ACTH, cortisol, adrenaline, glucagon, and prolactin, which increase lipolysis, producing more fatty acids in a vicious circle. In the relative absence of PUFA, the stress reaction is self limiting, but under the influence of PUFA, the stress response becomes self-amplifying."
+
+**CONTEXT:** The chemical nature of unsaturated fats and their susceptibility to free radical damage, contrasting the self-limiting stress response in the absence of PUFAs with the self-amplifying stress response when PUFAs are dominant.
+
+**RAY PEAT:** "Rancidity of oils occurs when they are exposed to oxygen, in the body just as in the bottle. Harmful free radicals are formed, and oxygen is used up."
+
+**CONTEXT:** The process of rancidity in oils and its implications within the body.
+
+**RAY PEAT:** "Free radicals are reactive molecular fragments that occur even in healthy cells, and can damage the cell. When unsaturated oils are exposed to to free radicals they can create chain reactions of free radicals that spread the damage in the cell, and contribute to the cell's aging."
+
+**CONTEXT:** The nature of free radicals and how unsaturated oils can exacerbate their damaging effects, leading to cellular aging.
+
+**RAY PEAT:** "Vitamin E and vitamin C are known as antioxidants, because they stop the harmful free-radical chain reactions which often involve oxygen, but they do not inhibit normal oxidation processes in the cells. 'Chain breaker' would be a more suitable term. It is often the deficiency of oxygen which unleashes the dangerous free-radical processes. Many substances can function as antioxidants/chain breakers: thyroxine, uric acid, biliverdin, selenium, iodine, vitamin A, sodium, magnesium, and lithium, and a variety of enzymes. Saturated fats work with antioxidants to block the spread of free-radical chain reactions."
+
+**CONTEXT:** The function of antioxidants as "chain breakers" in free radical reactions, the role of oxygen deficiency in unleashing these processes, and a list of various substances that can act as antioxidants, including thyroxine and saturated fats.
+
+**RAY PEAT:** "Age pigment is the brown material that forms spots on aging skin, and that accumulates in the lens of the eye forming cataracts, and in blood vessels causing hardening of the arteries, and in the heart and brain and other organs, causing their functions to deteriorate with age. It is made up of oxidized unsaturated oils with iron."
+
+**CONTEXT:** The composition and accumulation of age pigment, linking it to oxidized unsaturated oils and iron, and its role in age-related deterioration.
+
+**RAY PEAT:** "Anemic means lacking blood, in the sense of not having enough red blood cells or hemoglobin. It is possible to have too much iron in the blood while being anemic. Anemia in itself doesn't imply that there is a nutritional need for iron."
+
+**CONTEXT:** Definition of anemia and a clarification that it does not automatically indicate a need for iron supplementation.
