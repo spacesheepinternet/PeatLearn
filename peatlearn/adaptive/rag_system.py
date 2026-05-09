@@ -410,6 +410,8 @@ class RayPeatRAG:
         # --- Step 2b: Rerank using cross-encoder (falls back to keyword overlap) ---
         from peatlearn.rag.reranker import rerank as _rerank
         candidates = _rerank(query, candidates)
+        _reranker_used = candidates[0].get("_reranker_model", "unknown") if candidates else "none"
+        logger.info(f"Reranker fired: {_reranker_used}")
 
         # --- Step 2c: Confidence scoring — decide if retrieval supports answering ---
         from peatlearn.rag.confidence import score_retrieval as _score_retrieval
@@ -594,24 +596,28 @@ class RayPeatRAG:
             raise RuntimeError("RATE_LIMITED")
 
         # --- Step 5: Grounding verifier — strip unsupported claims ---
-        from peatlearn.rag.verifier import verify_claims as _verify_claims
-        verification = _verify_claims(answer, sources, api_key=self.api_key)
-        if verification.unsupported:
-            import logging as _lg
-            revised = verification.revised_answer
-            if revised and len(revised.strip()) > 50:
-                answer = revised
-                _lg.getLogger(__name__).warning(
-                    f"Verifier stripped {len(verification.unsupported)} unsupported claim(s)"
-                )
-            else:
-                # Verifier gutted the answer (premise rejections look "unsupported"
-                # because the retrieved chunks don't contain the corrected view).
-                # Keep the original rather than returning an empty response.
-                _lg.getLogger(__name__).warning(
-                    f"Verifier would have emptied the answer — keeping original "
-                    f"({len(verification.unsupported)} flagged claims)"
-                )
+        # Only run on LOW confidence answers. HIGH/MEDIUM answers come from
+        # strong retrieval — the pre-generation prompt guards are sufficient
+        # and post-generation stripping risks breaking coherent answers.
+        if confidence.tier == "LOW":
+            from peatlearn.rag.verifier import verify_claims as _verify_claims
+            verification = _verify_claims(answer, sources, api_key=self.api_key)
+            if verification.unsupported:
+                import logging as _lg
+                revised = verification.revised_answer
+                if revised and len(revised.strip()) > 50:
+                    answer = revised
+                    _lg.getLogger(__name__).warning(
+                        f"Verifier stripped {len(verification.unsupported)} unsupported claim(s)"
+                    )
+                else:
+                    # Verifier gutted the answer — keep the original.
+                    _lg.getLogger(__name__).warning(
+                        f"Verifier would have emptied the answer — keeping original "
+                        f"({len(verification.unsupported)} flagged claims)"
+                    )
+        else:
+            logger.info(f"Verifier skipped — confidence {confidence.tier} (pre-generation guards sufficient)")
 
         # Store for eval harness (eval_rag_quality.py reads this to pass chunk
         # content to the LLM judge — not used by the production serving path).

@@ -1,19 +1,20 @@
 """
 Multi-signal confidence scorer for RAG retrieval quality.
 
-Scores every retrieval using three orthogonal signals and assigns a
-confidence tier: HIGH / MEDIUM / LOW / ABSTAIN. On ABSTAIN the RAG
-pipeline short-circuits to a templated refusal — no LLM call, no
-generated answer.
+Scores every retrieval using three signals and assigns a confidence tier:
+HIGH / MEDIUM / LOW / ABSTAIN. On ABSTAIN the RAG pipeline short-circuits
+to a templated refusal — no LLM call, no generated answer.
 
 Signals:
-    1. Cross-encoder top-1 score (ms-marco-MiniLM logits, range ~-10 to +10)
-    2. Top-k agreement: count of candidates with rerank_score > +1
-    3. HyDE-variant agreement: cosine between academic-HyDE and email-HyDE
-       embeddings — low agreement means the query is out-of-distribution
+    1. Cross-encoder top-1 score (rerank_score logits)
+    2. Top-k agreement: count of candidates with rerank_score > threshold
+    3. Cosine-rerank divergence: avg Pinecone cosine of top-5 candidates
+       — low cosine + weak rerank = topic not in corpus → ABSTAIN
 
-Cost: ~5 ms. No additional LLM or API calls — all signals already exist
-in the pipeline by the time this runs.
+Note: HyDE-variant agreement was removed when HyDE was disabled (commit
+057580e). The cosine signal now serves as the out-of-distribution detector.
+
+Cost: ~5 ms. No additional LLM or API calls.
 """
 
 import logging
@@ -50,7 +51,6 @@ RERANK_MEDIUM = 1.5       # top-1 below this → moderate match
 STRONG_CANDIDATE_THR = -0.5  # rerank score above this = "strong"
 STRONG_MIN_LOW = 2        # fewer strong → LOW
 STRONG_MIN_MEDIUM = 4     # fewer strong → MEDIUM
-HYDE_DIVERGENCE_THR = 0.55  # HyDE cosine below this → out-of-distribution
 
 # Cosine-rerank divergence: when the cross-encoder says "no match" but
 # Pinecone cosine says "topic vocabulary is present", the question likely
@@ -334,36 +334,26 @@ def score_retrieval(
                 f"Top rerank score ({top_rerank:.2f}) far below threshold "
                 f"({RERANK_ABSTAIN}) — no relevant passages found"
             )
-    elif (
-        top_rerank < RERANK_LOW
-        and hyde_agreement is not None
-        and hyde_agreement < HYDE_DIVERGENCE_THR
-    ):
-        # Same divergence check for the HyDE-triggered ABSTAIN path
-        if avg_cosine > COSINE_PRESENT_THR:
-            tier = "LOW"
-            reasons.append(
-                f"Weak rerank ({top_rerank:.2f}) + HyDE divergence "
-                f"({hyde_agreement:.2f}), but cosine ({avg_cosine:.2f}) "
-                f"shows topic is present — possible inverted framing"
-            )
-        else:
+    # LOW / ABSTAIN: marginal retrieval zone (RERANK_ABSTAIN ≤ score < RERANK_LOW
+    # or too few strong candidates). Use cosine as the tie-breaker:
+    #   weak rerank + weak cosine = topic not in corpus → ABSTAIN
+    #   weak rerank + strong cosine = domain mismatch or inverted framing → promote
+    elif top_rerank < RERANK_LOW or strong_count < STRONG_MIN_LOW:
+        if top_rerank < RERANK_LOW and avg_cosine < COSINE_PRESENT_THR:
+            # Both signals agree: nothing relevant here → ABSTAIN
             tier = "ABSTAIN"
             reasons.append(
-                f"Weak retrieval (top rerank {top_rerank:.2f}) combined with "
-                f"HyDE divergence ({hyde_agreement:.2f}) — query likely "
-                f"out-of-distribution for the corpus"
+                f"Weak rerank ({top_rerank:.2f}) and weak cosine ({avg_cosine:.2f}) "
+                f"— query likely out-of-distribution for the corpus"
             )
-    # LOW: marginal retrieval — but promote to MEDIUM if domain-tuned cosine
-    # is strong, since the cross-encoder is calibrated on web queries and
-    # systematically undershoots on bioenergetics/health corpus text.
-    elif top_rerank < RERANK_LOW or strong_count < STRONG_MIN_LOW:
-        if avg_cosine >= COSINE_PROMOTE_THR:
+        elif avg_cosine >= COSINE_PROMOTE_THR:
+            # Cross-encoder undershoots on health/bio domain text; cosine says
+            # the topic IS present — promote to MEDIUM
             tier = "MEDIUM"
             reasons.append(
                 f"Cross-encoder score ({top_rerank:.2f}) below LOW threshold, "
                 f"but Pinecone cosine ({avg_cosine:.2f}) is strong — "
-                f"ms-marco-MiniLM domain mismatch likely; promoted to MEDIUM"
+                f"domain mismatch likely; promoted to MEDIUM"
             )
         else:
             tier = "LOW"
@@ -392,17 +382,6 @@ def score_retrieval(
         reasons.append(
             f"Strong retrieval: top rerank {top_rerank:.2f}, "
             f"{strong_count} strong candidates"
-        )
-
-    # Supplemental warning: HyDE divergence on a non-ABSTAIN answer
-    if (
-        hyde_agreement is not None
-        and hyde_agreement < HYDE_DIVERGENCE_THR
-        and tier != "ABSTAIN"
-    ):
-        reasons.append(
-            f"HyDE embeddings diverge ({hyde_agreement:.2f}) — possible "
-            f"out-of-distribution query"
         )
 
     # Keyword-fallback downgrade: if the cross-encoder wasn't available and

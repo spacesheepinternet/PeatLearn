@@ -92,6 +92,7 @@ def _cohere_rerank(
             entry = dict(candidates[idx])
             entry["rerank_score"] = logit_score
             entry["_cohere_raw"] = raw_score
+            entry["_reranker_model"] = "cohere"
             scored.append(entry)
 
         scored.sort(key=lambda x: x["rerank_score"], reverse=True)
@@ -190,6 +191,7 @@ def rerank(query: str, candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]
             for c, score in zip(candidates, scores):
                 entry = dict(c)
                 entry["rerank_score"] = float(score)
+                entry["_reranker_model"] = "cross-encoder"
                 result.append(entry)
             result.sort(key=lambda x: x["rerank_score"], reverse=True)
             logger.info(
@@ -207,6 +209,7 @@ def rerank(query: str, candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]
         entry = dict(c)
         entry["rerank_score"] = _keyword_score(query, c)
         entry["_keyword_fallback"] = True
+        entry["_reranker_model"] = "keyword"
         result.append(entry)
     result.sort(key=lambda x: x["rerank_score"], reverse=True)
     return result
