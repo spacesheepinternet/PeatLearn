@@ -1,95 +1,83 @@
-# Handoff — 2026-05-05
+# Handoff — 2026-05-16
 
 ## Current Branch & Git State
-- Branch: `main` (5 commits ahead of origin/main — not pushed)
-- Uncommitted changes: 11 files modified, 1 file deleted, 5 new files (script, council reports, processed files, staging dir)
+- Branch: `main` (8 commits ahead of origin)
+- Uncommitted changes: `HANDOFF.md` (this file) + 6 untracked knowledge-graph files from prior session (unchanged this session)
 - Last 5 commits:
+  - `19b0f40` fix: revert 1.4-point quality regression — restore thinking + verifier
+  - `3c5dcf4` fix: revive broken chatbot — wrong index + NameError + add auth
+  - `6676c5f` fix: address professor's 3 architecture concerns
+  - `41c9c72` feat: RAG hardening, quiz fixes, corpus expansion, Pinecone resilience
   - `df33558` feat: eval 9.42/10 (+0.82 vs baseline); normalizer gaps from user queries
-  - `144c8b5` fix: gate HyDE behind _HYDE_ENABLED flag — stop burning embedding quota
-  - `c3cdcff` fix: add cruciferous/broccoli/kale normalizer entries → surface goitrogen chunks
-  - `598b2cc` feat: v3 corpus pipeline, A/B eval, embed_query routing, cross-encoder rerank
-  - `057580e` exp: disable HyDE — raw query embedding only (9.25/10, stabilizes B4/F1/E3)
 
 ## What Was Being Worked On
 
-**Three threads ran in parallel this session:**
+**Launch readiness audit + emergency chatbot revival.** The session started as a "what's left before I can launch" architecture review and immediately uncovered that the chatbot had been completely broken in production. Two independent bugs since commit `6676c5f` were causing every dashboard chat query to return the canned "Sorry, technical issue" error message:
 
-**1. Preprocessing audit + missing-files recovery (completed):** An Explore agent audited `data/processed/ai_cleaned/` and flagged a +94 raw-vs-processed file count discrepancy. Investigation revealed `preprocessing/optimized_pipeline.py:67` had `extensions = ['.txt', '.pdf', '.docx', '.md', '.json']` — **no `.html`**. This silently dropped 16 HTML files (entire `09_Miscellaneous/` directory + `02_Publications/Articles/` subdir). Plus the Generative Energy book PDF in `new_content_2026/` was never scanned because the pipeline was invoked with `input_dir=data/raw/raw_data/`, not `data/raw/`. Wrote `scripts/process_missing_files.py` that strips HTML (BeautifulSoup) / extracts PDF (pdfplumber) → feeds clean text to existing `EnhancedSignalProcessor` → writes marker-format chunks. Processed all 17 files. Rebuilt corpus_v3 → 14,407 → 14,591 chunks (+184). Re-embedded entire corpus to Pinecone (took 100 min — see "Active Issues" below). Discovered `EnhancedSignalProcessor` has a real bug: references `self.ai_model` which is never set in constructor (constructor sets `self.client`); patched in `process_missing_files.py` with `processor.ai_model = processor.client`.
+1. `app/api.py:22–23` hardcoded the legacy `ray-peat-corpus` rollback index instead of the active `ray-peat-corpus-v3` (14,594 vectors).
+2. `peatlearn/adaptive/rag_system.py` called `logger.info()` at lines 414 and 620 but never imported `logging` — every query crashed with `NameError`. The 2026-05-05 eval recording 1.01/10 was originally misattributed to a Gemini outage; it was actually this bug.
 
-**2. Council on RAG strategies (completed):** Ran the LLM Council skill on which of 11 ottomator-agents RAG strategies to add. Unanimous: Multi-Query RAG and Hierarchical RAG top two; Agentic RAG and Knowledge Graphs unanimously dropped. **All 5 peer reviewers independently flagged the same blind spot — the 50% premise rejection rate had never been audited.** Reports saved to `council-report-rag-strategies-20260504.html` + `council-transcript-rag-strategies-20260504.md`.
+After fixing those, the first clean eval came in at **8.04/10** — alive but down 1.38 points from the previous peak of 9.42 at commit `df33558`. Investigation found two more regression sources from commits `41c9c72` + `6676c5f`:
 
-**3. Confidence gate audit (completed, surprising result):** The Council's Phase 0 prescription was to audit `confidence.py`. Audit findings: **(a) the gate fired ABSTAIN 0/55 times in eval — works as designed, (b) all 5 actual abstentions came from the separate `temporal_guard` (Ozempic, CGM, etc.), (c) the "weak answers" suspected of false confidence were actually silent empty responses from the verifier bug already patched this session.** Re-ran A4 sugar, C2 OJ, C3 coconut oil, D1 diabetes live — all four now return real grounded answers (549–1130 chars) instead of empty strings. Council's prescribed audit revealed the audit itself was the wrong frame; symptoms had a different root cause.
+3. `"thinkingConfig": {"thinkingBudget": 0}` had been added as a cost-saver, disabling Gemini 2.5-flash's reasoning pass. Removed.
+4. The grounding verifier was gated to LOW-confidence only on the theory that HIGH/MEDIUM had strong retrieval. In practice adversarial questions retrieve HIGH (the topic IS in the corpus, only the framing is false), so the verifier was being skipped exactly when it was needed. Restored to all tiers with the existing "keep original if revision is gutted" guard.
 
-**4. Verifier-guard fix verified end-to-end:** The "if revised_answer < 50 chars, keep original" guard added at the start of session works — H6 keto reject_premise spot-check returns proper rejection answer. Subset H eval improved 0/10 → 5/10 reject_premise correct after also strengthening the prompt instruction (added "CRITICAL — False premise check" with affirmative-support rule).
+An A/B confirmed Cohere rerank-4-pro beats local ms-marco-MiniLM cross-encoder on this corpus (9.64 vs 9.42, with edge_nuanced 9.56 vs 6.17 the biggest gap). Cohere stays.
 
-**5. Dashboard & API resilience (in progress, blocked):** Pinecone API has been unreachable from this network for 30+ minutes. Wrapped `RayPeatRAG()` init in `try/except` in three places (`init_adaptive_system`, `_get_rag_system` cache, `app/advanced_api.py`) so quizzes/profile features keep working when Pinecone is down. Dashboard now shows friendly "chat unavailable" message instead of crashing. **Advanced API (port 8001) still fails to start** because `peatlearn/rag/vector_search.py:396` instantiates `PineconeVectorSearch()` at module import — exception propagates before the try/except wrapper can catch it. Need to remove that module-level instantiation or wrap it.
+Also added the auth/rate-limit prep for a private-beta launch: bearer token (env-driven, off in dev) + per-IP in-memory rate limiter on `/api/ask`, `/api/search`, `/api/stats`, `/api/related`; env-driven `CORS_ORIGINS`.
+
+**Final eval: 9.64/10 — a new all-time high.** (+1.04 vs baseline 8.6, +0.22 vs previous peak 9.42, +1.60 vs broken 8.04.)
 
 ## Key Decisions Made
 
-- **Real baseline remains 7.13/10:** Couldn't run a fresh eval to measure today's cumulative gains because Pinecone is down. Expected uplift from today's fixes: +0.5–1.0 (verifier guard alone fixes 4 zero-scoring queries → 7+).
-- **Confidence gate doesn't need recalibration:** Audit revealed the gate works correctly given its design (only ABSTAINs on weak retrieval). The Council's prescription to audit was based on a misdiagnosis.
-- **Drop transcription-gap chunks rather than repair them:** 16 chunks with `________________` placeholders deleted from Pinecone (14,610 → 14,594). Permanent `_{8,}` filter added to `build_corpus_v3.py` quality_gate so they can't return on rebuild.
-- **CORRUPTED file is non-issue:** The `*_processed.txt` glob already excludes `.txt.CORRUPTED`. The original audit was wrong on this point. 0 chunks from it in active corpus.
-- **17 missing files handled with full AI cleaning:** Used existing `EnhancedSignalProcessor` (Gemini 2.5 Flash Lite) for consistency with rest of corpus, not a faster bs4-only path. Cost: ~$0.06 for all 17 files.
-- **Eval health check added:** `scripts/eval_rag_quality.py` now `sys.exit(2)` if Pinecone unreachable or index has < 1000 vectors. Today's failed eval (entire 55 questions scored 1.00 with no failure signal) proved Priority 2 #5 is real and dangerous — the silent fallback to SHA-256 hash embeddings produces garbage that looks like a model regression.
+- **Index name reads from `settings.PINECONE_INDEX_NAME`, not hardcoded.** Also hardened `PineconeRAG.__init__` default. Anyone constructing the RAG without args is now safe.
+- **Cohere stays as top of reranker cascade.** A/B'd against MiniLM with thinking + verifier both restored: 9.64 vs 9.42. Skipped the HANDOFF item to swap MiniLM → MedCPT — Cohere already beats both, and MedCPT would only be the fallback's fallback.
+- **`thinkingBudget` left unset on the main RAG call.** Cost saving is not worth ~1.4 eval points for a health-grounded chatbot. Saved to project memory.
+- **Verifier runs on every tier**, not just LOW. The professor's coherence concern is handled by the pre-existing `len(revised.strip()) > 50` guard — if the verifier would gut the answer, we keep the original. Skipping the verifier entirely cost real quality on adversarial questions.
+- **Auth is opt-in via env var** (`API_BEARER_TOKEN`). Unset means dev mode — no auth check. Production set the env var to enable. Rate limit uses in-memory per-IP token bucket; fine for single-worker private beta, upgrade to Redis-backed slowapi for multi-worker prod.
+- **CORS made env-driven** but default still includes localhost (`:3000`, `:8000`, `:8501`) so local dev is unaffected.
+- **Smoke test verified** via FastAPI TestClient: open `/api/health` returns 200, missing/wrong bearer token returns 401, rate limit boundary returns 429 with `Retry-After`.
 
 ## Active Plan
-None (no `.claude/plans/` directory).
+`C:\Users\rehan\.claude\plans\first-thing-i-want-wondrous-petal.md` — Scope 1 (private beta) was selected. Scope 1 coding is complete; hosting decision deferred.
 
 ## What Needs to Happen Next
 
-1. **Wait for Pinecone to come back** — `api.pinecone.io:443` still timing out. `generativelanguage.googleapis.com` and `google.com` both reachable, so it's Pinecone-specific. Could be a Pinecone outage or local network/firewall issue. Retry `socket.create_connection(('api.pinecone.io', 443), timeout=10)` periodically.
-2. **Fix `peatlearn/rag/vector_search.py:396`** — remove `search_engine = PineconeVectorSearch()` at module level, or wrap in try/except. This is what's blocking the advanced API server (port 8001) from starting when Pinecone is down. Quizzes need port 8001.
-3. **Run fresh full eval** — once Pinecone is back, run `python scripts/eval_rag_quality.py` to measure cumulative uplift from: verifier guard, prompt strengthening, 17 new files (Generative Energy book + 6 interviews + Ray Peat's Brain etc.), 16 transcription-gap chunks removed.
-4. **Commit the work** — 11 modified files + new script + council reports + 17 new processed files. Suggested split: (a) preprocessing fix + missing-files recovery, (b) verifier guard + prompt strengthening, (c) confidence audit findings + eval health check, (d) dashboard/API resilience, (e) corpus quality filter.
-5. **Fix `embed_and_upload_v3.py --resume`** — the checkpoint is keyed by JSONL filename. Every new corpus build → new JSONL → new (empty) checkpoint → re-embed all 14k chunks. Today this cost 100 minutes when it should have taken 30 seconds. Either diff against Pinecone or use a stable checkpoint name.
-6. **Council Phase 1 — Multi-Query RAG** — once eval baseline is re-established, implement constrained reformulations through `query_normalizer.py` (NOT free-form LLM). Should crush nutrition_foods category (5.69) by bridging colloquial-to-clinical phrasing.
-7. **Same-content dedup** — newly discovered: the Estrogen-Age Stress Hormone HTML in `09_Miscellaneous/` is the same article as `04_Health_Topics/.../estrogen-and-brain-aging-in-men-and-women...`. Now duplicated in corpus. Dedup is exact-match on `source_file + context[:100]`; needs content-hash variant.
-8. **Council Phase 2 — Hierarchical RAG** — needs `parent_doc_id`, `position_in_doc`, `section` metadata on chunks. Currently absent. Either backfill via Pinecone metadata-only update or accept it as re-indexing work.
+**Launch prep — remaining Scope 1 items:**
+1. **Pick a hosting target.** Options previously surfaced: Streamlit Community Cloud (free, fastest, bundles UI+backend), fly.io/Render/Railway (Docker required, proper separation), self-hosted VM (you write systemd/nginx). Note: the existing `docker-compose.yml` is stale from the pre-2026-03 reorg — references `inference/backend/Dockerfile` and `web_ui/frontend/` which no longer exist. Will need rewrite or deletion if going the Docker route.
+2. **Set `API_BEARER_TOKEN` in prod env** and document the value somewhere the beta testers can find it.
+3. **Smoke test end-to-end after deploy:** hit `/api/ask?question=what+causes+hypothyroidism` with bearer header, confirm sources + answer + status 200.
+
+**Optional polish (H-tier from the launch audit, not blockers):**
+4. **H1**: Populate `confidence_tier` + `confidence_reasons` in the `/api/ask` `QuestionResponse`. The dashboard badge at `app/dashboard.py:1548–1562` always renders empty tier because `peatlearn/rag/rag_system.py:96` only sets the float `confidence`. ~30 min.
+5. **H3**: Add structured request logging in `app/api.py` so prod incidents are visible. ~1 h.
+6. **H4**: Wrap `_call_gemini_llm` to return a clean 503 on missing key/outage instead of bare 500. ~20 min.
+
+**Defer to v1.0.1 (not chatbot-launch scope):**
+7. Knowledge graph: 3 pre-flight fixes (max_output_tokens, em-dash filename, l-glycine alias) + full 568-doc run (~$5, ~4 h). Not integrated into chatbot.
+8. Personalization (RL agent, neural CF, MF recommender) — all scaffolded but untrained; ship in v1.0.1 once real user data accumulates.
+9. Add chat-path integration tests (currently zero; `tests/integration/test_api.py` covers import + RAG init only).
+10. Add Pinecone/Gemini keys to `.env.example` with docs.
 
 ## Open Questions / Blockers
 
-- **Pinecone connectivity** — sustained outage from this network. Can't test anything live, can't run eval. No ETA. Blocks: fresh eval, dashboard chat, advanced API quizzes.
-- **Why module-level `search_engine = PineconeVectorSearch()` in `vector_search.py:396`?** — looks like a backward-compat singleton. Removing it breaks any callers that import it directly. Need to grep before deleting; safer to wrap in try/except.
-- **Cumulative impact of today's fixes is unmeasured.** Spot checks confirm the 4 silent-empty-response queries now answer correctly, premise rejection improved 0→5/10 on subset H, but no full-corpus number to anchor against the 7.13 baseline.
-- **Item bank is thin.** Only 6 quiz items in SQLite. With Pinecone down, no new items can be seeded. Quizzes for new topics will return "No quiz items available" 400 errors until Pinecone returns.
-- **`council-report-*.html` and `council-transcript-*.md` files** clutter the repo root (10 of each). Should be moved to `.claude/council/` or `data/artifacts/` and gitignored or organized.
+- **No hosting target chosen.** Blocks deployment. Streamlit Community Cloud is the fastest path; pick one when ready.
+- **Existing `docker-compose.yml` is unusable.** References pre-reorg paths. If going Docker, must rewrite or delete.
+- **6 untracked knowledge-graph files from prior session.** `scripts/extract_graph_triples.py`, `scripts/init_graph_db.py`, `scripts/render_graph_preview.py`, `scripts/run_graph_extraction.py`, `scripts/store_graph_triples.py`, and `data/knowledge_graph/`. Decide whether to commit separately or stash until the full graph run happens.
+- **`reject_premise` keyword-heuristic still reports ~30% defense rate** in the eval log — but this is the dumb keyword counter, not the LLM judge. The LLM judge scored all reject_premise questions ≥9.30 in eval A. The keyword heuristic likely needs updating to match the new (more nuanced) rejection phrasing. Not blocking, but worth tightening if you want the headline number to match reality.
 
 ## Files Modified This Session
 
 ```
-HANDOFF.md                                                                | regenerated
-app/advanced_api.py                                                       | RayPeatRAG init wrapped in try/except (rag_system=None on Pinecone failure)
-app/dashboard.py                                                          | init_adaptive_system + _get_rag_system both wrap RayPeatRAG; chat handler shows "chat unavailable" friendly message; full document reader added to source expanders (st.text_area, cached _load_full_document)
-config/settings.py                                                        | (carried from prior session — OPENROUTER_API_KEY field)
-data/processed/ai_cleaned/01_Audio_Transcripts/Other_Interviews/sourcenutritional-...-2.txt | DELETED (was already CORRUPTED, reflagged)
-peatlearn/adaptive/rag_system.py                                          | strengthened false-premise prompt instruction (CRITICAL pre-check + affirmative-support rule for partial-match traps)
-peatlearn/rag/confidence.py                                               | (carried — no new edits)
-peatlearn/rag/query_normalizer.py                                         | (carried)
-peatlearn/rag/reranker.py                                                 | (carried — Cohere timeout fix)
-preprocessing/optimized_pipeline.py                                       | added '.html' to extensions list (line 67)
-scripts/build_corpus_v3.py                                                | quality_gate now drops chunks containing _{8,} (transcription-gap placeholders)
-scripts/eval_rag_quality.py                                               | health check after RayPeatRAG init: aborts with sys.exit(2) if search_engine is None or index has <1000 vectors
+app/api.py                            — B1 index fix; B4 bearer token + rate limit; CORS dependency wiring
+config/settings.py                    — API_BEARER_TOKEN env var; CORS_ORIGINS env-driven (comma-separated)
+peatlearn/adaptive/rag_system.py      — B5 logger import; thinkingBudget=0 removed; verifier restored to all tiers
+peatlearn/rag/rag_system.py           — PineconeRAG default index_name now reads settings.PINECONE_INDEX_NAME
+data/eval/results_20260516_181111.json — first post-B1+B5 eval (8.04, gitignored)
+data/eval/results_20260516_190013.json — pre-regression-fix eval (8.04, gitignored)
+data/eval/results_20260516_203512.json — Eval A: Cohere on + fixes (9.64 🏆, gitignored)
+data/eval/results_20260516_205012.json — Eval B: Cohere off + fixes (9.42, gitignored)
+HANDOFF.md                            — this file
 ```
 
-```
-NEW FILES (untracked):
-scripts/process_missing_files.py                                          | 17-file recovery script (HTML/PDF → AI clean → marker format)
-data/processed/ai_cleaned/09_Miscellaneous/*.txt                          | 10 newly processed files (Estrogen-Age Stress, Ray Peat's Brain Pt I/II, etc.)
-data/processed/ai_cleaned/02_Publications/Articles/*.txt                  | 6 newly processed Peat interview files
-data/processed/ai_cleaned/02_Publications/Books/generative-energy-...-life_processed.txt | Generative Energy book (Peat's published book, 166KB cleaned)
-data/_missing_files_staging/                                              | intermediate clean-text staging (can be gitignored or deleted)
-data/corpus_v3/corpus_v3_20260504_211041.jsonl + summary                  | 14,591-chunk regenerated corpus (untracked — Priority 3 #11)
-council-report-rag-strategies-20260504.html                               | council HTML report on RAG strategies
-council-transcript-rag-strategies-20260504.md                             | council full transcript
-```
-
-## Servers Running
-- Streamlit dashboard: http://localhost:8501 (running, restarted this session, RAG-resilient)
-- FastAPI RAG (port 8000): not running
-- FastAPI ML (port 8001): not running (failed to start due to Pinecone module-level instantiation in vector_search.py:396)
-
-## Pinecone State
-- Index: `ray-peat-corpus-v3`, 3072-dim
-- Vector count: **14,594** (was 14,398 → +212 from new files re-embed → −16 transcription-gap deletes)
-- Currently unreachable from this network (TimeoutError, sustained 30+ min)
+Memory updates: `project_thinking_budget.md`, `project_reranker_choice.md`.
