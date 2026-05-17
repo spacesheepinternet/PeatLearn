@@ -524,7 +524,9 @@ class RayPeatRAG:
         payload = {
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.25, "maxOutputTokens": 4096, "topP": 0.85, "topK": 40, "candidateCount": 1},
-            "thinkingConfig": {"thinkingBudget": 0},
+            # thinking left at model default — disabling it (thinkingBudget=0)
+            # cost ~1.4 eval points; the safety/premise-rejection reasoning
+            # needs the thinking pass.
         }
         answer = ""
         rate_limited = False
@@ -599,28 +601,28 @@ class RayPeatRAG:
             raise RuntimeError("RATE_LIMITED")
 
         # --- Step 5: Grounding verifier — strip unsupported claims ---
-        # Only run on LOW confidence answers. HIGH/MEDIUM answers come from
-        # strong retrieval — the pre-generation prompt guards are sufficient
-        # and post-generation stripping risks breaking coherent answers.
-        if confidence.tier == "LOW":
-            from peatlearn.rag.verifier import verify_claims as _verify_claims
-            verification = _verify_claims(answer, sources, api_key=self.api_key)
-            if verification.unsupported:
-                import logging as _lg
-                revised = verification.revised_answer
-                if revised and len(revised.strip()) > 50:
-                    answer = revised
-                    _lg.getLogger(__name__).warning(
-                        f"Verifier stripped {len(verification.unsupported)} unsupported claim(s)"
-                    )
-                else:
-                    # Verifier gutted the answer — keep the original.
-                    _lg.getLogger(__name__).warning(
-                        f"Verifier would have emptied the answer — keeping original "
-                        f"({len(verification.unsupported)} flagged claims)"
-                    )
-        else:
-            logger.info(f"Verifier skipped — confidence {confidence.tier} (pre-generation guards sufficient)")
+        # Runs on every tier. The professor's concern about HIGH/MEDIUM coherence
+        # is handled by the "keep original if revision is gutted (<50 chars)"
+        # guard below — so HIGH/MEDIUM answers only get revised when the verifier
+        # produces a substantive replacement, otherwise we keep the original
+        # text. Skipping the verifier entirely on HIGH/MEDIUM let
+        # premise-acceptance bugs through on adversarial questions (which retrieve
+        # HIGH because the topic IS in the corpus; only the framing is false).
+        from peatlearn.rag.verifier import verify_claims as _verify_claims
+        verification = _verify_claims(answer, sources, api_key=self.api_key)
+        if verification.unsupported:
+            revised = verification.revised_answer
+            if revised and len(revised.strip()) > 50:
+                answer = revised
+                logger.warning(
+                    f"Verifier stripped {len(verification.unsupported)} unsupported claim(s) "
+                    f"(tier={confidence.tier})"
+                )
+            else:
+                logger.warning(
+                    f"Verifier would have emptied the answer — keeping original "
+                    f"({len(verification.unsupported)} flagged, tier={confidence.tier})"
+                )
 
         # Store for eval harness (eval_rag_quality.py reads this to pass chunk
         # content to the LLM judge — not used by the production serving path).
