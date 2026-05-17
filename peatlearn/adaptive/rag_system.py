@@ -9,6 +9,7 @@ RAG under `inference/backend/rag` is deprecated.
 
 import asyncio
 import aiohttp
+import logging
 import os
 import re
 import sys
@@ -18,6 +19,8 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from pathlib import Path
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()

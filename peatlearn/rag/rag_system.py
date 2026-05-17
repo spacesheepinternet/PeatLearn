@@ -36,9 +36,10 @@ class RAGResponse:
 class PineconeRAG:
     """RAG system for answering questions about Ray Peat's work using Pinecone."""
     
-    def __init__(self, search_engine: PineconeVectorSearch = None, index_name: str = "ray-peat-corpus"):
+    def __init__(self, search_engine: PineconeVectorSearch = None, index_name: Optional[str] = None):
         """Initialize the Pinecone-based RAG system."""
-        self.search_engine = search_engine or PineconeVectorSearch(index_name=index_name)
+        resolved_index = index_name or settings.PINECONE_INDEX_NAME
+        self.search_engine = search_engine or PineconeVectorSearch(index_name=resolved_index)
         self.llm_model = "gemini-2.5-flash"  # Fast and cost-effective for RAG
         
     async def answer_question(

@@ -79,7 +79,21 @@ class Settings(BaseSettings):
     
     # Security
     SECRET_KEY: str = Field(default_factory=lambda: secrets.token_hex(32), env="SECRET_KEY")
-    CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:8000"]
+    # If set, /api/ask, /api/search, /api/stats, /api/related require
+    # `Authorization: Bearer <token>`. Leave unset in dev to disable auth.
+    API_BEARER_TOKEN: Optional[str] = Field(default=None, env="API_BEARER_TOKEN")
+    # Comma-separated origins in env, e.g. "https://app.example.com,https://admin.example.com"
+    CORS_ORIGINS: list = Field(
+        default=["http://localhost:3000", "http://localhost:8000", "http://localhost:8501"],
+        env="CORS_ORIGINS",
+    )
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def _split_cors_origins(cls, v):
+        if isinstance(v, str):
+            return [o.strip() for o in v.split(",") if o.strip()]
+        return v
     
     # Logging
     LOG_LEVEL: str = Field(default="INFO", env="LOG_LEVEL")

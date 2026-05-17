@@ -7,10 +7,13 @@ Pinecone for vector search. The legacy, file-based RAG has been sunset.
 """
 
 import sys
+import time
+from collections import defaultdict, deque
 from pathlib import Path
-from typing import List, Optional
+from threading import Lock
+from typing import Deque, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -18,9 +21,50 @@ from config.settings import settings
 from peatlearn.rag.vector_search import PineconeVectorSearch as RayPeatVectorSearch
 from peatlearn.rag.rag_system import PineconeRAG as RayPeatRAG
 
-# Initialize RAG components (Pinecone)
-search_engine = RayPeatVectorSearch(index_name="ray-peat-corpus")
-rag_system = RayPeatRAG(search_engine, index_name="ray-peat-corpus")
+# --- Auth ---------------------------------------------------------------------
+# If settings.API_BEARER_TOKEN is unset (None/empty), auth is bypassed — handy
+# for local dev. In production, set API_BEARER_TOKEN in the environment.
+def verify_bearer_token(authorization: Optional[str] = Header(default=None)) -> None:
+    expected = settings.API_BEARER_TOKEN
+    if not expected:
+        return  # auth disabled
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    token = authorization.split(" ", 1)[1].strip()
+    if token != expected:
+        raise HTTPException(status_code=401, detail="Invalid bearer token")
+
+# --- Rate limiting ------------------------------------------------------------
+# In-process token bucket per client IP. Fine for single-worker private beta;
+# upgrade to Redis-backed slowapi or an external gateway for multi-worker prod.
+_RATE_WINDOW_SECONDS = 60
+_rate_lock = Lock()
+_rate_buckets: Dict[str, Deque[float]] = defaultdict(deque)
+
+def rate_limit(request: Request) -> None:
+    limit = settings.API_RATE_LIMIT
+    if limit <= 0:
+        return
+    client_ip = (request.client.host if request.client else "anon") or "anon"
+    now = time.monotonic()
+    cutoff = now - _RATE_WINDOW_SECONDS
+    with _rate_lock:
+        bucket = _rate_buckets[client_ip]
+        while bucket and bucket[0] < cutoff:
+            bucket.popleft()
+        if len(bucket) >= limit:
+            retry_after = max(1, int(_RATE_WINDOW_SECONDS - (now - bucket[0])))
+            raise HTTPException(
+                status_code=429,
+                detail=f"Rate limit exceeded ({limit}/min). Retry in {retry_after}s.",
+                headers={"Retry-After": str(retry_after)},
+            )
+        bucket.append(now)
+
+# Initialize RAG components (Pinecone) — use the active index from settings,
+# not the legacy "ray-peat-corpus" rollback index.
+search_engine = RayPeatVectorSearch(index_name=settings.PINECONE_INDEX_NAME)
+rag_system = RayPeatRAG(search_engine, index_name=settings.PINECONE_INDEX_NAME)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -77,7 +121,11 @@ async def root():
         "corpus_loaded": vector_count > 0
     }
 
-@app.get("/api/search", response_model=SearchResponse)
+@app.get(
+    "/api/search",
+    response_model=SearchResponse,
+    dependencies=[Depends(verify_bearer_token), Depends(rate_limit)],
+)
 async def search_corpus(
     q: str = Query(..., description="Search query"),
     limit: int = Query(10, ge=1, le=50, description="Number of results to return"),
@@ -113,7 +161,11 @@ async def search_corpus(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search error: {str(e)}")
 
-@app.get("/api/ask", response_model=QuestionResponse)
+@app.get(
+    "/api/ask",
+    response_model=QuestionResponse,
+    dependencies=[Depends(verify_bearer_token), Depends(rate_limit)],
+)
 async def ask_question(
     question: str = Query(..., description="Question to ask Ray Peat's knowledge base"),
     max_sources: int = Query(5, ge=1, le=10, description="Maximum number of sources to use"),
@@ -150,7 +202,11 @@ async def ask_question(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Question answering error: {str(e)}")
 
-@app.get("/api/stats", response_model=CorpusStatsResponse)
+@app.get(
+    "/api/stats",
+    response_model=CorpusStatsResponse,
+    dependencies=[Depends(verify_bearer_token), Depends(rate_limit)],
+)
 async def get_corpus_stats():
     """Get statistics about the loaded Ray Peat corpus (adapted for Pinecone)."""
     try:
@@ -177,7 +233,10 @@ async def get_corpus_stats():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Stats error: {str(e)}")
 
-@app.get("/api/related")
+@app.get(
+    "/api/related",
+    dependencies=[Depends(verify_bearer_token), Depends(rate_limit)],
+)
 async def get_related_topics(
     query: str = Query(..., description="Query to find related topics for"),
     limit: int = Query(8, ge=1, le=20, description="Number of related topics to return")
