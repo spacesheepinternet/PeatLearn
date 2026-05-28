@@ -65,6 +65,6 @@ When `expected_behavior` ∈ {`abstain`, `reject_premise`}, the judge prompt is 
 ## Phase-tracking
 
 - **Phase 1 (this file):** establish the 15 adversarial items, `expected_behavior` field, `refusal_appropriateness` rubric dim, `compute_abstention_metrics()`, `--adversarial-only` CLI flag. Ship as a measurement prerequisite.
-- **Phase 2+:** defenses themselves. After each defense phase, re-run `python scripts/eval_rag_quality.py --adversarial-only` and track the abstention rate as a first-class metric alongside the overall 9.05/10.
+- **Phase 2+:** defenses themselves. After each defense phase, re-run `python scripts/eval/eval_rag_quality.py --adversarial-only` and track the abstention rate as a first-class metric alongside the overall 9.05/10.
 
 Do not edit the adversarial items in `questions.json` without first updating this file — the eval is only as good as the ground truth documented here.

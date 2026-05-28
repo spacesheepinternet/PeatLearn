@@ -16,16 +16,16 @@ From the project root with the venv activated:
 
 ```bash
 # Full run — 30 questions, LLM-judged, ~5–10 min
-python scripts/eval_rag_quality.py
+python scripts/eval/eval_rag_quality.py
 
 # Dry run — single category, no LLM judge
-python scripts/eval_rag_quality.py --subset A --no-judge
+python scripts/eval/eval_rag_quality.py --subset A --no-judge
 
 # Multiple categories
-python scripts/eval_rag_quality.py --subset A,B,E
+python scripts/eval/eval_rag_quality.py --subset A,B,E
 
 # Debug — only run first 3 questions
-python scripts/eval_rag_quality.py --limit 3
+python scripts/eval/eval_rag_quality.py --limit 3
 ```
 
 The script prints a summary to stdout and writes the full results JSON to

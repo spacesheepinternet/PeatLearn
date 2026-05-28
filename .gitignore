@@ -335,6 +335,9 @@ council-transcript-*.md
 # Generated corpus data (re-buildable)
 data/corpus_v3/
 data/_missing_files_staging/
+data/knowledge_graph/
 
-# Claude Code runtime
-.claude/scheduled_tasks.lock
+# Claude Code — entire directory and project-level instructions
+# (these are local tooling, not project code)
+.claude/
+CLAUDE.md

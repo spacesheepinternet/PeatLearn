@@ -15,7 +15,7 @@ source venv/Scripts/activate   # Git Bash
 cp config/env_template.txt .env
 
 # 3. Launch everything
-python scripts/run_servers.py
+python scripts/launch/run_servers.py
 ```
 
 Or launch individually:
@@ -179,9 +179,9 @@ pytest tests/integration/  # integration only
 The RAG chatbot is evaluated against a fixed 30-question benchmark with dual scoring: LLM-as-judge (Gemini 2.5-flash on a 5-dimension rubric) + automated metrics (citations, vocab hit rate, source diversity, topic coverage).
 
 ```bash
-python scripts/eval_rag_quality.py               # full 30-question run
-python scripts/eval_rag_quality.py --subset A,B  # only specific categories
-python scripts/eval_rag_quality.py --no-judge    # automated metrics only
+python scripts/eval/eval_rag_quality.py               # full 30-question run
+python scripts/eval/eval_rag_quality.py --subset A,B  # only specific categories
+python scripts/eval/eval_rag_quality.py --no-judge    # automated metrics only
 ```
 
 Question set lives in `data/eval/questions.json`; results are saved to `data/eval/results_<timestamp>.json`. See `data/eval/README.md` for the full rubric and category breakdown.

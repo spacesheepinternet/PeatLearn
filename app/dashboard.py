@@ -646,39 +646,101 @@ st.markdown("""
         box-shadow: 2px 0 20px rgba(0,0,0,0.28);
     }
 
-    /* === Gel buttons === */
-    .stButton > button {
+    /* === Gel buttons === covers st.button, st.form_submit_button, and modern stBaseButton selectors */
+    .stButton > button,
+    .stFormSubmitButton > button,
+    .stDownloadButton > button,
+    button[data-testid^="stBaseButton"],
+    button[kind="primary"],
+    button[kind="secondary"],
+    button[kind="primaryFormSubmit"],
+    button[kind="secondaryFormSubmit"] {
         font-family: 'Nunito', sans-serif !important;
         font-weight: 600;
         border-radius: 20px;
-        border: 1px solid rgba(125,211,252,0.40);
-        border-top-color: rgba(255,255,255,0.52);
+        border: 1px solid rgba(125,211,252,0.40) !important;
+        border-top-color: rgba(255,255,255,0.52) !important;
         background:
             linear-gradient(180deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.05) 50%, transparent 50%),
-            linear-gradient(180deg, #0284C7 0%, #0369A1 100%);
+            linear-gradient(180deg, #0284C7 0%, #0369A1 100%) !important;
         color: #E0F2FE !important;
         text-shadow: 0 1px 2px rgba(0,0,0,0.40);
         box-shadow:
             0 4px 14px rgba(14,165,233,0.40),
             inset 0 1px 0 rgba(255,255,255,0.30),
-            inset 0 -1px 0 rgba(0,0,0,0.20);
+            inset 0 -1px 0 rgba(0,0,0,0.20) !important;
         transition: all 0.18s ease;
         padding: 0.45rem 1.3rem;
     }
 
-    .stButton > button:hover {
+    .stButton > button:hover,
+    .stFormSubmitButton > button:hover,
+    .stDownloadButton > button:hover,
+    button[data-testid^="stBaseButton"]:hover,
+    button[kind="primary"]:hover,
+    button[kind="secondary"]:hover,
+    button[kind="primaryFormSubmit"]:hover,
+    button[kind="secondaryFormSubmit"]:hover {
         background:
             linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.08) 50%, transparent 50%),
-            linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%);
+            linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%) !important;
         box-shadow:
             0 6px 20px rgba(14,165,233,0.55),
-            inset 0 1px 0 rgba(255,255,255,0.38);
+            inset 0 1px 0 rgba(255,255,255,0.38) !important;
         transform: translateY(-1px);
     }
 
-    .stButton > button:active {
+    .stButton > button:active,
+    .stFormSubmitButton > button:active,
+    .stDownloadButton > button:active,
+    button[data-testid^="stBaseButton"]:active,
+    button[kind="primary"]:active,
+    button[kind="secondary"]:active,
+    button[kind="primaryFormSubmit"]:active,
+    button[kind="secondaryFormSubmit"]:active {
         transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(14,165,233,0.30);
+        box-shadow: 0 2px 8px rgba(14,165,233,0.30) !important;
+    }
+
+    /* === Expanders (source-document toggles, "Read full document", dev panel etc.) === */
+    [data-testid="stExpander"] details,
+    .streamlit-expanderHeader,
+    details[data-testid="stExpander"] {
+        background: rgba(15,23,42,0.55) !important;
+        border: 1px solid rgba(125,211,252,0.18) !important;
+        border-radius: 10px !important;
+        margin-bottom: 0.4rem !important;
+    }
+
+    [data-testid="stExpander"] summary,
+    [data-testid="stExpander"] details > summary {
+        background: linear-gradient(180deg, rgba(14,165,233,0.10) 0%, rgba(2,132,199,0.04) 100%) !important;
+        color: #E0F2FE !important;
+        font-family: 'Nunito', sans-serif !important;
+        font-weight: 600 !important;
+        border-radius: 10px !important;
+        padding: 0.55rem 0.9rem !important;
+        transition: background 0.18s ease, box-shadow 0.18s ease !important;
+        list-style: none !important;
+    }
+
+    [data-testid="stExpander"] summary:hover,
+    [data-testid="stExpander"] details > summary:hover {
+        background: linear-gradient(180deg, rgba(14,165,233,0.22) 0%, rgba(2,132,199,0.10) 100%) !important;
+        box-shadow: 0 2px 12px rgba(14,165,233,0.25) !important;
+    }
+
+    [data-testid="stExpander"] details[open] > summary {
+        background: linear-gradient(180deg, rgba(14,165,233,0.18) 0%, rgba(2,132,199,0.08) 100%) !important;
+        box-shadow: inset 0 -1px 0 rgba(125,211,252,0.20) !important;
+    }
+
+    /* Expander body content area */
+    [data-testid="stExpander"] [data-testid="stExpanderDetails"],
+    [data-testid="stExpanderDetails"] {
+        background: rgba(15,23,42,0.35) !important;
+        border-radius: 0 0 10px 10px !important;
+        padding: 0.7rem 0.9rem !important;
     }
 
     /* === Sidebar user card === */
@@ -910,6 +972,20 @@ st.markdown("""
     .quiz-result-card .qr-label {
         font-size: 0.85rem;
         opacity: 0.55;
+    }
+
+    /* === Health disclaimer (above chat input) === */
+    .health-disclaimer {
+        font-size: 0.78rem;
+        color: #FBBF24;
+        background: rgba(120, 53, 15, 0.20);
+        border: 1px solid rgba(251, 191, 36, 0.25);
+        border-radius: 10px;
+        padding: 0.5rem 0.85rem;
+        margin: 0.5rem 0 0.7rem;
+        text-align: center;
+        font-family: 'Nunito', sans-serif;
+        line-height: 1.4;
     }
 
     /* === Chat input — Aero glass === */
@@ -1260,12 +1336,11 @@ def render_user_setup():
             _sid = st.session_state.session_id[:8] + '…' if st.session_state.session_id else 'initializing'
             _uid_display = html.escape(st.session_state.user_id)
             _ai_pill = '<span class="status-pill ok">🤖 AI Active</span>' if api_key else '<span class="status-pill warn">🤖 Fallback</span>'
-            _api_pill = '<span class="status-pill ok">🧩 ML Online</span>' if adv_ok else '<span class="status-pill warn">🧩 ML Offline</span>'
             st.markdown(f"""
             <div class="sidebar-user-card">
                 <div class="user-name">👤 {_uid_display}</div>
                 <div class="session-chip">session {_sid}</div>
-                <div class="status-row">{_ai_pill}{_api_pill}</div>
+                <div class="status-row">{_ai_pill}</div>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1628,6 +1703,13 @@ def render_chat_interface():
                     if st.button("Submit", key=f"rate_submit_{i}_{message.get('timestamp','')}"):
                         handle_feedback(message, int(rating), data_logger, ai_profiler)
     
+    # Health disclaimer above chat input
+    st.markdown(
+        '<div class="health-disclaimer">⚠️ Educational use only. This is not medical advice — '
+        'consult a qualified clinician before changing diet, supplements, or medications.</div>',
+        unsafe_allow_html=True,
+    )
+
     # Chat input
     if prompt := st.chat_input("Ask Ray Peat about bioenergetics, metabolism, hormones..."):
         # Add user message
@@ -2121,140 +2203,12 @@ def main():
     render_user_setup()
     
     # Main content tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["💬 Chat", "📊 Profile", "🎯 Quiz", "📈 Analytics", "🕯️ Memorial"])
-    
+    tab1, tab2 = st.tabs(["💬 Chat", "🕯️ Memorial"])
+
     with tab1:
         render_chat_interface()
-        render_recommendations()
-    
+
     with tab2:
-        render_user_profile()
-    
-    with tab3:
-        render_quiz_interface()
-    
-    with tab4:
-        st.markdown('<div class="section-header"><h3>📈 Learning Analytics</h3></div>', unsafe_allow_html=True)
-        if not st.session_state.user_id:
-            st.info("Enter your user ID to view analytics.")
-        else:
-            # --- Quiz history (always available, reads directly from SQLite) ---
-            qh_ok = False
-            qh_data = {}
-            try:
-                qh_r = requests.get(f"http://localhost:8001/api/analytics/quiz-history/{st.session_state.user_id}", timeout=8)
-                if qh_r.status_code == 200:
-                    qh_ok = True
-                    qh_data = qh_r.json()
-            except Exception:
-                pass
-
-            if qh_ok and qh_data.get('sessions'):
-                sessions = qh_data['sessions']
-                total_sessions = qh_data.get('total_sessions', 0)
-                avg_score = sum(s['score_pct'] for s in sessions) / len(sessions) if sessions else 0
-                last_score = sessions[-1]['score_pct'] if sessions else 0
-
-                st.markdown(f"""
-                <div class="stat-cards-row three-col">
-                    <div class="stat-card">
-                        <span class="sc-icon">🎯</span>
-                        <div class="sc-value">{total_sessions}</div>
-                        <div class="sc-label">Quizzes Taken</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="sc-icon">📊</span>
-                        <div class="sc-value">{avg_score:.0f}%</div>
-                        <div class="sc-label">Avg Score</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="sc-icon">⚡</span>
-                        <div class="sc-value">{last_score:.0f}%</div>
-                        <div class="sc-label">Last Score</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-
-                # Score over time chart
-                df_sessions = pd.DataFrame(sessions)
-                fig_scores = px.line(
-                    df_sessions, x='session_num', y='score_pct',
-                    title="Quiz Score Over Time",
-                    markers=True,
-                    labels={'session_num': 'Quiz #', 'score_pct': 'Score (%)'},
-                    color_discrete_sequence=['#0EA5E9'],
-                    template='plotly_dark',
-                )
-                fig_scores.add_hline(y=avg_score, line_dash='dot', line_color='#34D399',
-                                     annotation_text=f"avg {avg_score:.0f}%",
-                                     annotation_font_color='#34D399')
-                fig_scores.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    font_family='Nunito',
-                    title_font_size=15,
-                    yaxis_range=[0, 105],
-                )
-                fig_scores.update_xaxes(gridcolor='rgba(255,255,255,0.06)', dtick=1)
-                fig_scores.update_yaxes(gridcolor='rgba(255,255,255,0.06)')
-                st.plotly_chart(fig_scores, use_container_width=True)
-
-                # Topic mastery bar chart
-                if qh_data.get('mastery'):
-                    df_mastery = pd.DataFrame(qh_data['mastery'])
-                    df_mastery.columns = ['Topic', 'Ability']
-                    fig_mastery = px.bar(
-                        df_mastery.head(12), x='Topic', y='Ability',
-                        title="Topic Ability (IRT θ)",
-                        color_discrete_sequence=['#34D399'],
-                        template='plotly_dark',
-                    )
-                    fig_mastery.update_layout(
-                        paper_bgcolor='rgba(0,0,0,0)',
-                        plot_bgcolor='rgba(0,0,0,0)',
-                        font_family='Nunito',
-                        title_font_size=15,
-                    )
-                    fig_mastery.update_xaxes(gridcolor='rgba(255,255,255,0.06)')
-                    fig_mastery.update_yaxes(gridcolor='rgba(255,255,255,0.06)')
-                    st.plotly_chart(fig_mastery, use_container_width=True)
-            else:
-                st.info("No quiz sessions recorded yet. Complete a quiz to see your analytics.")
-
-            # --- Advanced ML analytics (optional, in-memory personalization engine) ---
-            adv_ok = False
-            try:
-                r = requests.get(f"http://localhost:8001/api/analytics/user/{st.session_state.user_id}", timeout=8)
-                adv_ok = r.status_code == 200
-            except Exception:
-                pass
-            if adv_ok:
-                data = r.json().get('user_analytics', {})
-                if data and 'error' not in data:
-                    with st.expander("Advanced ML Profile", expanded=False):
-                        top_topics = data.get('top_topics', [])
-                        if top_topics:
-                            if isinstance(top_topics[0], dict):
-                                df_top = pd.DataFrame(top_topics)
-                                if 'name' in df_top.columns and 'importance' in df_top.columns:
-                                    df_top.rename(columns={'name': 'Topic', 'importance': 'Mastery'}, inplace=True)
-                            else:
-                                df_top = pd.DataFrame(top_topics, columns=["Topic", "Mastery"])
-                            fig_top = px.bar(df_top, x=df_top.columns[0], y=df_top.columns[1],
-                                             title="Top Topics by Mastery",
-                                             color_discrete_sequence=['#0EA5E9'],
-                                             template='plotly_dark')
-                            fig_top.update_layout(
-                                paper_bgcolor='rgba(0,0,0,0)',
-                                plot_bgcolor='rgba(0,0,0,0)',
-                                font_family='Nunito',
-                                title_font_size=15,
-                            )
-                            fig_top.update_xaxes(gridcolor='rgba(255,255,255,0.06)')
-                            fig_top.update_yaxes(gridcolor='rgba(255,255,255,0.06)')
-                            st.plotly_chart(fig_top, use_container_width=True)
-
-    with tab5:
         # Import and use the enhanced memorial
         from peatlearn.adaptive.enhanced_memorial import render_enhanced_memorial
         render_enhanced_memorial()

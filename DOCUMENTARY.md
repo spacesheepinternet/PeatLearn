@@ -137,7 +137,7 @@ They talk to each other over **HTTP** (the same protocol your browser uses to lo
 
 ```bash
 # Option 1: Start all three at once
-python scripts/run_servers.py
+python scripts/launch/run_servers.py
 
 # Option 2: Start them individually (in separate terminals)
 streamlit run app/dashboard.py           # Terminal 1
@@ -242,7 +242,7 @@ flowchart LR
 
 **File:** `preprocessing/checkpoint_system.py`
 
-Processing 552 documents takes time. What if your computer crashes halfway through? The checkpoint system saves progress so you can **resume where you left off** instead of starting over. This same pattern is used in the re-embedding script (`scripts/reembed_full_corpus.py`).
+Processing 552 documents takes time. What if your computer crashes halfway through? The checkpoint system saves progress so you can **resume where you left off** instead of starting over. This same pattern is used in the re-embedding script (`scripts/embedding/reembed_full_corpus.py`).
 
 ```mermaid
 flowchart TD
@@ -966,7 +966,7 @@ Epsilon starts high (1.0 = all exploration) and decays toward low (0.1 = mostly 
 | `app/api.py` | ~200 | RAG FastAPI server — search and Q&A endpoints |
 | `app/advanced_api.py` | ~400 | ML FastAPI server — personalisation endpoints |
 | `peatlearn_master.py` | ~100 | Backward-compatible launcher → runs `streamlit run app/dashboard.py` only |
-| `scripts/run_servers.py` | ~80 | Multi-service process manager |
+| `scripts/launch/run_servers.py` | ~80 | Multi-service process manager |
 
 ### RAG Package (`peatlearn/rag/`)
 

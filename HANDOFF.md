@@ -1,83 +1,88 @@
-# Handoff — 2026-05-16
+# Handoff — 2026-05-17
 
 ## Current Branch & Git State
-- Branch: `main` (8 commits ahead of origin)
-- Uncommitted changes: `HANDOFF.md` (this file) + 6 untracked knowledge-graph files from prior session (unchanged this session)
+- Branch: `main` (synced with origin — `7ffa889` is on GitHub)
+- Uncommitted changes: none in tracked files
+- Untracked (carried from prior session — unchanged): 6 knowledge-graph files (`scripts/extract_graph_triples.py`, `scripts/init_graph_db.py`, `scripts/render_graph_preview.py`, `scripts/run_graph_extraction.py`, `scripts/store_graph_triples.py`, `data/knowledge_graph/`)
+- Untracked from this session (gitignored): `council-report-20260516-214206.html`, `council-transcript-20260516-214206.md`
 - Last 5 commits:
+  - `7ffa889` docs: handoff for 2026-05-16 chatbot revival + 9.64 eval
   - `19b0f40` fix: revert 1.4-point quality regression — restore thinking + verifier
   - `3c5dcf4` fix: revive broken chatbot — wrong index + NameError + add auth
   - `6676c5f` fix: address professor's 3 architecture concerns
   - `41c9c72` feat: RAG hardening, quiz fixes, corpus expansion, Pinecone resilience
-  - `df33558` feat: eval 9.42/10 (+0.82 vs baseline); normalizer gaps from user queries
 
 ## What Was Being Worked On
 
-**Launch readiness audit + emergency chatbot revival.** The session started as a "what's left before I can launch" architecture review and immediately uncovered that the chatbot had been completely broken in production. Two independent bugs since commit `6676c5f` were causing every dashboard chat query to return the canned "Sorry, technical issue" error message:
+Two threads carried over from yesterday's chatbot-revival session. Both about getting safely from "working locally at 9.64/10" to "live URL someone else can use."
 
-1. `app/api.py:22–23` hardcoded the legacy `ray-peat-corpus` rollback index instead of the active `ray-peat-corpus-v3` (14,594 vectors).
-2. `peatlearn/adaptive/rag_system.py` called `logger.info()` at lines 414 and 620 but never imported `logging` — every query crashed with `NameError`. The 2026-05-05 eval recording 1.01/10 was originally misattributed to a Gemini outage; it was actually this bug.
+**Thread 1 — Council review of the whole project.** Ran an LLM Council (5 advisors + peer review + chairman synthesis) on the entire project state. Output is two files at the project root: `council-report-20260516-214206.html` and `council-transcript-20260516-214206.md` (both gitignored). Every reviewer named the Contrarian as the sharpest voice and the Expansionist as the biggest blind spot. Chairman verdict: **ship Friday, not Monday — spend Mon–Tue on a safety net first.** The two things every advisor missed in round one (only surfaced in peer review): hard provider-side spend caps, and the Ray Peat estate / corpus copyright question.
 
-After fixing those, the first clean eval came in at **8.04/10** — alive but down 1.38 points from the previous peak of 9.42 at commit `df33558`. Investigation found two more regression sources from commits `41c9c72` + `6676c5f`:
-
-3. `"thinkingConfig": {"thinkingBudget": 0}` had been added as a cost-saver, disabling Gemini 2.5-flash's reasoning pass. Removed.
-4. The grounding verifier was gated to LOW-confidence only on the theory that HIGH/MEDIUM had strong retrieval. In practice adversarial questions retrieve HIGH (the topic IS in the corpus, only the framing is false), so the verifier was being skipped exactly when it was needed. Restored to all tiers with the existing "keep original if revision is gutted" guard.
-
-An A/B confirmed Cohere rerank-4-pro beats local ms-marco-MiniLM cross-encoder on this corpus (9.64 vs 9.42, with edge_nuanced 9.56 vs 6.17 the biggest gap). Cohere stays.
-
-Also added the auth/rate-limit prep for a private-beta launch: bearer token (env-driven, off in dev) + per-IP in-memory rate limiter on `/api/ask`, `/api/search`, `/api/stats`, `/api/related`; env-driven `CORS_ORIGINS`.
-
-**Final eval: 9.64/10 — a new all-time high.** (+1.04 vs baseline 8.6, +0.22 vs previous peak 9.42, +1.60 vs broken 8.04.)
+**Thread 2 — Leaked API key incident.** GitHub Secret Scanning emailed about an exposed key in the last push. Investigation: a Gemini key (prefix `AIzaSyCL_q...`, REDACTED) is in commit `0e217b1` (initial commit, 2025-07-25, author `thewildofficial / abanstampy@gmail.com`). It is **not the user's key** — current local `.env` has a different key. `.env` is correctly in `.gitignore` and is not currently tracked. The push didn't introduce the leak; it just re-triggered the scanner against history that's been public for ~10 months. The user's wallet is not at risk from this leak — the old collaborator's is.
 
 ## Key Decisions Made
 
-- **Index name reads from `settings.PINECONE_INDEX_NAME`, not hardcoded.** Also hardened `PineconeRAG.__init__` default. Anyone constructing the RAG without args is now safe.
-- **Cohere stays as top of reranker cascade.** A/B'd against MiniLM with thinking + verifier both restored: 9.64 vs 9.42. Skipped the HANDOFF item to swap MiniLM → MedCPT — Cohere already beats both, and MedCPT would only be the fallback's fallback.
-- **`thinkingBudget` left unset on the main RAG call.** Cost saving is not worth ~1.4 eval points for a health-grounded chatbot. Saved to project memory.
-- **Verifier runs on every tier**, not just LOW. The professor's coherence concern is handled by the pre-existing `len(revised.strip()) > 50` guard — if the verifier would gut the answer, we keep the original. Skipping the verifier entirely cost real quality on adversarial questions.
-- **Auth is opt-in via env var** (`API_BEARER_TOKEN`). Unset means dev mode — no auth check. Production set the env var to enable. Rate limit uses in-memory per-IP token bucket; fine for single-worker private beta, upgrade to Redis-backed slowapi for multi-worker prod.
-- **CORS made env-driven** but default still includes localhost (`:3000`, `:8000`, `:8501`) so local dev is unaffected.
-- **Smoke test verified** via FastAPI TestClient: open `/api/health` returns 200, missing/wrong bearer token returns 401, rate limit boundary returns 429 with `Retry-After`.
+- **Don't rewrite git history to scrub the leaked key.** Once the collaborator revokes it, the value in history is worthless. Rewriting would force-push and break any clones, with no real security benefit. Option remains open if the user wants to silence future scanner emails.
+- **Council recommendation accepted in spirit: ship Friday, not Monday.** Use Mon–Tue for safety net (spend caps, monitoring, disclaimer, rename), Wed for the auth-hole fix, Thu for 5 real Peat readers, Fri for one targeted public post.
+- **Expansionist ideas (knowledge graph as viral product, "Daily Peat" Duolingo, adjacent-figure franchise) are explicitly v1.2 — not for launch.** Every peer reviewer flagged them as growth strategy poison before validation.
+- **The leaked-key triage is the collaborator's problem to solve.** User's responsibility is limited to (a) notifying them, and (b) capping the user's own key.
 
 ## Active Plan
-`C:\Users\rehan\.claude\plans\first-thing-i-want-wondrous-petal.md` — Scope 1 (private beta) was selected. Scope 1 coding is complete; hosting decision deferred.
+`C:\Users\rehan\.claude\plans\first-thing-i-want-wondrous-petal.md` — Scope 1 (private beta) selected and underway. The council shifted the order of operations within Scope 1: spend caps + monitoring + disclaimer **before** hosting, not after.
 
 ## What Needs to Happen Next
 
-**Launch prep — remaining Scope 1 items:**
-1. **Pick a hosting target.** Options previously surfaced: Streamlit Community Cloud (free, fastest, bundles UI+backend), fly.io/Render/Railway (Docker required, proper separation), self-hosted VM (you write systemd/nginx). Note: the existing `docker-compose.yml` is stale from the pre-2026-03 reorg — references `inference/backend/Dockerfile` and `web_ui/frontend/` which no longer exist. Will need rewrite or deletion if going the Docker route.
-2. **Set `API_BEARER_TOKEN` in prod env** and document the value somewhere the beta testers can find it.
-3. **Smoke test end-to-end after deploy:** hit `/api/ask?question=what+causes+hypothyroidism` with bearer header, confirm sources + answer + status 200.
+**TODAY (before closing the laptop):**
+1. **Set hard spend caps on the user's own Gemini key** (`AIzaSyDAY9...`). Google Cloud Console → Billing → Budgets & alerts → $50/month with email alerts; APIs & Services → Quotas → "Generative Language API" requests/day → 5,000. Restrict the key to the Generative Language API only.
+2. **Cap OpenRouter** (where Cohere rerank-4-pro lives). Buy $10–20 in pre-paid credits, auto-recharge OFF. When credits run out the cascade falls back to local MiniLM (eval B confirmed 9.42 with MiniLM-only — still shippable).
+3. **Pinecone**: free Starter tier auto-caps at 100k vectors / limited QPS. Currently using 14,594 vectors. No action needed unless upgrading.
+4. **Send the leaked-key email to `abanstampy@gmail.com`** — one sentence: "GitHub flagged a Gemini key from your initial commit on PeatLearn, you'll want to revoke it." Then mark task complete.
 
-**Optional polish (H-tier from the launch audit, not blockers):**
-4. **H1**: Populate `confidence_tier` + `confidence_reasons` in the `/api/ask` `QuestionResponse`. The dashboard badge at `app/dashboard.py:1548–1562` always renders empty tier because `peatlearn/rag/rag_system.py:96` only sets the float `confidence`. ~30 min.
-5. **H3**: Add structured request logging in `app/api.py` so prod incidents are visible. ~1 h.
-6. **H4**: Wrap `_call_gemini_llm` to return a clean 503 on missing key/outage instead of bare 500. ~20 min.
+**MON–TUE:**
+5. Add Sentry to `app/api.py` and `app/dashboard.py` (or simpler: free Uptime Robot ping every 5 min hitting `/api/health`).
+6. Big red medical disclaimer at the top of the Streamlit chat. Suggested text in the council report.
+7. Consider renaming "PeatLearn" → "Bioenergetic Q&A — inspired by Ray Peat's writings" to soften the estate/likeness risk the council flagged. Folder name can stay; this is product-name only.
+8. Add a footer: "Corpus compiled from publicly available transcripts and articles. Contact us for takedown requests."
 
-**Defer to v1.0.1 (not chatbot-launch scope):**
-7. Knowledge graph: 3 pre-flight fixes (max_output_tokens, em-dash filename, l-glycine alias) + full 568-doc run (~$5, ~4 h). Not integrated into chatbot.
-8. Personalization (RL agent, neural CF, MF recommender) — all scaffolded but untrained; ship in v1.0.1 once real user data accumulates.
-9. Add chat-path integration tests (currently zero; `tests/integration/test_api.py` covers import + RAG init only).
-10. Add Pinecone/Gemini keys to `.env.example` with docs.
+**WED:**
+9. **Fix the auth hole** the Contrarian caught. The Streamlit dashboard talks to `peatlearn.rag.rag_system` in-process — it bypasses the bearer-token-protected FastAPI on port 8000. So the auth work added in commit `3c5dcf4` protects an endpoint nobody uses. Two clean options: (a) route the dashboard through `requests.post('http://localhost:8000/api/ask', headers={'Authorization': 'Bearer ...'})`, or (b) put Streamlit Community Cloud's built-in password protection in front of the whole app. Option (b) is faster.
+
+**THU:**
+10. Send the URL to 5 actual Peat readers (forums, Discord, Twitter DMs). Watch them break it. Take notes. Don't fix in real-time — let them finish.
+
+**FRI:**
+11. Public post in ONE Peat forum thread. Not Hacker News. Not Twitter mass-post.
+
+**Optional polish (not blockers):**
+- H1: populate `confidence_tier` / `confidence_reasons` in the `/api/ask` response (currently declared but never set, dashboard badge renders blank)
+- H4: wrap `_call_gemini_llm` to return a clean 503 on missing key / outage instead of bare 500
+- Add Pinecone/Gemini/OpenRouter keys to `.env.example` with placeholder values + docs
+- Update `.claude/rules/rag.md` — it still says the reranker is "ms-marco-MiniLM-L-6-v2" but as of 41c9c72 the top of the cascade is Cohere rerank-4-pro
+
+**Deferred to v1.0.1 or later:**
+- Knowledge graph 3 pre-flight fixes + full 568-doc run (~$5 + 4h)
+- Personalization stack training (needs real user data first)
+- Chat-path integration tests
+- Migrating `app/api.py` rate limiter from in-memory to Redis-backed for multi-worker
+- Optional: `git filter-repo` to scrub the leaked key from history (only needed to silence future scanner emails — the key itself is worthless once revoked)
 
 ## Open Questions / Blockers
 
-- **No hosting target chosen.** Blocks deployment. Streamlit Community Cloud is the fastest path; pick one when ready.
-- **Existing `docker-compose.yml` is unusable.** References pre-reorg paths. If going Docker, must rewrite or delete.
-- **6 untracked knowledge-graph files from prior session.** `scripts/extract_graph_triples.py`, `scripts/init_graph_db.py`, `scripts/render_graph_preview.py`, `scripts/run_graph_extraction.py`, `scripts/store_graph_triples.py`, and `data/knowledge_graph/`. Decide whether to commit separately or stash until the full graph run happens.
-- **`reject_premise` keyword-heuristic still reports ~30% defense rate** in the eval log — but this is the dumb keyword counter, not the LLM judge. The LLM judge scored all reject_premise questions ≥9.30 in eval A. The keyword heuristic likely needs updating to match the new (more nuanced) rejection phrasing. Not blocking, but worth tightening if you want the headline number to match reality.
+- **Did the old collaborator's leaked key get abused over the last 10 months?** Only they can check, in their Google Cloud Console billing history. Worth asking when you message them.
+- **Hosting still not picked.** Streamlit Community Cloud is the path of least resistance and the chairman's pick. fly.io / Render / Railway / self-hosted VM all on the table but require Docker (which is broken — `docker-compose.yml` is stale from pre-March-2026 reorg).
+- **6 untracked knowledge-graph files have been sitting for two sessions.** Decide: commit on a feature branch, leave untracked, or delete. Not blocking launch but the working tree is noisy.
+- **Council flagged the corpus copyright question.** Did the user (or the original collaborator) have the right to redistribute `Ray Peat Anthology.xlsx` and the various PDFs in `data/raw/`? If not, that's a real takedown risk independent of the medical liability. No action specified yet — likely worth one hour of research.
+- **The `_get_rag_system()._last_sources` pattern in `app/dashboard.py:1682`** works but is fragile — it relies on a side-effect attribute populated by the last call. If you ever go multi-user (more than one Streamlit session), this will return the wrong sources. Not blocking for private beta.
 
 ## Files Modified This Session
 
 ```
-app/api.py                            — B1 index fix; B4 bearer token + rate limit; CORS dependency wiring
-config/settings.py                    — API_BEARER_TOKEN env var; CORS_ORIGINS env-driven (comma-separated)
-peatlearn/adaptive/rag_system.py      — B5 logger import; thinkingBudget=0 removed; verifier restored to all tiers
-peatlearn/rag/rag_system.py           — PineconeRAG default index_name now reads settings.PINECONE_INDEX_NAME
-data/eval/results_20260516_181111.json — first post-B1+B5 eval (8.04, gitignored)
-data/eval/results_20260516_190013.json — pre-regression-fix eval (8.04, gitignored)
-data/eval/results_20260516_203512.json — Eval A: Cohere on + fixes (9.64 🏆, gitignored)
-data/eval/results_20260516_205012.json — Eval B: Cohere off + fixes (9.42, gitignored)
-HANDOFF.md                            — this file
+(no tracked code files modified this session — work was investigation + planning + external incident triage)
+
+New artifacts at project root (gitignored):
+  council-report-20260516-214206.html       — visual council verdict
+  council-transcript-20260516-214206.md     — full transcript (5 advisors + 5 reviews + chairman)
+  HANDOFF.md                                — this file
 ```
 
-Memory updates: `project_thinking_budget.md`, `project_reranker_choice.md`.
+No commits this session. Next commit will likely be the disclaimer + safety-net work from Mon–Tue.
