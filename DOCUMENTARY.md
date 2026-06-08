@@ -965,7 +965,6 @@ Epsilon starts high (1.0 = all exploration) and decays toward low (0.1 = mostly 
 | `app/dashboard.py` | ~2000 | Main Streamlit UI — chat, quiz, profile, charts |
 | `app/api.py` | ~200 | RAG FastAPI server — search and Q&A endpoints |
 | `app/advanced_api.py` | ~400 | ML FastAPI server — personalisation endpoints |
-| `peatlearn_master.py` | ~100 | Backward-compatible launcher → runs `streamlit run app/dashboard.py` only |
 | `scripts/launch/run_servers.py` | ~80 | Multi-service process manager |
 
 ### RAG Package (`peatlearn/rag/`)

@@ -91,7 +91,7 @@ def setup_auto_refresh(watch_dirs=None, watch_files=None):
         return
         
     watch_dirs = watch_dirs or ['.', 'src', 'inference', 'data']
-    watch_files = watch_files or ['peatlearn_master.py', '.env']
+    watch_files = watch_files or ['app/dashboard.py', '.env']
     
     try:
         handler = AutoRefreshHandler(watch_files)
@@ -140,7 +140,7 @@ def _adv_health_cached() -> bool:
     except Exception:
         return False
 
-# --- Orchestrator: run backend servers + Streamlit together when invoked via `python peatlearn_master.py` ---
+# --- Orchestrator: run backend servers + Streamlit together when invoked via `python app/dashboard.py` ---
 def _wait_for_health(url: str, timeout_seconds: int = 90) -> bool:
     start = time.time()
     while time.time() - start < timeout_seconds:
@@ -1413,17 +1413,17 @@ def render_user_setup():
                     **Method 1: Environment Variable**
                     ```bash
                     export PEATLEARN_DEV_MODE=true
-                    python peatlearn_master.py
+                    streamlit run app/dashboard.py
                     ```
-                    
+
                     **Method 2: Command Line Flag**
                     ```bash
-                    python peatlearn_master.py --dev
+                    streamlit run app/dashboard.py -- --dev
                     ```
-                    
-                    **Method 3: Via Streamlit**
+
+                    **Method 3: Inline**
                     ```bash
-                    STREAMLIT_DEV_MODE=true streamlit run peatlearn_master.py
+                    STREAMLIT_DEV_MODE=true streamlit run app/dashboard.py
                     ```
                     """)
                 st.caption("🔒 Production mode active - development features disabled")

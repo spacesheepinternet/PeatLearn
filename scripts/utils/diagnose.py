@@ -104,8 +104,8 @@ def check_key_files():
     print_section("Key Files")
     required_files = [
         'requirements.txt',
-        'peatlearn_master.py',
-        'inference/backend/app.py',
+        'app/dashboard.py',
+        'app/api.py',
     ]
     
     for file_path in required_files:
@@ -168,7 +168,7 @@ def main():
         print("1. Fix any ❌ issues above")
         print("2. Run: pip install -r requirements.txt")
         print("3. Check your .env file has valid API keys")
-        print("4. Try running: streamlit run peatlearn_master.py")
+        print("4. Try running: streamlit run app/dashboard.py")
         
     except Exception as e:
         print(f"\n❌ Diagnostic failed: {str(e)}")

@@ -655,8 +655,8 @@ We welcome contributions from developers, researchers, and Ray Peat enthusiasts 
   - Adaptive updates: `_update_ability_and_difficulty` writes per-user \(\theta\) and updates item \(b\); `user_ability_history` logs for charts.
 - `src/adaptive_learning/quiz_generator.py`  
   - Gemini configuration (2.5 Flash Lite only), safe candidate parsing, short backoff on 429.
-- `peatlearn_master.py`  
-  - Orchestrator + UI: launches services, tabs for Chat/Profile/Quiz/Analytics/Memorial, debug toggle for adaptive metrics.
+- `app/dashboard.py`  
+  - Orchestrator + UI: launches services, tabs for Chat/Memorial, debug toggle for adaptive metrics.
 
 ### Data Flow (Quiz)
 
