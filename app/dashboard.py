@@ -40,13 +40,39 @@ load_dotenv()
 # os.getenv() (rag_system, embedder, etc.) find the keys. Local dev relies on
 # .env via load_dotenv above; Cloud relies on st.secrets, which Streamlit does
 # not auto-expose as environment variables.
+_bridge_copied: list[str] = []
+_bridge_skipped: list[str] = []
+_bridge_error: str | None = None
 try:
     if hasattr(st, "secrets"):
         for _k, _v in st.secrets.items():
-            if isinstance(_v, str) and _k not in os.environ:
-                os.environ[_k] = _v
-except Exception:
-    pass
+            if isinstance(_v, str):
+                if _k not in os.environ:
+                    os.environ[_k] = _v
+                    _bridge_copied.append(_k)
+                else:
+                    _bridge_skipped.append(_k)
+    else:
+        _bridge_error = "st has no 'secrets' attribute"
+except Exception as _e:
+    _bridge_error = repr(_e)
+
+print(
+    f"[secrets-bridge] copied={_bridge_copied} "
+    f"skipped_already_in_env={_bridge_skipped} "
+    f"error={_bridge_error} "
+    f"GEMINI_present_after={'GEMINI_API_KEY' in os.environ} "
+    f"PINECONE_present_after={'PINECONE_API_KEY' in os.environ}",
+    flush=True,
+)
+import sys as _sys
+_sys.stderr.write(
+    f"[secrets-bridge] copied={_bridge_copied} "
+    f"error={_bridge_error} "
+    f"GEMINI_present={'GEMINI_API_KEY' in os.environ} "
+    f"PINECONE_present={'PINECONE_API_KEY' in os.environ}\n"
+)
+_sys.stderr.flush()
 
 # Development mode detection
 def is_development_mode():
