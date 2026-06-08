@@ -22,6 +22,29 @@ from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
+
+def _diag_write(msg: str) -> None:
+    """Emit a diagnostic message through every channel so at least one shows.
+
+    Streamlit Cloud sometimes buffers/drops stderr. Hedge by writing to stdout,
+    stderr, and the logger so the message is captured no matter which channel
+    Cloud is tailing.
+    """
+    try:
+        print(msg, flush=True)
+    except Exception:
+        pass
+    try:
+        sys.stderr.write(msg if msg.endswith("\n") else msg + "\n")
+        sys.stderr.flush()
+    except Exception:
+        pass
+    try:
+        logger.warning(msg.rstrip())
+    except Exception:
+        pass
+
+
 # Load environment variables
 load_dotenv()
 
@@ -31,11 +54,10 @@ try:
     from config.settings import settings
 except Exception as _import_err:
     import traceback as _tb
-    sys.stderr.write(
+    _diag_write(
         f"[rag_system] FAILED to import PineconeVectorSearch / settings: {_import_err!r}\n"
-        f"{_tb.format_exc()}\n"
+        f"{_tb.format_exc()}"
     )
-    sys.stderr.flush()
     RayPeatVectorSearch = None
     SearchResult = None
     settings = None
@@ -57,33 +79,29 @@ class RayPeatRAG:
         if search_engine is not None:
             self.search_engine = search_engine
         elif RayPeatVectorSearch is None:
-            sys.stderr.write("[rag_system] RayPeatVectorSearch is None at init — import failed earlier.\n")
-            sys.stderr.flush()
+            _diag_write("[rag_system] RayPeatVectorSearch is None at init — import failed earlier.\n")
             self.search_engine = None
         else:
             try:
                 self.search_engine = RayPeatVectorSearch()
             except Exception as _search_err:
                 import traceback as _tb
-                sys.stderr.write(
+                _diag_write(
                     f"[rag_system] PineconeVectorSearch() raised: {_search_err!r}\n"
                     f"{_tb.format_exc()}\n"
                 )
-                sys.stderr.flush()
-                self.search_engine = None
+                    self.search_engine = None
         self.llm_model = "gemini-2.5-flash"
         self.api_key = os.getenv('GEMINI_API_KEY')
 
         if not self.search_engine:
-            sys.stderr.write("[rag_system] Warning: Vector search engine not available. Using fallback mode.\n")
-            sys.stderr.flush()
+            _diag_write("[rag_system] Warning: Vector search engine not available. Using fallback mode.\n")
         if not self.api_key:
-            sys.stderr.write(
+            _diag_write(
                 "[rag_system] Warning: GEMINI_API_KEY not found in environment. "
                 f"st.secrets bridge may have failed. os.environ keys: "
                 f"{sorted([k for k in os.environ.keys() if 'KEY' in k or 'API' in k])}\n"
             )
-            sys.stderr.flush()
         # Stores the full MMR-selected source objects from the last get_rag_response()
         # call. Used by eval_rag_quality.py to pass chunk text to the LLM judge.
         self._last_sources: list = []
@@ -111,12 +129,11 @@ class RayPeatRAG:
             Detailed response with sources from Ray Peat's work
         """
         if not self.search_engine or not self.api_key:
-            sys.stderr.write(
+            _diag_write(
                 f"[rag_system] FALLBACK FIRED at get_rag_response — "
                 f"search_engine={'OK' if self.search_engine else 'None'}, "
                 f"api_key={'set' if self.api_key else 'None'}\n"
             )
-            sys.stderr.flush()
             return self._fallback_response(query)
 
         if max_sources is None:
