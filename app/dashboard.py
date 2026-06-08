@@ -36,6 +36,18 @@ import argparse
 # Load environment variables
 load_dotenv()
 
+# Bridge Streamlit Cloud secrets into os.environ so modules that use
+# os.getenv() (rag_system, embedder, etc.) find the keys. Local dev relies on
+# .env via load_dotenv above; Cloud relies on st.secrets, which Streamlit does
+# not auto-expose as environment variables.
+try:
+    if hasattr(st, "secrets"):
+        for _k, _v in st.secrets.items():
+            if isinstance(_v, str) and _k not in os.environ:
+                os.environ[_k] = _v
+except Exception:
+    pass
+
 # Development mode detection
 def is_development_mode():
     """Check if development mode is enabled via environment variable or command line"""
