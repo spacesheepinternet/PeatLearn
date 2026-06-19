@@ -13,7 +13,7 @@ pillow>=10.0.0
 
 # AI / LLM
 google-genai>=1.0.0
-pinecone-client>=3.0.0
+pinecone>=5.0.0
 
 # ML / Data science
 torch>=2.1.0
