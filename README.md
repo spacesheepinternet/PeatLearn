@@ -2,18 +2,20 @@
 
 # 🧬 PeatLearn
 
-**An AI-powered adaptive learning platform built around Dr. Ray Peat's bioenergetic philosophy.**
+**A grounded, citation-backed AI chatbot for exploring Dr. Ray Peat's bioenergetic work.**
 
-Ask grounded questions, take quizzes that adapt to you, and get personalized recommendations — all backed by a retrieval-augmented corpus of Ray Peat's life work.
+Ask questions in plain language and get answers retrieved from a curated corpus of Ray Peat's
+transcripts, papers, newsletters, and health writings — with inline citations and source documents.
 
 <br>
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![Gemini](https://img.shields.io/badge/LLM-Google%20Gemini-4285F4?logo=google&logoColor=white)
 ![Pinecone](https://img.shields.io/badge/Vector%20DB-Pinecone-000000)
 ![RAG Score](https://img.shields.io/badge/RAG%20Benchmark-9.64%2F10-success)
+
+[**Live app → peatlearn.streamlit.app**](https://peatlearn.streamlit.app)
 
 </div>
 
@@ -22,45 +24,50 @@ Ask grounded questions, take quizzes that adapt to you, and get personalized rec
 ## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
+- [What Ships](#what-ships)
 - [Quick Start](#quick-start)
 - [Setup](#setup)
 - [Architecture](#architecture)
-- [Project Structure](#project-structure)
 - [Tech Stack](#tech-stack)
 - [Corpus & Data Pipeline](#corpus--data-pipeline)
-- [API Reference](#api-reference)
 - [RAG Quality Benchmark](#rag-quality-benchmark)
 - [Testing](#testing)
+- [In the Codebase (Not Shipped)](#in-the-codebase-not-shipped)
+- [Project Structure](#project-structure)
 - [Acknowledgments](#acknowledgments)
 
 ---
 
 ## Overview
 
-PeatLearn turns a large archive of Dr. Ray Peat's transcripts, papers, newsletters, and health
-writings into an interactive learning experience. A retrieval-augmented generation (RAG) engine
-answers questions with grounded, citation-backed responses, while an adaptive ML layer tailors
-quizzes and recommendations to each learner.
+PeatLearn turns a large archive of Dr. Ray Peat's recorded and written work into an interactive,
+grounded chatbot. A retrieval-augmented generation (RAG) pipeline answers questions using only the
+source corpus, with inline citations and the underlying documents one click away.
 
 The domain is **bioenergetic medicine, nutrition, and hormonal science** — a health-critical
-context, so the system is built to ground every claim in the source corpus rather than improvise.
+context, so the system is built to ground every claim in the corpus and to **abstain** when the
+corpus doesn't support an answer, rather than improvise.
 
 ---
 
-## Features
+## What Ships
 
-| Feature | Description |
-|---------|-------------|
-| 💬 **RAG Chatbot** | Ask questions about Ray Peat's work; answers are retrieved from 22,457 embedded passages with inline citations (benchmark avg **9.64/10**). |
-| 🧠 **Adaptive Quizzes** | Gemini-powered quizzes that scale difficulty to your demonstrated knowledge level. |
-| 🗂️ **Topic Browser** | A TF-IDF + KMeans topic model that auto-selects 12–36 clusters across the corpus. |
-| 🎯 **Personalized Recommendations** | Matrix factorization (SGD, 32-dim) combined with a reinforcement-learning content selector. |
-| 👤 **Learning Profiles** | AI-generated learner profiles backed by a concept knowledge graph. |
+The deployed app is a single Streamlit dashboard with **two tabs**:
+
+| Tab | Description |
+|-----|-------------|
+| 💬 **Chat** | Ask questions about Ray Peat's work. Answers run through the full multi-stage RAG pipeline (below), are returned with inline citations and relevance-scored sources, and each source has a "Read full document" expander. Benchmark avg **9.64/10**. |
+| 🕊️ **Memorial** | A tribute page honoring Dr. Ray Peat. |
+
+> Other components (quizzes, recommender, personalization, knowledge graph, standalone FastAPI
+> backends) exist in the repository but are **not wired into the live app** — see
+> [In the Codebase (Not Shipped)](#in-the-codebase-not-shipped).
 
 ---
 
 ## Quick Start
+
+The live app runs a single Streamlit process:
 
 ```bash
 # 1. Activate the virtual environment
@@ -70,16 +77,8 @@ source venv/Scripts/activate   # Git Bash
 # 2. Create your environment file and add API keys
 cp config/env_template.txt .env
 
-# 3. Launch all services at once
-python scripts/launch/run_servers.py
-```
-
-Or launch each service individually:
-
-```bash
-streamlit run app/dashboard.py             # Dashboard      → http://localhost:8501
-uvicorn app.api:app --port 8000 --reload   # RAG backend    → http://localhost:8000
-uvicorn app.advanced_api:app --port 8001   # ML backend     → http://localhost:8001
+# 3. Run the dashboard
+streamlit run app/dashboard.py   # → http://localhost:8501
 ```
 
 ---
@@ -138,50 +137,28 @@ python peatlearn/embedding/hf_download.py
 
 ## Architecture
 
-```
-                        ┌──────────────────────────┐
-                        │   Streamlit Dashboard     │   app/dashboard.py  (:8501)
-                        └────────────┬──────────────┘
-                                     │
-                ┌────────────────────┴────────────────────┐
-                ▼                                          ▼
-   ┌──────────────────────────┐              ┌──────────────────────────┐
-   │   RAG Backend (FastAPI)  │              │   ML Backend (FastAPI)   │
-   │   app/api.py     (:8000) │              │ app/advanced_api.py(:8001)│
-   └────────────┬─────────────┘              └────────────┬─────────────┘
-                │                                         │
-       ┌────────┴────────┐                    ┌───────────┴───────────┐
-       ▼                 ▼                    ▼                       ▼
-  ┌─────────┐      ┌──────────┐        ┌────────────┐         ┌──────────────┐
-  │ Pinecone│      │  Gemini  │        │ Topic Model│         │ SQLite        │
-  │ vectors │      │   LLM    │        │ MF / RL    │         │ interactions  │
-  └─────────┘      └──────────┘        └────────────┘         └──────────────┘
-```
-
----
-
-## Project Structure
+The deployed app is Streamlit-only — `app/dashboard.py` calls the RAG pipeline in
+`peatlearn/adaptive/rag_system.py` directly (no separate backend service in production).
 
 ```
-peatlearn/               ← importable package (project root on PYTHONPATH)
-  rag/                   ← PineconeVectorSearch, PineconeRAG
-  adaptive/              ← QuizGenerator, CorpusTopicModel, ContentSelector
-  personalization/       ← PersonalizationEngine, RL agent, knowledge graph
-  embedding/             ← CorpusEmbedder, HuggingFace sync
-  recommendation/        ← Matrix factorization trainer
-app/                     ← FastAPI + Streamlit entry points
-config/                  ← settings.py (pydantic-settings, reads .env)
-preprocessing/           ← cleaning pipeline + quality analysis
-scripts/                 ← utility runners (launch, setup, eval)
-tests/
-  unit/                  ← unit tests
-  integration/           ← integration tests
-data/
-  raw/                   ← source xlsx, pdfs, txts (source of truth — never mutate)
-  processed/             ← AI-cleaned chunks
-  embeddings/            ← local .npy/.pkl vector files
-  models/                ← topic model & MF model artifacts
-  user_interactions/     ← SQLite DB
+   ┌────────────────────────────┐
+   │   Streamlit Dashboard      │   app/dashboard.py  (Chat · Memorial)
+   └─────────────┬──────────────┘
+                 │
+                 ▼
+   ┌────────────────────────────────────────────────────────────┐
+   │   RAG pipeline  (peatlearn/adaptive/rag_system.py)          │
+   │                                                            │
+   │   query normalize → temporal guard → citation gate →       │
+   │   Pinecone two-pass retrieval → reranker → MMR diversity → │
+   │   confidence tiers + entity grounding → grounding verifier │
+   └─────────────┬───────────────────────────────┬──────────────┘
+                 ▼                               ▼
+          ┌─────────────┐                 ┌──────────────┐
+          │  Pinecone   │                 │   Gemini     │
+          │  (vectors)  │                 │ (→ Groq      │
+          │             │                 │  fallback)   │
+          └─────────────┘                 └──────────────┘
 ```
 
 ---
@@ -191,12 +168,11 @@ data/
 | Layer | Technology |
 |-------|-----------|
 | Frontend | Streamlit (`app/dashboard.py`) |
-| RAG Backend | FastAPI · port 8000 (`app/api.py`) |
-| ML Backend | FastAPI · port 8001 (`app/advanced_api.py`) |
-| LLM | Google Gemini (`gemini-2.5-flash`, `gemini-2.5-flash-lite`) |
+| RAG pipeline | `peatlearn/adaptive/rag_system.py` (called in-process) |
+| LLM | Google Gemini (`gemini-2.5-flash`, `gemini-2.5-flash-lite`), Groq fallback |
 | Embeddings | `gemini-embedding-001` · 3072 dimensions |
+| Reranker | Cohere `rerank-4-pro` (via OpenRouter) → local cross-encoder fallback |
 | Vector DB | Pinecone · index `ray-peat-corpus-v3` · 22,457 vectors |
-| Local DB | SQLite (`data/user_interactions/interactions.db`) |
 | Language | Python 3.12 |
 
 ---
@@ -223,26 +199,6 @@ data/raw/  →  preprocessing/cleaning/  →  data/processed/ai_cleaned/
 
 - **Tier 1 (~27%)** — rules-based cleaning for already-clean documents.
 - **Tier 2 (~73%)** — AI-powered cleaning: OCR correction, speaker attribution, and segmentation.
-
----
-
-## API Reference
-
-### RAG service · `:8000`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/ask` | Ask a question; returns a grounded RAG answer with citations |
-| `GET`  | `/search` | Semantic search over the corpus |
-| `GET`  | `/health` | Health check |
-
-### ML service · `:8001`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/quiz/generate` | Generate an adaptive quiz |
-| `POST` | `/profile/analyze` | Generate a user learning profile |
-| `GET`  | `/recommendations` | Personalized content recommendations |
 
 ---
 
@@ -301,6 +257,50 @@ pytest tests/integration/  # integration tests only
 ```
 
 Run from the project root. Tests import from the `peatlearn.*` package — no `sys.path` hacks.
+
+---
+
+## In the Codebase (Not Shipped)
+
+The repository contains additional components that are **not part of the live app**. They are kept
+for local development and future work — do not treat them as current features:
+
+- **FastAPI backends** — `app/api.py` (RAG, port 8000) and `app/advanced_api.py` (ML, port 8001).
+  Useful for local development; the production deploy runs `app/dashboard.py` directly without them.
+- **Adaptive quizzes** — `QuizGenerator` exists but is not wired into the UI (Quiz tab parked).
+- **Personalized recommendations** — matrix factorization recommender and RL content selector exist
+  as code/artifacts, not user-facing.
+- **Learning profiles / analytics** — parked tabs.
+- **Topic model** — TF-IDF + KMeans clustering over the corpus, not surfaced in the live UI.
+- **Knowledge graph** — concept-map work, parked.
+
+---
+
+## Project Structure
+
+```
+peatlearn/               ← importable package (project root on PYTHONPATH)
+  rag/                   ← PineconeVectorSearch, PineconeRAG, reranker, confidence
+  adaptive/              ← rag_system.py (live RAG pipeline) + parked: QuizGenerator, topic model
+  personalization/       ← engine, RL agent, knowledge graph  (not shipped)
+  embedding/             ← CorpusEmbedder, HuggingFace sync
+  recommendation/        ← matrix factorization trainer       (not shipped)
+app/
+  dashboard.py           ← live Streamlit app (Chat · Memorial)
+  api.py / advanced_api.py ← FastAPI backends (local dev only)
+config/                  ← settings.py (pydantic-settings, reads .env)
+preprocessing/           ← cleaning pipeline + quality analysis
+scripts/                 ← utility runners (launch, setup, eval)
+tests/
+  unit/                  ← unit tests
+  integration/           ← integration tests
+data/
+  raw/                   ← source xlsx, pdfs, txts (source of truth — never mutate)
+  processed/             ← AI-cleaned chunks
+  embeddings/            ← local .npy/.pkl vector files
+  models/                ← topic model & MF model artifacts
+  user_interactions/     ← SQLite DB
+```
 
 ---
 
