@@ -1163,7 +1163,10 @@ _CORPUS_ROOT = Path("data/processed/ai_cleaned")
 
 @st.cache_data(show_spinner=False)
 def _load_full_document(source_file: str) -> str | None:
-    path = _CORPUS_ROOT / source_file
+    # Corpus was built on Windows, so Pinecone metadata stores paths with
+    # backslashes. On Linux Path treats '\' as a literal filename char, not
+    # a separator — normalize so the lookup works on every host.
+    path = _CORPUS_ROOT / source_file.replace("\\", "/")
     if path.exists():
         return path.read_text(encoding="utf-8", errors="replace")
     return None
