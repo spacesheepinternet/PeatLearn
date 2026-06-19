@@ -90,7 +90,7 @@ class RayPeatRAG:
                     f"[rag_system] PineconeVectorSearch() raised: {_search_err!r}\n"
                     f"{_tb.format_exc()}\n"
                 )
-                    self.search_engine = None
+                self.search_engine = None
         self.llm_model = "gemini-2.5-flash"
         self.api_key = os.getenv('GEMINI_API_KEY')
 
