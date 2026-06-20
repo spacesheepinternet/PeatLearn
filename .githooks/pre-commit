@@ -1,0 +1,46 @@
+#!/bin/sh
+# PeatLearn secret-scanning pre-commit hook.
+# Blocks commits that add API keys, private keys, or known secret-bearing files.
+# This repo has leaked keys before (via HANDOFF.md) — this is the safety net.
+#
+# Bypass (ONLY if you're certain it's a false positive):
+#     git commit --no-verify
+#
+# Enable on a fresh clone:
+#     git config core.hooksPath .githooks
+
+# High-signal secret patterns. Placeholders are filtered out afterward.
+PATTERN='AIza[0-9A-Za-z_-]{35}|sk-(or-v1-|ant-|proj-)?[A-Za-z0-9_-]{20,}|pcsk_[A-Za-z0-9_-]{20,}|gsk_[A-Za-z0-9]{20,}|ghp_[0-9A-Za-z]{36}|github_pat_[0-9A-Za-z_]{40,}|xox[baprs]-[0-9A-Za-z-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+
+# Filter out obvious placeholders / masked examples to avoid false positives.
+PLACEHOLDER='your_|YOUR_|example|EXAMPLE|placeholder|redacted|REDACTED|dummy|\*\*\*\*|xxxx|XXXX|<[a-zA-Z_-]+>'
+
+block=0
+
+# 1. Scan added lines in the staged diff (skip the +++ file headers).
+added=$(git diff --cached --no-color -U0 | grep -E '^\+' | grep -vE '^\+\+\+')
+hits=$(printf '%s\n' "$added" | grep -nE "$PATTERN" | grep -vE "$PLACEHOLDER")
+if [ -n "$hits" ]; then
+	echo "✖ pre-commit: possible secret(s) in staged changes:"
+	printf '%s\n' "$hits" | sed 's/^/    /'
+	block=1
+fi
+
+# 2. Hard-block known sensitive files, even if forced past .gitignore.
+for f in $(git diff --cached --name-only); do
+	case "$f" in
+		.env | */.env | .env.local | HANDOFF.md | *.pem | *.key | *.p12 | *.pfx | id_rsa | id_ed25519 | *_rsa | *_ed25519 | secrets.* | credentials.*)
+			echo "✖ pre-commit: refusing to commit sensitive file: $f"
+			block=1
+			;;
+	esac
+done
+
+if [ "$block" -ne 0 ]; then
+	echo ""
+	echo "Commit blocked to prevent a secret leak."
+	echo "If this is genuinely a false positive: git commit --no-verify"
+	exit 1
+fi
+
+exit 0
