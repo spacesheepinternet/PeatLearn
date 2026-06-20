@@ -4,11 +4,8 @@
 #   - local dev:  SITE_ADDRESS=:80            (plain HTTP, no certs)
 #   - production: SITE_ADDRESS=peatlearn.com  (Caddy auto-provisions HTTPS)
 #
-# ACME_EMAIL is used by Let's Encrypt for production certificate notices.
-
-{
-	email {$ACME_EMAIL}
-}
+# Note: an ACME email is optional for automatic HTTPS. To receive cert-expiry
+# notices in production, add a global block:  { email you@example.com }
 
 {$SITE_ADDRESS::80} {
 	encode gzip

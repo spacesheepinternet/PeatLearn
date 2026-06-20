@@ -10,10 +10,14 @@ from datetime import datetime
 import json
 from dotenv import load_dotenv
 
-from peatlearn.adaptive import (
-    data_logger, profiler, content_selector,
-    quiz_generator, dashboard, TopicExtractor
-)
+# Import the singleton instances directly from their submodules. (The package
+# __init__ now lazily re-exports these, so importing the colliding names off the
+# package would yield the module objects rather than the instances.)
+from peatlearn.adaptive.data_logger import data_logger
+from peatlearn.adaptive.profile_analyzer import profiler, TopicExtractor
+from peatlearn.adaptive.content_selector import content_selector
+from peatlearn.adaptive.quiz_generator import quiz_generator
+from peatlearn.adaptive.dashboard import dashboard
 
 # Load environment variables
 load_dotenv()
