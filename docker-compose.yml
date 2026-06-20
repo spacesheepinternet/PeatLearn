@@ -27,9 +27,11 @@ services:
       RATE_DB_PATH: "/data/ratelimit.db"
     expose:
       - "8080"
-    # Publish to the host as well so you can hit the API directly while testing.
+    # Bind to localhost only — reachable on the host itself for debugging, but
+    # NOT exposed to the public internet (Caddy reaches it via the compose
+    # network at api:8080). Public traffic goes through Caddy on 80/443.
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - ratelimit_data:/data
     restart: unless-stopped
