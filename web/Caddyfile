@@ -26,3 +26,10 @@
 		file_server
 	}
 }
+
+# Production: redirect www -> apex (canonical). Uncomment once the domain's DNS
+# (A records for both peatlearn.com and www) points at the VPS. Harmless to
+# leave commented for local dev.
+# www.peatlearn.com {
+# 	redir https://peatlearn.com{uri} permanent
+# }
