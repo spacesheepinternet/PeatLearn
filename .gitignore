@@ -9,6 +9,27 @@
 .env.development.local
 .env.test.local
 .env.production.local
+# Catch every .env variant, but keep the committed templates.
+.env.*
+!.env.example
+!.env.template
+
+# =================================================================
+# Secrets / private notes — NEVER commit (these have leaked before)
+# =================================================================
+HANDOFF.md
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*_rsa
+*_ed25519
+secrets.*
+credentials.*
 
 # =================================================================
 # Python
