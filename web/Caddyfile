@@ -24,9 +24,8 @@
 	}
 }
 
-# Production: redirect www -> apex (canonical). Uncomment once the domain's DNS
-# (A records for both peatlearn.com and www) points at the VPS. Harmless to
-# leave commented for local dev.
-# www.peatlearn.com {
-# 	redir https://peatlearn.com{uri} permanent
-# }
+# Production: redirect www -> apex (canonical). Active now that both
+# peatlearn.com and www.peatlearn.com point at the VPS.
+www.peatlearn.com {
+	redir https://peatlearn.com{uri} permanent
+}
