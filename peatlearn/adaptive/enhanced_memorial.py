@@ -279,7 +279,7 @@ def render_enhanced_memorial():
         "LLM": "Google Gemini 2.5 Flash / Flash Lite (Groq fallback)",
         "Embeddings": "Gemini embedding-001 (3072-dim)",
         "Reranker": "Cohere rerank-4-pro via OpenRouter (local cross-encoder fallback)",
-        "Vector Search": "Pinecone (ray-peat-corpus-v3, 22,457 vectors)"
+        "Vector Search": "Pinecone (ray-peat-corpus-v3, 3072-dim, 552-document corpus)"
     }
     
     for tech, desc in tech_specs.items():

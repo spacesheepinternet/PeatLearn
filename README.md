@@ -124,8 +124,8 @@ these values from `.env`. **Never hardcode API keys.**
 
 ### Embeddings
 
-The Pinecone index (`ray-peat-corpus-v3`) is pre-populated with **22,457** native 3072-dim vectors,
-so no local embedding setup is required to run the app.
+The Pinecone index (`ray-peat-corpus-v3`) is pre-populated with native 3072-dim vectors covering
+the full 552-document corpus, so no local embedding setup is required to run the app.
 
 To pull the local embedding artifacts (optional), set `HF_DATASET_REPO` in `.env` and run:
 
@@ -172,7 +172,7 @@ The deployed app is Streamlit-only — `app/dashboard.py` calls the RAG pipeline
 | LLM | Google Gemini (`gemini-2.5-flash`, `gemini-2.5-flash-lite`), Groq fallback |
 | Embeddings | `gemini-embedding-001` · 3072 dimensions |
 | Reranker | Cohere `rerank-4-pro` (via OpenRouter) → local cross-encoder fallback |
-| Vector DB | Pinecone · index `ray-peat-corpus-v3` · 22,457 vectors |
+| Vector DB | Pinecone · index `ray-peat-corpus-v3` (3072-dim) |
 | Language | Python 3.12 |
 
 ---
@@ -190,7 +190,7 @@ The corpus draws from **552 source documents** spanning Ray Peat's recorded and 
 | Other | 111 |
 | **Total** | **552** |
 
-These are processed into **22,457 QA pairs**, embedded at 3072 dimensions, and stored in Pinecone.
+These are cleaned, chunked, and embedded at 3072 dimensions, then stored in Pinecone.
 
 ```
 data/raw/  →  preprocessing/cleaning/  →  data/processed/ai_cleaned/
