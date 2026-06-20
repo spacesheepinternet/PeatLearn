@@ -268,7 +268,7 @@ from peatlearn.adaptive.topic_model import CorpusTopicModel
 
 # Page configuration
 st.set_page_config(
-    page_title="PeatLearn - AI-Enhanced Adaptive Learning",
+    page_title="PeatLearn - Ray Peat Bioenergetics AI",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -1344,7 +1344,7 @@ def _is_small_talk(query: str) -> str | None:
 
 def render_user_setup():
     """Render user identification setup"""
-    st.markdown("<div class='main-header'><h1>🧠 PeatLearn AI - Adaptive Learning</h1><p>Your Personal Ray Peat Bioenergetics Tutor</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='main-header'><h1>🧠 PeatLearn AI</h1><p>Your Personal Ray Peat Bioenergetics Tutor</p></div>", unsafe_allow_html=True)
     
     with st.sidebar:
         st.markdown('<p style="font-size:0.8rem;opacity:0.4;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;">🧠 PeatLearn</p>', unsafe_allow_html=True)
@@ -2097,68 +2097,6 @@ def render_quiz_interface():
         except Exception:
             pass
 
-def render_memorial():
-    """Render an in-app memorial page for Dr. Ray Peat with technical details."""
-    st.header("🕯️ In Memoriam: Dr. Raymond Peat (1936–2022)")
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        try:
-            img_path = Path("data/assets/ray_peat.jpg")
-            if img_path.exists():
-                st.image(str(img_path), caption="Dr. Ray Peat")
-            else:
-                st.image("https://upload.wikimedia.org/wikipedia/commons/6/65/Placeholder_Person.jpg", caption="Dr. Ray Peat")
-        except Exception:
-            pass
-    with col2:
-        st.markdown(
-            """
-            Dr. Ray Peat advanced a bioenergetic view of biology: energy and structure are interdependent at every level.
-            PeatLearn is dedicated to preserving his corpus and helping learners progress with adaptive AI.
-            """
-        )
-
-    st.subheader("Bioenergetics (Primer)")
-    st.markdown("""
-    - Energy as a central variable: oxidative metabolism supports structure and resilience
-    - Thyroid hormones (T3/T4) sustain respiration, temperature, and CO₂ production
-    - Protective factors (progesterone, adequate carbs, calcium, saturated fats) support oxidative metabolism
-    - Stress mediators (excess estrogen, serotonin, nitric oxide, endotoxin, PUFA) push toward stress metabolism
-    - CO₂ improves oxygen delivery (Bohr effect) and stabilizes enzymes and membranes
-    """)
-
-    st.subheader("How PeatLearn Works (User)")
-    st.markdown("- Ask questions and browse sources\n- Get personalized recommendations\n- Take short adaptive quizzes calibrated to your level\n- Improve over time as difficulty adjusts")
-
-    st.subheader("Architecture (Technical)")
-    st.markdown("- RAG over Pinecone index of Ray Peat’s corpus\n- Gemini 2.5 Flash Lite to synthesize grounded items/answers\n- Adaptive updates per answer: ability θ(user, topic) and item difficulty b(item)\n- FastAPI services (8000 basic, 8001 advanced) and SQLite for quiz/session state")
-    st.markdown("""
-```mermaid
-flowchart TD
-  A[Streamlit UI] -->|Ask| B(Advanced API 8001)
-  B -->|Search| C[Pinecone]
-  C --> B
-  B -->|LLM\n(Gemini 2.5 Flash Lite)| D[Question & Answer]
-  D --> B
-  B -->|Return\nAnswer+Sources| A
-  A -->|Start Quiz| B
-  B -->|Seed items| C
-  B -->|Sessions & Stats| E[(SQLite)]
-  A -->|Answer| B
-  B -->|Update θ,b| E
-```
-""")
-
-    st.subheader("Adaptive Model Details")
-    st.code("""
-Ability update:  θ_new = θ + Kθ · (observed − expected)
-Item update:     b_new = b + Kb · (expected − observed)
-Expected prob:   expected = σ(1.7 · (θ − b))
-""", language="text")
-
-    st.subheader("Project Links")
-    st.markdown("- `docs/RAY_Peat_IN_MEMORIAM.md` (full memorial page)\n- README for architecture and endpoints")
-
 def render_landing_page():
     """Full-screen centered onboarding — no sidebar, just a greeting + name input."""
     # Hide sidebar entirely on landing
@@ -2212,9 +2150,9 @@ def render_landing_page():
     <div class="landing-features">
         <span class="landing-feature-pill">🔬 552+ Source Documents</span>
         <span class="landing-feature-pill">🤖 Gemini 2.5 AI</span>
-        <span class="landing-feature-pill">🎯 Adaptive Quizzes</span>
-        <span class="landing-feature-pill">📊 Learning Profile</span>
-        <span class="landing-feature-pill">💡 Personalized Recs</span>
+        <span class="landing-feature-pill">📚 Inline Citations</span>
+        <span class="landing-feature-pill">🛡️ Grounded Answers</span>
+        <span class="landing-feature-pill">🕊️ Memorial</span>
     </div>
     """, unsafe_allow_html=True)
 

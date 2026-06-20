@@ -213,20 +213,16 @@ def render_enhanced_memorial():
         <h3>🚀 For Learners: Your Personal Ray Peat Mentor</h3>
         <div class="feature-grid">
             <div class="feature-card">
-                <h5>🔍 Intelligent Q&A System</h5>
-                <p>Ask any question about metabolism, hormones, nutrition, or health and receive comprehensive answers backed by Ray Peat's original writings.</p>
+                <h5>🔍 Grounded Q&A System</h5>
+                <p>Ask any question about metabolism, hormones, nutrition, or health and receive answers drawn directly from Ray Peat's original writings.</p>
             </div>
             <div class="feature-card">
-                <h5>🎯 Adaptive Learning Experience</h5>
-                <p>Take personalized quizzes that adjust to your knowledge level and build mastery progressively.</p>
+                <h5>📚 Inline Citations & Sources</h5>
+                <p>Every answer cites the passages it draws from, with the full source documents one click away for verification.</p>
             </div>
             <div class="feature-card">
-                <h5>📊 Progress Analytics</h5>
-                <p>Monitor your learning journey with detailed analytics and visualize your growing expertise.</p>
-            </div>
-            <div class="feature-card">
-                <h5>🧠 AI-Powered Insights</h5>
-                <p>Get recommendations and explanations powered by advanced machine learning algorithms.</p>
+                <h5>🛡️ Honest by Design</h5>
+                <p>When the corpus doesn't support an answer, the system says so and abstains rather than improvising — a must for health-critical topics.</p>
             </div>
         </div>
     </div>
@@ -238,122 +234,83 @@ def render_enhanced_memorial():
     
     st.markdown("""
     <div class="architecture-diagram">
-        <h3 style="text-align: center; color: #667eea;">Advanced AI-Powered Learning Platform</h3>
-        <p style="text-align: center;">State-of-the-art implementation of modern AI techniques for education</p>
+        <h3 style="text-align: center; color: #667eea;">Grounded Retrieval-Augmented Q&A System</h3>
+        <p style="text-align: center;">A multi-stage RAG pipeline built to keep every answer anchored in Ray Peat's corpus</p>
     </div>
     """, unsafe_allow_html=True)
-    
+
     # System Architecture Visualization
     st.markdown("### 🎯 System Overview")
-    
+
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
         st.markdown("""
-        **🔍 RAG System**
+        **🔍 Retrieval**
         - Pinecone Vector Database
-        - Semantic Search
-        - Source Attribution
-        - <500ms Response Time
+        - HyDE query expansion
+        - Two-pass semantic search
+        - 552-document corpus
         """)
-    
+
     with col2:
         st.markdown("""
-        **🧠 Adaptive Learning**
-        - Item Response Theory
-        - Real-time Ability Updates
-        - Dynamic Difficulty
-        - Personalized Quizzes
+        **🎯 Ranking**
+        - Cohere rerank-4-pro
+        - Cross-encoder fallback
+        - MMR diversity selection
+        - Source attribution
         """)
-    
+
     with col3:
         st.markdown("""
-        **📊 Analytics Engine**
-        - Learning Trajectories
-        - Performance Metrics
-        - Predictive Modeling
-        - Recommendation System
+        **🛡️ Grounding**
+        - Confidence tiers
+        - Entity-grounding checks
+        - Grounding verifier
+        - Abstains when unsupported
         """)
     
     # Technical Specifications
     st.markdown("### ⚙️ Core Technologies")
     
     tech_specs = {
-        "Backend Framework": "FastAPI (async, high-performance)",
-        "AI/ML Stack": "Gemini 2.5 Flash Lite, Pinecone, Advanced Embeddings",
-        "Frontend": "Streamlit with Custom CSS/JS",
-        "Database": "SQLite (user data) + Pinecone (vector search)",
-        "Deployment": "Docker containers, Microservice architecture"
+        "Frontend": "Streamlit with custom CSS",
+        "LLM": "Google Gemini 2.5 Flash / Flash Lite (Groq fallback)",
+        "Embeddings": "Gemini embedding-001 (3072-dim)",
+        "Reranker": "Cohere rerank-4-pro via OpenRouter (local cross-encoder fallback)",
+        "Vector Search": "Pinecone (ray-peat-corpus-v3, 22,457 vectors)"
     }
     
     for tech, desc in tech_specs.items():
         st.markdown(f"**{tech}**: {desc}")
     
-    # Performance Metrics
-    st.markdown("### ⚡ Performance Metrics")
-    
-    col1, col2, col3, col4 = st.columns(4)
-    
+    # Benchmark
+    st.markdown("### ⚡ Retrieval Quality")
+
+    col1, col2, col3 = st.columns(3)
+
     with col1:
-        st.metric("RAG Queries", "<500ms", "avg response")
+        st.metric("RAG Benchmark", "9.64/10", "30-question eval")
     with col2:
-        st.metric("Quiz Generation", "<1.5s", "complete set")
+        st.metric("Source Diversity", "0.91", "across answers")
     with col3:
-        st.metric("Vector Search", "<100ms", "semantic retrieval")
-    with col4:
-        st.metric("Analytics", "<200ms", "dashboard updates")
-    
-    # Adaptive Learning Mathematics
-    st.markdown("### 📈 Adaptive Learning Model")
-    
-    st.markdown("""
-    **Item Response Theory Implementation:**
-    
-    ```python
-    # Expected probability of correct response
-    P(θ, b) = 1 / (1 + exp(-1.7 * (θ - b)))
-    
-    # Ability update after response
-    θ_new = θ + K_θ * (observed - expected)
-    
-    # Item difficulty update
-    b_new = b + K_b * (expected - observed)
-    ```
-    
-    Where:
-    - **θ (theta)**: User ability parameter
-    - **b**: Item difficulty parameter  
-    - **K_θ, K_b**: Learning rates (0.15, 0.07 respectively)
-    """)
-    
-    # API Architecture
-    st.markdown("### 🔌 API Architecture")
-    
-    st.markdown("""
-    **Service Endpoints:**
-    
-    | Service | Port | Purpose |
-    |---------|------|---------|
-    | RAG API | 8000 | Q&A, Search, Citations |
-    | Advanced ML | 8001 | Adaptive Learning, Quiz Generation |
-    | Streamlit UI | 8501 | User Interface |
-    | Analytics | 8002 | Performance Metrics |
-    """)
-    
+        st.metric("Avg Citations", "5.3", "per answer")
+
     # Future Enhancements
-    st.markdown("### 🔮 Future Enhancements")
-    
+    st.markdown("### 🔮 Future Directions")
+
     col1, col2 = st.columns(2)
-    
+
     with col1:
         st.markdown("""
-        **🚀 Planned Features:**
-        - Multimodal Learning (visual/audio)
-        - Conversation Memory
-        - Interactive Simulations
-        - Cross-platform Sync
+        **🚀 Planned:**
+        - Containerized deployment (Docker)
+        - Hosted on a dedicated web domain
+        - Conversation memory
+        - Expanded corpus (forums, newsletters)
         """)
-    
+
     with col2:
         st.markdown("""
         **🌟 Research Applications:**
