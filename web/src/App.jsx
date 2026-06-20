@@ -51,6 +51,7 @@ export default function App() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [remaining, setRemaining] = useState(null);
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -70,6 +71,9 @@ export default function App() {
 
     try {
       const data = await ask(query, history);
+      if (data.remaining !== null && data.remaining !== undefined) {
+        setRemaining(data.remaining);
+      }
       setMessages([
         ...next,
         {
@@ -80,6 +84,7 @@ export default function App() {
         },
       ]);
     } catch (e) {
+      if (e.status === 429) setRemaining(0);
       setError(e.message || "Something went wrong.");
     } finally {
       setLoading(false);
@@ -148,9 +153,18 @@ export default function App() {
         </button>
       </footer>
 
+      {remaining !== null && (
+        <p className="quota">
+          {remaining > 0
+            ? `${remaining} question${remaining === 1 ? "" : "s"} left today`
+            : "Daily limit reached — resets at midnight UTC"}
+        </p>
+      )}
+
       <p className="disclaimer">
         Answers are grounded in Ray Peat's corpus and may be incomplete. Not
-        medical advice.
+        medical advice. PeatLearn is an unofficial, educational project and is
+        not affiliated with Ray Peat or his estate.
       </p>
     </div>
   );

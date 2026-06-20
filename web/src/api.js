@@ -27,8 +27,14 @@ export async function ask(query, chatHistory = []) {
     } catch {
       /* non-JSON error body — keep the status message */
     }
-    throw new Error(detail);
+    const err = new Error(detail);
+    err.status = res.status;
+    throw err;
   }
 
-  return res.json();
+  const data = await res.json();
+  // Daily quota remaining, surfaced by the API as a header (may be absent).
+  const remaining = res.headers.get("X-RateLimit-Remaining");
+  data.remaining = remaining === null ? null : Number(remaining);
+  return data;
 }

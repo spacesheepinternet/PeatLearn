@@ -24,8 +24,12 @@ COPY app/ ./app/
 COPY peatlearn/ ./peatlearn/
 COPY config/ ./config/
 
-# Run as a non-root user.
-RUN useradd --create-home --uid 10001 appuser
+# Run as a non-root user. /data holds the rate-limit SQLite DB and is mounted
+# as a volume in compose; create it owned by appuser so a fresh named volume
+# inherits writable permissions.
+RUN useradd --create-home --uid 10001 appuser \
+    && mkdir -p /data \
+    && chown appuser:appuser /data
 USER appuser
 
 EXPOSE 8080

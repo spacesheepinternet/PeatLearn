@@ -4,7 +4,7 @@ PeatLearn Web API — production HTTP service for the public website.
 
 Wraps the live, benchmarked RAG pipeline (`peatlearn/adaptive/rag_system.py`,
 the 9.64/10 path the Streamlit app uses) behind a small, stateless JSON API so a
-decoupled frontend (Next.js) can call it.
+decoupled frontend (the Vite/React app in `web/`) can call it.
 
 This is intentionally separate from `app/api.py`, which is the older
 `peatlearn/rag` path and is NOT the pipeline we want to serve publicly.
@@ -19,10 +19,14 @@ from __future__ import annotations
 
 import logging
 import os
+import sqlite3
+import tempfile
+import threading
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -42,6 +46,109 @@ def get_rag() -> RayPeatRAG:
     """Build the RAG pipeline once per process (loads Pinecone + warms reranker)."""
     logger.info("Initializing RayPeatRAG (adaptive pipeline)...")
     return RayPeatRAG()
+
+
+# --- Rate limiting ------------------------------------------------------------
+# Each /api/ask call costs money (Gemini + Cohere). Two SQLite-backed caps,
+# reset daily at UTC midnight, protect the budget:
+#   * per-IP   : DAILY_LIMIT_PER_IP questions per visitor per day (default 10)
+#   * global   : DAILY_GLOBAL_CAP   questions total per day (0 = disabled)
+# The DB lives on a mounted volume so counts survive container restarts.
+DAILY_LIMIT_PER_IP = int(os.getenv("DAILY_LIMIT_PER_IP", "10"))
+DAILY_GLOBAL_CAP = int(os.getenv("DAILY_GLOBAL_CAP", "0"))
+# Production (container) sets RATE_DB_PATH=/data/ratelimit.db on a mounted
+# volume. The default is a temp path so local dev / tests just work.
+_RATE_DB_PATH = os.getenv(
+    "RATE_DB_PATH", os.path.join(tempfile.gettempdir(), "peatlearn_ratelimit.db")
+)
+_GLOBAL_KEY = "*GLOBAL*"
+
+_rate_lock = threading.Lock()
+_rate_conn: Optional[sqlite3.Connection] = None
+
+
+def _rate_db() -> sqlite3.Connection:
+    global _rate_conn
+    if _rate_conn is None:
+        path = _RATE_DB_PATH
+        try:
+            os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+            _rate_conn = sqlite3.connect(path, check_same_thread=False)
+        except (OSError, sqlite3.Error):
+            # e.g. the mounted volume isn't writable — fall back to temp so the
+            # API still serves (limits just won't survive a restart).
+            fallback = os.path.join(tempfile.gettempdir(), "peatlearn_ratelimit.db")
+            logger.warning("Rate DB at %s unavailable; using %s", path, fallback)
+            _rate_conn = sqlite3.connect(fallback, check_same_thread=False)
+        _rate_conn.execute(
+            "CREATE TABLE IF NOT EXISTS usage ("
+            "day TEXT NOT NULL, ip TEXT NOT NULL, count INTEGER NOT NULL DEFAULT 0, "
+            "PRIMARY KEY (day, ip))"
+        )
+        _rate_conn.commit()
+    return _rate_conn
+
+
+def _seconds_until_utc_midnight() -> int:
+    now = datetime.now(timezone.utc)
+    tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    return max(1, int((tomorrow - now).total_seconds()))
+
+
+def client_ip(request: Request) -> str:
+    """Real visitor IP. Caddy sets X-Forwarded-For; take the left-most entry."""
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def enforce_rate_limit(ip: str) -> int:
+    """Check + increment both counters atomically. Returns remaining per-IP quota.
+
+    Raises HTTPException(429) with a friendly message when a cap is hit; nothing
+    is incremented in that case.
+    """
+    day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    with _rate_lock:
+        conn = _rate_db()
+        cur = conn.execute("SELECT count FROM usage WHERE day=? AND ip=?", (day, ip))
+        row = cur.fetchone()
+        ip_count = row[0] if row else 0
+
+        if ip_count >= DAILY_LIMIT_PER_IP:
+            raise HTTPException(
+                status_code=429,
+                detail=(
+                    f"You've reached today's limit of {DAILY_LIMIT_PER_IP} questions. "
+                    "It resets at midnight UTC — see you tomorrow!"
+                ),
+                headers={"Retry-After": str(_seconds_until_utc_midnight())},
+            )
+
+        if DAILY_GLOBAL_CAP > 0:
+            g = conn.execute(
+                "SELECT count FROM usage WHERE day=? AND ip=?", (day, _GLOBAL_KEY)
+            ).fetchone()
+            if (g[0] if g else 0) >= DAILY_GLOBAL_CAP:
+                raise HTTPException(
+                    status_code=429,
+                    detail="PeatLearn has hit its daily question limit. Please try again tomorrow.",
+                    headers={"Retry-After": str(_seconds_until_utc_midnight())},
+                )
+
+        conn.execute(
+            "INSERT INTO usage (day, ip, count) VALUES (?, ?, 1) "
+            "ON CONFLICT(day, ip) DO UPDATE SET count = count + 1",
+            (day, ip),
+        )
+        conn.execute(
+            "INSERT INTO usage (day, ip, count) VALUES (?, ?, 1) "
+            "ON CONFLICT(day, ip) DO UPDATE SET count = count + 1",
+            (day, _GLOBAL_KEY),
+        )
+        conn.commit()
+        return max(0, DAILY_LIMIT_PER_IP - (ip_count + 1))
 
 
 # --- Request / response models ------------------------------------------------
@@ -131,7 +238,12 @@ async def health() -> Dict[str, Any]:
 
 
 @app.post("/api/ask", response_model=AskResponse)
-async def ask(req: AskRequest) -> AskResponse:
+async def ask(req: AskRequest, request: Request, response: Response) -> AskResponse:
+    # Enforce the daily caps BEFORE spending any money on the LLM call.
+    remaining = enforce_rate_limit(client_ip(request))
+    response.headers["X-RateLimit-Limit"] = str(DAILY_LIMIT_PER_IP)
+    response.headers["X-RateLimit-Remaining"] = str(remaining)
+
     rag = get_rag()
     history = [t.model_dump() for t in req.chat_history] if req.chat_history else None
 

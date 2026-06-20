@@ -21,11 +21,17 @@ services:
       # Behind Caddy the frontend is same-origin, so CORS is only needed for
       # the Vite dev server and any direct API access.
       ALLOWED_ORIGINS: "http://localhost:5173,http://localhost:3000"
+      # Cost controls (per-IP/day and total/day). Override here as needed.
+      DAILY_LIMIT_PER_IP: "${DAILY_LIMIT_PER_IP:-10}"
+      DAILY_GLOBAL_CAP: "${DAILY_GLOBAL_CAP:-0}"
+      RATE_DB_PATH: "/data/ratelimit.db"
     expose:
       - "8080"
     # Publish to the host as well so you can hit the API directly while testing.
     ports:
       - "8080:8080"
+    volumes:
+      - ratelimit_data:/data
     restart: unless-stopped
 
   web:
@@ -49,3 +55,4 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  ratelimit_data:
