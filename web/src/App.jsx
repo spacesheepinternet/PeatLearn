@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ask } from "./api.js";
+import { ask, fetchDocument } from "./api.js";
 
 const SUGGESTIONS = [
   "What did Ray Peat think about polyunsaturated fats?",
@@ -31,6 +31,19 @@ function cleanName(path) {
 function SourceItem({ s, n }) {
   const score = (s.rerank_score ?? s.score ?? 0).toFixed(2);
   const hasText = (s.context && s.context.trim()) || (s.ray_peat_response && s.ray_peat_response.trim());
+  const [doc, setDoc] = useState({ status: "idle", text: "" });
+
+  async function loadDoc() {
+    if (doc.status === "loading") return;
+    setDoc({ status: "loading", text: "" });
+    try {
+      const d = await fetchDocument(s.source_file);
+      setDoc({ status: "loaded", text: d.content });
+    } catch (e) {
+      setDoc({ status: "error", text: e.message || "Couldn't load document." });
+    }
+  }
+
   return (
     <details className="source-item">
       <summary>
@@ -46,6 +59,17 @@ function SourceItem({ s, n }) {
           <blockquote className="src-quote">{s.ray_peat_response.trim()}</blockquote>
         )}
         {!hasText && <p className="src-empty">No excerpt available for this source.</p>}
+
+        <div className="src-doc">
+          {doc.status === "idle" && (
+            <button className="src-doc-btn" onClick={loadDoc}>
+              📄 Read full document
+            </button>
+          )}
+          {doc.status === "loading" && <p className="src-empty">Loading full document…</p>}
+          {doc.status === "error" && <p className="src-empty">{doc.text}</p>}
+          {doc.status === "loaded" && <pre className="src-doc-text">{doc.text}</pre>}
+        </div>
       </div>
     </details>
   );

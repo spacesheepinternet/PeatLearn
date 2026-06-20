@@ -24,6 +24,7 @@ import tempfile
 import threading
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Request, Response
@@ -233,6 +234,35 @@ def _serialize_sources(raw_sources: List[Dict[str, Any]]) -> List[Source]:
             )
         )
     return out
+
+
+# --- Full-document serving -----------------------------------------------------
+# Base dir holding the cleaned source texts. In the container these are copied
+# to /app/data/processed/ai_cleaned; locally it resolves under the repo root.
+_DOC_BASE = Path(os.getenv("DOC_BASE_PATH", "data/processed/ai_cleaned")).resolve()
+
+
+@app.get("/api/document")
+async def get_document(file: str) -> Dict[str, str]:
+    """Return the full text of a source file.
+
+    `file` is the `source_file` from a search result (Windows-style backslashes
+    are normalized). The resolved path is constrained to _DOC_BASE to prevent
+    path-traversal.
+    """
+    rel = file.replace("\\", "/").lstrip("/")
+    target = (_DOC_BASE / rel).resolve()
+    try:
+        target.relative_to(_DOC_BASE)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document path")
+    if not target.is_file():
+        raise HTTPException(status_code=404, detail="Full document not available for this source.")
+    try:
+        content = target.read_text(encoding="utf-8", errors="replace")
+    except OSError as e:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"Could not read document: {e}") from e
+    return {"file": file, "content": content}
 
 
 @app.get("/health")

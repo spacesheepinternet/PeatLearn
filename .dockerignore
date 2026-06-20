@@ -10,8 +10,14 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 
-# Data, models, embeddings (the API reads Pinecone over the network, not disk)
-data/
+# Data: exclude everything EXCEPT the cleaned source texts, which the
+# full-document endpoint serves (~18 MB). Docker can't re-include a child if
+# its parent dir is excluded outright, so exclude *contents* at each level
+# then re-include the one path we want.
+data/*
+!data/processed
+data/processed/*
+!data/processed/ai_cleaned
 *.npy
 *.pkl
 *.npz

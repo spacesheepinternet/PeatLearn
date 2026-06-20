@@ -38,3 +38,25 @@ export async function ask(query, chatHistory = []) {
   data.remaining = remaining === null ? null : Number(remaining);
   return data;
 }
+
+/**
+ * Fetch the full text of a source document.
+ * @param {string} file  the source_file path from a search result
+ * @returns {Promise<{file: string, content: string}>}
+ */
+export async function fetchDocument(file) {
+  const res = await fetch(`${BASE}/api/document?file=${encodeURIComponent(file)}`);
+  if (!res.ok) {
+    let detail = `Couldn't load document (${res.status})`;
+    try {
+      const body = await res.json();
+      if (body?.detail) detail = body.detail;
+    } catch {
+      /* keep status message */
+    }
+    const err = new Error(detail);
+    err.status = res.status;
+    throw err;
+  }
+  return res.json();
+}

@@ -19,10 +19,12 @@ WORKDIR /app
 COPY requirements-api.txt ./
 RUN pip install --upgrade pip && pip install -r requirements-api.txt
 
-# Copy only what the serve path needs (no data/, no venv/, no tests/).
+# Copy only what the serve path needs (no venv/, no tests/).
 COPY app/ ./app/
 COPY peatlearn/ ./peatlearn/
 COPY config/ ./config/
+# Cleaned source texts, served read-only by the /api/document endpoint (~18 MB).
+COPY data/processed/ai_cleaned/ ./data/processed/ai_cleaned/
 
 # Run as a non-root user. /data holds the rate-limit SQLite DB and is mounted
 # as a volume in compose; create it owned by appuser so a fresh named volume
