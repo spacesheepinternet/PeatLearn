@@ -167,6 +167,10 @@ class Source(BaseModel):
     source_file: str
     score: float
     rerank_score: Optional[float] = None
+    # The retrieved passage this source contributed — lets the UI show the
+    # excerpt the answer was grounded in.
+    context: str = ""
+    ray_peat_response: str = ""
 
 
 class AskResponse(BaseModel):
@@ -224,6 +228,8 @@ def _serialize_sources(raw_sources: List[Dict[str, Any]]) -> List[Source]:
                 source_file=str(s.get("source_file", "unknown")),
                 score=float(s.get("score", 0.0) or 0.0),
                 rerank_score=(float(s["rerank_score"]) if s.get("rerank_score") is not None else None),
+                context=str(s.get("context", "") or ""),
+                ray_peat_response=str(s.get("ray_peat_response", "") or ""),
             )
         )
     return out

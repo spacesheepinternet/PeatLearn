@@ -14,21 +14,53 @@ function ConfidenceBadge({ tier }) {
   return <span className={cls}>{tier}</span>;
 }
 
+// Turn a corpus path like
+// "01_Audio_Transcripts\\Other_Interviews\\kmud-141219-you-are-what-you-eat.mp3-transcript_processed.txt"
+// into something readable.
+function cleanName(path) {
+  if (!path) return "source";
+  const base = path.split(/[\\/]/).pop();
+  return base
+    .replace(/-transcript_processed\.txt$/i, "")
+    .replace(/_processed\.txt$/i, "")
+    .replace(/\.(txt|mp3|pdf)$/i, "")
+    .replace(/\.mp3.*$/i, "")
+    .trim();
+}
+
+function SourceItem({ s, n }) {
+  const score = (s.rerank_score ?? s.score ?? 0).toFixed(2);
+  const hasText = (s.context && s.context.trim()) || (s.ray_peat_response && s.ray_peat_response.trim());
+  return (
+    <details className="source-item">
+      <summary>
+        <span className="src-num">S{n}</span>
+        <span className="src-file">{cleanName(s.source_file)}</span>
+        <span className="src-score">{score}</span>
+      </summary>
+      <div className="src-body">
+        {s.context && s.context.trim() && (
+          <p className="src-context">{s.context.trim()}</p>
+        )}
+        {s.ray_peat_response && s.ray_peat_response.trim() && (
+          <blockquote className="src-quote">{s.ray_peat_response.trim()}</blockquote>
+        )}
+        {!hasText && <p className="src-empty">No excerpt available for this source.</p>}
+      </div>
+    </details>
+  );
+}
+
 function Sources({ sources }) {
   if (!sources || sources.length === 0) return null;
   return (
     <details className="sources">
       <summary>{sources.length} source{sources.length > 1 ? "s" : ""}</summary>
-      <ul>
+      <div className="source-list">
         {sources.map((s, i) => (
-          <li key={i}>
-            <span className="src-file">{s.source_file}</span>
-            <span className="src-score">
-              {(s.rerank_score ?? s.score ?? 0).toFixed(2)}
-            </span>
-          </li>
+          <SourceItem key={i} s={s} n={i + 1} />
         ))}
-      </ul>
+      </div>
     </details>
   );
 }

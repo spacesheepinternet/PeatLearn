@@ -140,31 +140,81 @@ body {
   margin-top: 0.6rem;
   font-size: 0.82rem;
 }
-.sources summary {
+.sources > summary {
   cursor: pointer;
   color: var(--muted);
 }
-.sources ul {
-  list-style: none;
-  margin: 0.4rem 0 0;
-  padding: 0;
-}
-.sources li {
+.source-list {
+  margin-top: 0.5rem;
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.2rem 0;
-  border-top: 1px solid var(--border);
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Each source is its own click-to-expand panel */
+.source-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.source-item > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.65rem;
+  cursor: pointer;
+  list-style: none;
+}
+.source-item > summary::-webkit-details-marker {
+  display: none;
+}
+.source-item[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+.src-num {
+  flex: 0 0 auto;
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: var(--accent);
+  background: rgba(122, 162, 247, 0.12);
+  padding: 0.1rem 0.4rem;
+  border-radius: 5px;
 }
 .src-file {
+  flex: 1;
   color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .src-score {
+  flex: 0 0 auto;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+
+.src-body {
+  padding: 0.65rem 0.75rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.src-context {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+.src-quote {
+  margin: 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--accent);
+  color: var(--text);
+  white-space: pre-wrap;
+}
+.src-empty {
+  margin: 0;
+  color: var(--muted);
+  font-style: italic;
 }
 
 .typing {
