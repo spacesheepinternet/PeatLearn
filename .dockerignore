@@ -1,0 +1,42 @@
+# Keep the build context (and image) small — exclude everything the API
+# serve path does not need.
+
+# Virtualenv / Python caches
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Data, models, embeddings (the API reads Pinecone over the network, not disk)
+data/
+*.npy
+*.pkl
+*.npz
+
+# Local dev / tooling
+.git/
+.github/
+.claude/
+tests/
+docs/
+preprocessing/
+scripts/
+notebooks/
+council-sessions/
+*.md
+HANDOFF.md
+
+# Secrets — provided at runtime via --env-file / platform env vars
+.env
+.env.*
+
+# Frontend (built and deployed separately)
+web/
+node_modules/
+
+# OS noise
+.DS_Store
+Thumbs.db

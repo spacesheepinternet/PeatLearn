@@ -1,0 +1,35 @@
+# Local container orchestration for PeatLearn.
+#
+# Phase 1 (now): the backend API only.
+#     docker compose up --build
+#     → API at http://localhost:8080  (POST /api/ask, GET /health)
+#
+# Phase 2 (next): uncomment the `web` service once the Next.js frontend exists.
+
+services:
+  api:
+    build: .
+    image: peatlearn-api
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      # Origins allowed to call the API (the frontend). Comma-separated.
+      ALLOWED_ORIGINS: "http://localhost:3000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8080/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # web:
+  #   build: ./web            # Next.js app (Phase 2)
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     NEXT_PUBLIC_API_URL: "http://localhost:8080"
+  #   depends_on:
+  #     - api

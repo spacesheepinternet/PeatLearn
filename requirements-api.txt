@@ -1,0 +1,24 @@
+# Slim production dependencies for the public Web API (app/web_api.py).
+#
+# This deliberately EXCLUDES the heavy local-ML stack (torch, transformers,
+# sentence-transformers, scikit-learn, pandas, scipy) because the production
+# RAG path reranks with Cohere (via OpenRouter) and degrades gracefully to
+# keyword-overlap if Cohere is unavailable — the local cross-encoder is never
+# loaded in the container. It also excludes the Streamlit UI stack.
+#
+# Use requirements.txt for full local development (Streamlit, eval, training).
+
+# Web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings>=2.2.1
+python-multipart==0.0.6
+
+# RAG serve path
+aiohttp==3.9.1
+requests>=2.31.0
+numpy>=1.24.0
+pinecone>=5.0.0
+google-genai>=1.0.0
+python-dotenv>=1.0.0
