@@ -78,6 +78,11 @@ data/analysis/*
 !data/eval/questions.json
 data/eval/results_*.json
 
+# Frontend manifests — the blanket *.json rule above would otherwise drop these,
+# but they MUST be tracked for reproducible npm/Docker builds.
+!web/package.json
+!web/package-lock.json
+
 # Generated DOCUMENTARY exports
 DOCUMENTARY*.docx
 ~$*.docx

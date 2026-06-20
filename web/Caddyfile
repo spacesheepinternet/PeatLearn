@@ -1,0 +1,28 @@
+# Caddy serves the SPA and reverse-proxies the API.
+#
+# SITE_ADDRESS controls the hostname + TLS behavior:
+#   - local dev:  SITE_ADDRESS=:80            (plain HTTP, no certs)
+#   - production: SITE_ADDRESS=peatlearn.com  (Caddy auto-provisions HTTPS)
+#
+# ACME_EMAIL is used by Let's Encrypt for production certificate notices.
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$SITE_ADDRESS::80} {
+	encode gzip
+
+	# API calls go to the FastAPI container (same Docker network).
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+
+	# Everything else is the static SPA; unknown paths fall back to index.html
+	# so client-side routing works.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

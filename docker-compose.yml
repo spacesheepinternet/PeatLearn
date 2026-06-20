@@ -1,35 +1,51 @@
-# Local container orchestration for PeatLearn.
+# Full PeatLearn stack — self-hosted, no third-party PaaS.
 #
-# Phase 1 (now): the backend API only.
-#     docker compose up --build
-#     → API at http://localhost:8080  (POST /api/ask, GET /health)
+#   api : FastAPI serving the 9.64/10 RAG pipeline (app/web_api.py)
+#   web : Caddy serving the Vite/React SPA + reverse-proxying /api -> api,
+#         with automatic HTTPS in production.
 #
-# Phase 2 (next): uncomment the `web` service once the Next.js frontend exists.
+# Local:       docker compose up --build           -> http://localhost
+# Production:  set SITE_ADDRESS + ACME_EMAIL in .env, then
+#              docker compose up -d --build         -> https://your-domain.com
+#
+# Frontend dev (hot reload, no containers): cd web && npm install && npm run dev
+# (needs the api running: uvicorn app.web_api:app --port 8080)
 
 services:
   api:
     build: .
     image: peatlearn-api
-    ports:
-      - "8080:8080"
     env_file:
       - .env
     environment:
-      # Origins allowed to call the API (the frontend). Comma-separated.
-      ALLOWED_ORIGINS: "http://localhost:3000"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8080/health').status==200 else 1)"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
+      # Behind Caddy the frontend is same-origin, so CORS is only needed for
+      # the Vite dev server and any direct API access.
+      ALLOWED_ORIGINS: "http://localhost:5173,http://localhost:3000"
+    expose:
+      - "8080"
+    # Publish to the host as well so you can hit the API directly while testing.
+    ports:
+      - "8080:8080"
     restart: unless-stopped
 
-  # web:
-  #   build: ./web            # Next.js app (Phase 2)
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     NEXT_PUBLIC_API_URL: "http://localhost:8080"
-  #   depends_on:
-  #     - api
+  web:
+    build: ./web
+    image: peatlearn-web
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Local default serves plain HTTP on :80. In production set
+      # SITE_ADDRESS=your-domain.com and ACME_EMAIL=you@example.com in .env.
+      SITE_ADDRESS: "${SITE_ADDRESS:-:80}"
+      ACME_EMAIL: "${ACME_EMAIL:-}"
+    depends_on:
+      - api
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
