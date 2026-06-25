@@ -10,7 +10,7 @@ const BASE = import.meta.env.VITE_API_URL ?? "";
  * Ask the RAG pipeline a question.
  * @param {string} query
  * @param {{role: string, content: string}[]} chatHistory
- * @returns {Promise<{answer: string, sources: {source_file: string, score: number, rerank_score: number|null}[], confidence: string|null}>}
+ * @returns {Promise<{answer: string, sources: {source_file: string, score: number, rerank_score: number|null}[], confidence: string|null, followups: string[]}>}
  */
 export async function ask(query, chatHistory = []) {
   const res = await fetch(`${BASE}/api/ask`, {

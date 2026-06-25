@@ -334,3 +334,29 @@ body {
   font-size: 0.72rem;
   margin: 0 0 0.75rem;
 }
+
+/* Follow-up suggestions under the latest answer */
+.followups {
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+.followups-label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  margin-bottom: 0.4rem;
+}
+.followup-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.chip-followup {
+  font-size: 0.8rem;
+  text-align: left;
+}
+.chip-followup:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
