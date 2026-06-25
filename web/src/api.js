@@ -6,6 +6,10 @@
 // An optional override is supported for unusual deployments.
 const BASE = import.meta.env.VITE_API_URL ?? "";
 
+// localStorage key holding the admin token (set via /?admin=TOKEN). When
+// present, it's sent as X-Admin-Token so the backend skips the rate limit.
+export const ADMIN_TOKEN_KEY = "peatlearn_admin_token";
+
 /**
  * Ask the RAG pipeline a question.
  * @param {string} query
@@ -13,9 +17,13 @@ const BASE = import.meta.env.VITE_API_URL ?? "";
  * @returns {Promise<{answer: string, sources: {source_file: string, score: number, rerank_score: number|null}[], confidence: string|null, followups: string[]}>}
  */
 export async function ask(query, chatHistory = []) {
+  const headers = { "Content-Type": "application/json" };
+  const adminToken = localStorage.getItem(ADMIN_TOKEN_KEY);
+  if (adminToken) headers["X-Admin-Token"] = adminToken;
+
   const res = await fetch(`${BASE}/api/ask`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ query, chat_history: chatHistory }),
   });
 
@@ -34,8 +42,10 @@ export async function ask(query, chatHistory = []) {
 
   const data = await res.json();
   // Daily quota remaining, surfaced by the API as a header (may be absent).
+  // Admins get "unlimited" (non-numeric) — treat as null so no quota is shown.
   const remaining = res.headers.get("X-RateLimit-Remaining");
-  data.remaining = remaining === null ? null : Number(remaining);
+  const n = Number(remaining);
+  data.remaining = remaining !== null && Number.isFinite(n) ? n : null;
   return data;
 }
 

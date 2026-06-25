@@ -17,6 +17,7 @@ Run in a container: see Dockerfile / docker-compose.yml.
 
 from __future__ import annotations
 
+import hmac
 import logging
 import os
 import sqlite3
@@ -57,6 +58,19 @@ def get_rag() -> RayPeatRAG:
 # The DB lives on a mounted volume so counts survive container restarts.
 DAILY_LIMIT_PER_IP = int(os.getenv("DAILY_LIMIT_PER_IP", "10"))
 DAILY_GLOBAL_CAP = int(os.getenv("DAILY_GLOBAL_CAP", "0"))
+
+# Admin bypass: a request carrying X-Admin-Token == ADMIN_TOKEN skips the rate
+# limit entirely. Disabled unless ADMIN_TOKEN is set (non-empty) in the server
+# .env. Keep this secret out of the repo — it lives only in the server's .env.
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")
+
+
+def is_admin(request: Request) -> bool:
+    """True if the request presents the correct admin token (constant-time)."""
+    if not ADMIN_TOKEN:
+        return False
+    presented = request.headers.get("x-admin-token", "")
+    return bool(presented) and hmac.compare_digest(presented, ADMIN_TOKEN)
 # Production (container) sets RATE_DB_PATH=/data/ratelimit.db on a mounted
 # volume. The default is a temp path so local dev / tests just work.
 _RATE_DB_PATH = os.getenv(
@@ -278,10 +292,15 @@ async def health() -> Dict[str, Any]:
 
 @app.post("/api/ask", response_model=AskResponse)
 async def ask(req: AskRequest, request: Request, response: Response) -> AskResponse:
-    # Enforce the daily caps BEFORE spending any money on the LLM call.
-    remaining = enforce_rate_limit(client_ip(request))
-    response.headers["X-RateLimit-Limit"] = str(DAILY_LIMIT_PER_IP)
-    response.headers["X-RateLimit-Remaining"] = str(remaining)
+    # Admins (valid X-Admin-Token) skip the daily caps entirely. Everyone else
+    # is metered BEFORE spending any money on the LLM call.
+    if is_admin(request):
+        response.headers["X-RateLimit-Limit"] = "unlimited"
+        response.headers["X-RateLimit-Remaining"] = "unlimited"
+    else:
+        remaining = enforce_rate_limit(client_ip(request))
+        response.headers["X-RateLimit-Limit"] = str(DAILY_LIMIT_PER_IP)
+        response.headers["X-RateLimit-Remaining"] = str(remaining)
 
     rag = get_rag()
     history = [t.model_dump() for t in req.chat_history] if req.chat_history else None
