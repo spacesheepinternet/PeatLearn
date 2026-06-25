@@ -82,13 +82,24 @@ body::before {
   padding: 1.15rem 0.25rem 0.9rem;
   border-bottom: 1px solid var(--border);
 }
-.brand-mark {
+.brand-toggle {
   flex: 0 0 auto;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  border-radius: 50%;
+}
+.brand-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.brand-mark {
   width: 38px;
   height: 38px;
   filter: drop-shadow(0 0 10px rgba(227, 152, 47, 0.5));
   animation: glow 5s ease-in-out infinite;
+  transition: transform 0.25s ease;
 }
+.brand-toggle:hover .brand-mark { transform: rotate(-12deg) scale(1.08); }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-text h1 {
   margin: 0;
@@ -470,3 +481,50 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto; }
 }
+
+/* ============================================================================
+   Dark mode — "reddish night". Warm ember/maroon dark, still no blue. Echoes
+   Peat's view that red light at night is benign (blue is the harmful one).
+   ========================================================================== */
+:root[data-theme="dark"] {
+  --bg: #190d09;          /* deep ember-maroon near-black */
+  --bg-deep: #241310;
+  --surface: #271611;     /* warm dark card */
+  --surface-2: #321d16;
+  --border: #4a2a1f;
+  --border-soft: #3b2118;
+  --text: #f2e3d2;        /* warm cream */
+  --text-soft: #d9c3ac;
+  --muted: #a8836a;
+
+  --accent: #ec7a3e;      /* glowing ember */
+  --accent-strong: #f4986a;
+  --accent-wash: #3a2017;
+  --amber: #eca64a;
+
+  --green: #a6b65f;       /* warm olive */
+  --green-wash: #2c2a15;
+  --clay: #e9805a;
+  --clay-wash: #3c2017;
+
+  --user-bg: #3a2016;     /* warm dark peach */
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+/* Reddish incandescent glow instead of the daytime amber wash. */
+:root[data-theme="dark"] body::before {
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(236, 122, 62, 0.16), transparent 60%),
+    radial-gradient(90% 55% at 100% 0%, rgba(176, 60, 40, 0.14), transparent 55%);
+}
+
+:root[data-theme="dark"] .msg-user .msg-bubble { border-color: #5a3322; }
+:root[data-theme="dark"] .badge-high   { background: var(--green-wash); color: #c2cf7a; }
+:root[data-theme="dark"] .badge-medium { background: #3a2c12; color: #e7bb63; }
+:root[data-theme="dark"] .badge-low,
+:root[data-theme="dark"] .badge-abstain { background: var(--clay-wash); color: #f0a081; }
+:root[data-theme="dark"] .src-num { color: #1a0d08; }
+:root[data-theme="dark"] .composer button { color: #1a0d08; }
