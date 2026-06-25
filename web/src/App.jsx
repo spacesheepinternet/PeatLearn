@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Children } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { ask, fetchDocument } from "./api.js";
 
 const SUGGESTIONS = [
@@ -8,15 +10,91 @@ const SUGGESTIONS = [
   "What is the role of CO₂ in the body?",
 ];
 
-function ConfidenceBadge({ tier }) {
-  if (!tier) return null;
-  const cls = "badge badge-" + tier.toLowerCase();
-  return <span className={cls}>{tier}</span>;
+// Warm incandescent "sun / filament" mark — the brand glyph. No blue.
+function SunMark({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="sun" cx="50%" cy="45%" r="55%">
+          <stop offset="0%" stopColor="#fbe3a8" />
+          <stop offset="55%" stopColor="#e3982f" />
+          <stop offset="100%" stopColor="#d2622c" />
+        </radialGradient>
+      </defs>
+      <g stroke="#d2622c" strokeWidth="2.2" strokeLinecap="round">
+        {Array.from({ length: 12 }).map((_, i) => {
+          const a = (i * Math.PI) / 6;
+          const x = 24 + Math.cos(a) * 20;
+          const y = 24 + Math.sin(a) * 20;
+          const x2 = 24 + Math.cos(a) * 23.5;
+          const y2 = 24 + Math.sin(a) * 23.5;
+          return <line key={i} x1={x} y1={y} x2={x2} y2={y2} opacity="0.85" />;
+        })}
+      </g>
+      <circle cx="24" cy="24" r="13" fill="url(#sun)" />
+    </svg>
+  );
 }
 
-// Turn a corpus path like
-// "01_Audio_Transcripts\\Other_Interviews\\kmud-141219-you-are-what-you-eat.mp3-transcript_processed.txt"
-// into something readable.
+function SendIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 19V5" />
+      <path d="M5 12l7-7 7 7" />
+    </svg>
+  );
+}
+
+function ConfidenceBadge({ tier }) {
+  if (!tier) return null;
+  return <span className={"badge badge-" + tier.toLowerCase()}>{tier}</span>;
+}
+
+// Wrap [S1] / [S1, S5] citation tokens in styled pills, leaving other inline
+// nodes (bold, links) untouched.
+const CITE_RE = /\[S\d+(?:\s*,\s*S\d+)*\]/g;
+function withCitations(children) {
+  return Children.map(children, (child) => {
+    if (typeof child !== "string") return child;
+    const out = [];
+    let last = 0;
+    let m;
+    CITE_RE.lastIndex = 0;
+    while ((m = CITE_RE.exec(child))) {
+      if (m.index > last) out.push(child.slice(last, m.index));
+      out.push(
+        <sup className="cite" key={m.index}>
+          {m[0]}
+        </sup>
+      );
+      last = m.index + m[0].length;
+    }
+    if (out.length === 0) return child;
+    if (last < child.length) out.push(child.slice(last));
+    return out;
+  });
+}
+
+const MD_COMPONENTS = {
+  p: ({ children }) => <p>{withCitations(children)}</p>,
+  li: ({ children }) => <li>{withCitations(children)}</li>,
+  a: ({ href, children }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  ),
+};
+
+function Answer({ text }) {
+  return (
+    <div className="answer">
+      <Markdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+        {text}
+      </Markdown>
+    </div>
+  );
+}
+
 function cleanName(path) {
   if (!path) return "source";
   const base = path.split(/[\\/]/).pop();
@@ -30,7 +108,8 @@ function cleanName(path) {
 
 function SourceItem({ s, n }) {
   const score = (s.rerank_score ?? s.score ?? 0).toFixed(2);
-  const hasText = (s.context && s.context.trim()) || (s.ray_peat_response && s.ray_peat_response.trim());
+  const hasText =
+    (s.context && s.context.trim()) || (s.ray_peat_response && s.ray_peat_response.trim());
   const [doc, setDoc] = useState({ status: "idle", text: "" });
 
   async function loadDoc() {
@@ -52,9 +131,7 @@ function SourceItem({ s, n }) {
         <span className="src-score">{score}</span>
       </summary>
       <div className="src-body">
-        {s.context && s.context.trim() && (
-          <p className="src-context">{s.context.trim()}</p>
-        )}
+        {s.context && s.context.trim() && <p className="src-context">{s.context.trim()}</p>}
         {s.ray_peat_response && s.ray_peat_response.trim() && (
           <blockquote className="src-quote">{s.ray_peat_response.trim()}</blockquote>
         )}
@@ -79,7 +156,9 @@ function Sources({ sources }) {
   if (!sources || sources.length === 0) return null;
   return (
     <details className="sources">
-      <summary>{sources.length} source{sources.length > 1 ? "s" : ""}</summary>
+      <summary>
+        {sources.length} source{sources.length > 1 ? "s" : ""}
+      </summary>
       <div className="source-list">
         {sources.map((s, i) => (
           <SourceItem key={i} s={s} n={i + 1} />
@@ -89,13 +168,11 @@ function Sources({ sources }) {
   );
 }
 
-// Clickable follow-up questions. Shown only under the latest answer so old
-// suggestions don't pile up. Clicking submits the question as the next query.
 function FollowUps({ items, onPick, disabled }) {
   if (!items || items.length === 0) return null;
   return (
     <div className="followups">
-      <span className="followups-label">💡 Follow up with</span>
+      <span className="followups-label">Continue exploring</span>
       <div className="followup-list">
         {items.map((q, i) => (
           <button
@@ -118,7 +195,7 @@ function Message({ msg, isLast, onFollowup, busy }) {
     <div className={`msg ${isUser ? "msg-user" : "msg-assistant"}`}>
       <div className="msg-bubble">
         {!isUser && <ConfidenceBadge tier={msg.confidence} />}
-        <div className="msg-content">{msg.content}</div>
+        {isUser ? <div className="msg-content">{msg.content}</div> : <Answer text={msg.content} />}
         {!isUser && <Sources sources={msg.sources} />}
         {!isUser && isLast && (
           <FollowUps items={msg.followups} onPick={onFollowup} disabled={busy} />
@@ -184,14 +261,22 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>🧬 PeatLearn</h1>
-        <p>Grounded Q&amp;A over Dr. Ray Peat's bioenergetic work</p>
+        <SunMark className="brand-mark" />
+        <div className="brand-text">
+          <h1>PeatLearn</h1>
+          <span className="tag">Dr. Ray Peat's bioenergetics, grounded in his own words</span>
+        </div>
       </header>
 
       <main className="chat">
         {messages.length === 0 && !loading && (
           <div className="empty">
-            <p>Ask anything about metabolism, hormones, nutrition, or health.</p>
+            <SunMark className="empty-glyph" />
+            <h2>Ask about metabolism, hormones &amp; health</h2>
+            <p>
+              Every answer is drawn from Ray Peat's interviews, articles, and newsletters — and
+              cited so you can check his actual words.
+            </p>
             <div className="suggestions">
               {SUGGESTIONS.map((s) => (
                 <button key={s} className="chip" onClick={() => send(s)}>
@@ -233,12 +318,12 @@ export default function App() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder="Ask a question about Ray Peat's work..."
+          placeholder="Ask a question about Ray Peat's work…"
           rows={1}
           disabled={loading}
         />
-        <button onClick={() => send()} disabled={loading || !input.trim()}>
-          Send
+        <button onClick={() => send()} disabled={loading || !input.trim()} aria-label="Send">
+          <SendIcon />
         </button>
       </footer>
 
@@ -251,9 +336,8 @@ export default function App() {
       )}
 
       <p className="disclaimer">
-        Answers are grounded in Ray Peat's corpus and may be incomplete. Not
-        medical advice. PeatLearn is an unofficial, educational project and is
-        not affiliated with Ray Peat or his estate.
+        Answers reflect Ray Peat's views and may be incomplete. Not medical advice. PeatLearn is an
+        unofficial, educational project, not affiliated with Ray Peat or his estate.
       </p>
     </div>
   );
