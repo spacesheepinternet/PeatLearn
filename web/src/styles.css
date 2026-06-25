@@ -425,10 +425,13 @@ body::before {
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 14px;
-  padding: 0.75rem 0.95rem;
+  padding: 0.7rem 0.95rem;
   font: inherit;
   font-size: 16px; /* >=16px stops iOS zoom-on-focus */
+  line-height: 1.45;
+  min-height: 46px;       /* matches the send button height */
   max-height: 160px;
+  overflow-y: auto;       /* scroll once it hits max-height */
   box-shadow: var(--shadow-sm);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -451,9 +454,21 @@ body::before {
   transition: transform 0.12s, box-shadow 0.15s, opacity 0.15s;
 }
 .composer button:hover:not(:disabled) { transform: translateY(-1px) scale(1.03); }
-.composer button:active:not(:disabled) { transform: scale(0.96); }
+.composer button:active:not(:disabled) { transform: scale(0.92); }
 .composer button:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 .composer button svg { width: 20px; height: 20px; }
+/* Arrow "launches" up and a fresh one drops in when you hit send. */
+.composer button.sending svg { animation: launch 0.5s ease; }
+@keyframes launch {
+  0%   { transform: translateY(0); opacity: 1; }
+  45%  { transform: translateY(-15px); opacity: 0; }
+  55%  { transform: translateY(13px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Soft fade on the last revealed chunk while the answer is "writing". */
+.answer.is-typing > :last-child { animation: inkIn 0.4s ease; }
+@keyframes inkIn { from { opacity: 0.55; } to { opacity: 1; } }
 
 .quota { text-align: center; color: var(--muted); font-size: 0.78rem; margin: 0; }
 .disclaimer {

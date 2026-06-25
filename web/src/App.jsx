@@ -136,11 +136,53 @@ const MD_COMPONENTS = {
   ),
 };
 
-function Answer({ text }) {
+// Reveal `text` progressively (typewriter) when `animate` is true. Respects
+// reduced-motion. Calls onTick each step so the view can keep scrolling.
+function useTyped(text, animate, onTick) {
+  const reduce =
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const [len, setLen] = useState(animate && !reduce ? 0 : text.length);
+  useEffect(() => {
+    if (!animate || reduce) {
+      setLen(text.length);
+      return;
+    }
+    const total = text.length;
+    const chunk = Math.max(3, Math.ceil(total / 45)); // ~45 steps -> ~1.3s
+    let i = 0;
+    const timer = setInterval(() => {
+      i += chunk;
+      if (i >= total) {
+        setLen(total);
+        clearInterval(timer);
+      } else {
+        setLen(i);
+      }
+      onTick && onTick();
+    }, 28);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, animate]);
+  return len;
+}
+
+function Answer({ text, animate, onTick }) {
+  const len = useTyped(text, animate, onTick);
+  let shown = text.slice(0, len);
+  // Hide half-revealed markdown/citation tokens so they don't flicker as raw
+  // characters (e.g. a dangling "**" or "[S1").
+  const open = (shown.match(/\[/g) || []).length;
+  const close = (shown.match(/\]/g) || []).length;
+  if (open > close) shown = shown.slice(0, shown.lastIndexOf("["));
+  if (((shown.match(/\*\*/g) || []).length) % 2 === 1) {
+    shown = shown.slice(0, shown.lastIndexOf("**"));
+  }
   return (
-    <div className="answer">
+    <div className={"answer" + (len < text.length ? " is-typing" : "")}>
       <Markdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
-        {text}
+        {shown}
       </Markdown>
     </div>
   );
@@ -240,13 +282,17 @@ function FollowUps({ items, onPick, disabled }) {
   );
 }
 
-function Message({ msg, isLast, onFollowup, busy }) {
+function Message({ msg, isLast, onFollowup, busy, onTick }) {
   const isUser = msg.role === "user";
   return (
     <div className={`msg ${isUser ? "msg-user" : "msg-assistant"}`}>
       <div className="msg-bubble">
         {!isUser && <ConfidenceBadge tier={msg.confidence} />}
-        {isUser ? <div className="msg-content">{msg.content}</div> : <Answer text={msg.content} />}
+        {isUser ? (
+          <div className="msg-content">{msg.content}</div>
+        ) : (
+          <Answer text={msg.content} animate={isLast} onTick={onTick} />
+        )}
         {!isUser && <Sources sources={msg.sources} />}
         {!isUser && isLast && (
           <FollowUps items={msg.followups} onPick={onFollowup} disabled={busy} />
@@ -262,6 +308,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [remaining, setRemaining] = useState(null);
+  const [sending, setSending] = useState(false);
   const [theme, setTheme] = useState(() => {
     try {
       return localStorage.getItem("peatlearn_theme") || "light";
@@ -270,6 +317,17 @@ export default function App() {
     }
   });
   const endRef = useRef(null);
+  const taRef = useRef(null);
+
+  // Auto-grow the composer so typed text is never clipped.
+  useEffect(() => {
+    const el = taRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 160) + "px";
+  }, [input]);
+
+  const scrollToEnd = () => endRef.current?.scrollIntoView({ behavior: "auto" });
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -329,6 +387,14 @@ export default function App() {
     }
   }
 
+  // Send via the arrow button — plays the launch animation on the icon.
+  function handleSendClick() {
+    if (loading || !input.trim()) return;
+    setSending(true);
+    setTimeout(() => setSending(false), 500);
+    send();
+  }
+
   return (
     <div className="app">
       <header className="header">
@@ -372,6 +438,7 @@ export default function App() {
             isLast={i === messages.length - 1}
             onFollowup={send}
             busy={loading}
+            onTick={scrollToEnd}
           />
         ))}
 
@@ -393,14 +460,20 @@ export default function App() {
 
       <footer className="composer">
         <textarea
+          ref={taRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder="Ask a question about Ray Peat's work…"
+          placeholder="Ask Ray Peat anything…"
           rows={1}
           disabled={loading}
         />
-        <button onClick={() => send()} disabled={loading || !input.trim()} aria-label="Send">
+        <button
+          className={sending ? "sending" : ""}
+          onClick={handleSendClick}
+          disabled={loading || !input.trim()}
+          aria-label="Send"
+        >
           <SendIcon />
         </button>
       </footer>
