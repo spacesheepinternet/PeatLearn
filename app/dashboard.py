@@ -1701,6 +1701,21 @@ def render_chat_interface():
             # Render markdown body (allows headings/lists)
             st.markdown(body_md)
 
+            # Follow-up suggestion buttons — clickable mini-prompts that submit as
+            # the next query. Only shown under the most recent answer to avoid
+            # cluttering scrollback and to keep stale suggestions out of the way.
+            _followups = message.get('followups') or []
+            if _followups and i == len(st.session_state.chat_history) - 1:
+                st.markdown(
+                    "<div style='margin:8px 0 2px;font-size:0.78rem;color:#888;'>"
+                    "💡 Follow up with:</div>",
+                    unsafe_allow_html=True,
+                )
+                for _fj, _fq in enumerate(_followups):
+                    if st.button(_fq, key=f"followup_{i}_{_fj}", use_container_width=True):
+                        st.session_state.pending_followup = _fq
+                        st.rerun()
+
             # Render sources with expandable chunk excerpts
             if sources:
                 st.markdown("📚 **Sources**")
@@ -1751,8 +1766,10 @@ def render_chat_interface():
         unsafe_allow_html=True,
     )
 
-    # Chat input
-    if prompt := st.chat_input("Ask Ray Peat about bioenergetics, metabolism, hormones..."):
+    # Chat input — a query can arrive from the text box OR a clicked follow-up button.
+    typed_prompt = st.chat_input("Ask Ray Peat about bioenergetics, metabolism, hormones...")
+    prompt = typed_prompt or st.session_state.pop('pending_followup', None)
+    if prompt:
         # Add user message
         user_message = {
             'role': 'user',
@@ -1805,6 +1822,22 @@ def render_chat_interface():
             list(getattr(_get_rag_system(), '_last_sources', []))
             if not canned else []
         )
+
+        # Suggest follow-up questions — only for grounded answers. Skip canned
+        # small-talk, abstains, and ungrounded replies (no sources): there's
+        # nothing useful to follow up on, and we avoid a wasted LLM call.
+        _followups = []
+        _conf_tier = (conf_tmp or {}).get('tier', '').upper()
+        if not canned and sources_tmp and _conf_tier != 'ABSTAIN':
+            try:
+                from peatlearn.rag.followups import suggest_followups
+                with st.spinner("Thinking of follow-ups..."):
+                    _followups = suggest_followups(
+                        prompt, body_md_tmp, api_key=os.getenv('GEMINI_API_KEY')
+                    )
+            except Exception:
+                _followups = []
+
         assistant_message = {
             'role': 'assistant',
             'content': response,
@@ -1813,6 +1846,7 @@ def render_chat_interface():
             'sources': sources_tmp,
             'source_objects': _rag_source_objects,
             'confidence': conf_tmp,
+            'followups': _followups,
         }
         st.session_state.chat_history.append(assistant_message)
         

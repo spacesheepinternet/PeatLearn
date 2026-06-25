@@ -139,6 +139,10 @@ class RayPeatRAG:
         if max_sources is None:
             max_sources = self._estimate_max_sources(query)
 
+        # Begin per-stage cost accounting; flushed in finally so every return
+        # path (including early abstains and errors) writes one cost record.
+        from peatlearn.rag import cost_logger as _cost_logger
+        _cost_logger.start(query)
         try:
             return self._get_rag_response_sync(query, user_profile, chat_history, max_sources)
         except RuntimeError as e:
@@ -152,6 +156,8 @@ class RayPeatRAG:
         except Exception as e:
             import traceback; traceback.print_exc()
             return self._fallback_response(query)
+        finally:
+            _cost_logger.flush()
 
     @staticmethod
     def _estimate_max_sources(query: str) -> int:
@@ -219,6 +225,39 @@ class RayPeatRAG:
         """Fully synchronous RAG path — safe to call from Streamlit or any context."""
         gemini_headers = {"x-goog-api-key": self.api_key, "Content-Type": "application/json"}
 
+        # Reset stale sources up front. _last_sources is only repopulated after a
+        # successful retrieval (Step 5); without this reset, any early-return gate
+        # below would leak the PREVIOUS query's sources to the web API.
+        self._last_sources = []
+
+        # --- Step 0a: Conversational guard — greetings, thanks, meta questions ---
+        # A bare "hi" / "thanks" / "who are you?" has no answer in the corpus, but
+        # retrieval would still surface near passages and the LLM would confabulate
+        # a Peat-persona reply with fabricated citations. Intercept before retrieval
+        # and return a plain reply with no sources and no confidence footer.
+        from peatlearn.rag.conversational_guard import check_conversational as _check_conv
+        _conv_reply = _check_conv(query)
+        if _conv_reply is not None:
+            return _conv_reply
+
+        # --- Step 0b: Domain guard — flag questions outside Peat's health corpus ---
+        # Out-of-domain queries (code, finance, sports, trivia) have no grounded
+        # answer; without this gate retrieval would surface near passages and the
+        # LLM would confabulate a Peat-flavoured reply. Hybrid: lexical fast-paths
+        # first, one cheap flash-lite classify only for ambiguous queries.
+        from peatlearn.rag.domain_guard import check_domain as _check_domain
+        _domain_reason = _check_domain(query, api_key=self.api_key)
+        if _domain_reason:
+            confidence_footer = f"\n\n\U0001f512 Confidence: ABSTAIN | {_domain_reason}"
+            return (
+                "I'm focused on Dr. Ray Peat's work — bioenergetic health, "
+                "nutrition, hormones, and metabolism — so I can't help with this "
+                "question, which falls outside that domain.\n\n"
+                "Ask me something about health, diet, or how the body works, and "
+                "I'll ground the answer in what Peat actually said."
+                + confidence_footer
+            )
+
         # --- Step 0: Temporal guard — auto-ABSTAIN on post-2022 topics ---
         from peatlearn.rag.temporal_guard import check_temporal as _check_temporal
         temporal_reason = _check_temporal(query)
@@ -274,6 +313,11 @@ class RayPeatRAG:
         # --- Step 1: Generate query embedding (routes to correct model by index dim) ---
         embedding = self.search_engine.embed_query(search_query)
         raw_query_embedding = list(embedding)  # preserve for HyDE divergence fallback
+        try:
+            from peatlearn.rag import cost_logger as _cl
+            _cl.record_embedding("embed", "gemini-embedding-001", search_query)
+        except Exception:
+            pass
 
         # --- Step 1b: HyDE (disabled) ---
         # Dual HyDE (academic + email style) was benchmarked and disabled in
@@ -463,9 +507,15 @@ class RayPeatRAG:
 
         # --- Step 2b: Rerank using cross-encoder (falls back to keyword overlap) ---
         from peatlearn.rag.reranker import rerank as _rerank
+        _n_rerank_docs = len(candidates)
         candidates = _rerank(query, candidates)
         _reranker_used = candidates[0].get("_reranker_model", "unknown") if candidates else "none"
         logger.info(f"Reranker fired: {_reranker_used}")
+        try:
+            from peatlearn.rag import cost_logger as _cl
+            _cl.record_rerank("rerank", _reranker_used, _n_rerank_docs)
+        except Exception:
+            pass
 
         # --- Step 2c: Confidence scoring — decide if retrieval supports answering ---
         from peatlearn.rag.confidence import score_retrieval as _score_retrieval
@@ -609,10 +659,17 @@ class RayPeatRAG:
             elif resp.status_code != 200:
                 raise RuntimeError(f"LLM API error {resp.status_code}: {resp.text[:200]}")
             try:
-                answer = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+                _resp_json = resp.json()
+                answer = _resp_json["candidates"][0]["content"]["parts"][0]["text"]
             except (KeyError, IndexError):
                 answer = ""
+                _resp_json = {}
             if answer:
+                try:
+                    from peatlearn.rag import cost_logger as _cl
+                    _cl.record_gemini("generate", model_name, _resp_json.get("usageMetadata"))
+                except Exception:
+                    pass
                 break
 
         # --- Step 4b: Groq fallback when all Gemini models are rate-limited or unavailable ---

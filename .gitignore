@@ -347,7 +347,9 @@ dev-debug.log
 
 /.cursor
 /.taskmaster
-/.github
+# Ignore local .github tooling, but keep CI/CD workflows tracked.
+/.github/*
+!/.github/workflows/
 .DS_Store
 
 # Task files
@@ -367,3 +369,6 @@ data/knowledge_graph/
 # (these are local tooling, not project code)
 .claude/
 CLAUDE.md
+
+# RAG per-stage cost logs (local measurement only)
+data/cost_logs/

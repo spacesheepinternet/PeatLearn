@@ -178,6 +178,9 @@ class AskResponse(BaseModel):
     answer: str
     sources: List[Source]
     confidence: Optional[str] = None
+    # Suggested next questions (in-domain, standalone). Empty for ungrounded /
+    # abstained answers. The frontend renders these as clickable buttons.
+    followups: List[str] = []
 
 
 # --- App ----------------------------------------------------------------------
@@ -298,5 +301,22 @@ async def ask(req: AskRequest, request: Request, response: Response) -> AskRespo
         raise HTTPException(status_code=500, detail=f"RAG request failed: {e}") from e
 
     answer, confidence = _split_answer(raw)
-    sources = _serialize_sources(list(getattr(rag, "_last_sources", []) or []))
-    return AskResponse(answer=answer, sources=sources, confidence=confidence)
+    raw_sources = list(getattr(rag, "_last_sources", []) or [])
+    sources = _serialize_sources(raw_sources)
+
+    # Suggest follow-up questions — only for grounded answers (have sources and
+    # not an abstain). Skipped otherwise: nothing useful to ask next, and we
+    # avoid a wasted LLM call. Runs off the main loop; never fails the request.
+    followups: List[str] = []
+    if raw_sources and (confidence or "").upper() != "ABSTAIN":
+        try:
+            from peatlearn.rag.followups import suggest_followups
+            followups = await run_in_threadpool(
+                suggest_followups, req.query, answer, getattr(rag, "api_key", None)
+            )
+        except Exception:  # noqa: BLE001 — follow-ups are best-effort
+            logger.warning("Follow-up suggestion failed", exc_info=True)
+
+    return AskResponse(
+        answer=answer, sources=sources, confidence=confidence, followups=followups
+    )

@@ -89,7 +89,30 @@ function Sources({ sources }) {
   );
 }
 
-function Message({ msg }) {
+// Clickable follow-up questions. Shown only under the latest answer so old
+// suggestions don't pile up. Clicking submits the question as the next query.
+function FollowUps({ items, onPick, disabled }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div className="followups">
+      <span className="followups-label">💡 Follow up with</span>
+      <div className="followup-list">
+        {items.map((q, i) => (
+          <button
+            key={i}
+            className="chip chip-followup"
+            onClick={() => onPick(q)}
+            disabled={disabled}
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Message({ msg, isLast, onFollowup, busy }) {
   const isUser = msg.role === "user";
   return (
     <div className={`msg ${isUser ? "msg-user" : "msg-assistant"}`}>
@@ -97,6 +120,9 @@ function Message({ msg }) {
         {!isUser && <ConfidenceBadge tier={msg.confidence} />}
         <div className="msg-content">{msg.content}</div>
         {!isUser && <Sources sources={msg.sources} />}
+        {!isUser && isLast && (
+          <FollowUps items={msg.followups} onPick={onFollowup} disabled={busy} />
+        )}
       </div>
     </div>
   );
@@ -137,6 +163,7 @@ export default function App() {
           content: data.answer,
           sources: data.sources,
           confidence: data.confidence,
+          followups: data.followups,
         },
       ]);
     } catch (e) {
@@ -176,7 +203,13 @@ export default function App() {
         )}
 
         {messages.map((m, i) => (
-          <Message key={i} msg={m} />
+          <Message
+            key={i}
+            msg={m}
+            isLast={i === messages.length - 1}
+            onFollowup={send}
+            busy={loading}
+          />
         ))}
 
         {loading && (

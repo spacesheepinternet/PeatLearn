@@ -194,7 +194,13 @@ Return ONLY a JSON object — no markdown, no code fences:
             if resp.status_code != 200:
                 logger.warning(f"Verifier API error {resp.status_code}")
                 break
-            text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+            _vj = resp.json()
+            text = _vj["candidates"][0]["content"]["parts"][0]["text"]
+            try:
+                from peatlearn.rag import cost_logger as _cl
+                _cl.record_gemini("verify", VERIFY_MODEL, _vj.get("usageMetadata"))
+            except Exception:
+                pass
             break
         except Exception as e:
             logger.warning(f"Verifier call failed: {e}")
