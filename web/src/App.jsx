@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, Children } from "react";
+import { useState, useRef, useEffect, useId, Children } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ask, fetchDocument } from "./api.js";
@@ -10,30 +10,83 @@ const SUGGESTIONS = [
   "What is the role of CO₂ in the body?",
 ];
 
-// Warm incandescent "sun / filament" mark — the brand glyph. No blue.
-function SunMark({ className }) {
+/* Sol — a medieval/alchemical sun with a face and alternating rays. */
+function Sol({ className }) {
+  const id = useId();
+  const rays = [];
+  const N = 16;
+  for (let i = 0; i < N; i++) {
+    const a = (i * 2 * Math.PI) / N;
+    const tipR = i % 2 === 0 ? 23.5 : 20;
+    const bw = 0.17;
+    const bx1 = (24 + Math.cos(a - bw) * 15.5).toFixed(1);
+    const by1 = (24 + Math.sin(a - bw) * 15.5).toFixed(1);
+    const bx2 = (24 + Math.cos(a + bw) * 15.5).toFixed(1);
+    const by2 = (24 + Math.sin(a + bw) * 15.5).toFixed(1);
+    const tx = (24 + Math.cos(a) * tipR).toFixed(1);
+    const ty = (24 + Math.sin(a) * tipR).toFixed(1);
+    rays.push(<polygon key={i} points={`${bx1},${by1} ${tx},${ty} ${bx2},${by2}`} />);
+  }
   return (
-    <svg className={className} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 48 48" aria-hidden="true">
       <defs>
-        <radialGradient id="sun" cx="50%" cy="45%" r="55%">
-          <stop offset="0%" stopColor="#fbe3a8" />
+        <radialGradient id={`${id}d`} cx="50%" cy="45%" r="60%">
+          <stop offset="0%" stopColor="#fce6ad" />
           <stop offset="55%" stopColor="#e3982f" />
           <stop offset="100%" stopColor="#d2622c" />
         </radialGradient>
       </defs>
-      <g stroke="#d2622c" strokeWidth="2.2" strokeLinecap="round">
-        {Array.from({ length: 12 }).map((_, i) => {
-          const a = (i * Math.PI) / 6;
-          const x = 24 + Math.cos(a) * 20;
-          const y = 24 + Math.sin(a) * 20;
-          const x2 = 24 + Math.cos(a) * 23.5;
-          const y2 = 24 + Math.sin(a) * 23.5;
-          return <line key={i} x1={x} y1={y} x2={x2} y2={y2} opacity="0.85" />;
-        })}
+      <g fill="#e08a2e">{rays}</g>
+      <circle cx="24" cy="24" r="15" fill={`url(#${id}d)`} />
+      <g fill="#8a3f17" opacity="0.9">
+        <ellipse cx="20.3" cy="22.3" rx="1.15" ry="1.5" />
+        <ellipse cx="27.7" cy="22.3" rx="1.15" ry="1.5" />
       </g>
-      <circle cx="24" cy="24" r="13" fill="url(#sun)" />
+      <g stroke="#8a3f17" strokeWidth="1.1" fill="none" strokeLinecap="round" opacity="0.85">
+        <path d="M24 23.4 v2.3" />
+        <path d="M20.6 28.2 q3.4 3 6.8 0" />
+      </g>
     </svg>
   );
+}
+
+/* Luna — a medieval crescent moon with a profile face and stars. */
+function Luna({ className }) {
+  const id = useId();
+  return (
+    <svg className={className} viewBox="0 0 48 48" aria-hidden="true">
+      <defs>
+        <radialGradient id={`${id}g`} cx="40%" cy="40%" r="70%">
+          <stop offset="0%" stopColor="#f6d8a0" />
+          <stop offset="60%" stopColor="#e0a04a" />
+          <stop offset="100%" stopColor="#c9772f" />
+        </radialGradient>
+        <mask id={`${id}m`}>
+          <rect width="48" height="48" fill="black" />
+          <circle cx="22" cy="24" r="15" fill="white" />
+          <circle cx="31" cy="20" r="13.5" fill="black" />
+        </mask>
+      </defs>
+      <g fill="#e0a04a">
+        <path d="M34 12.5 l0.8 2 2 0.8 -2 0.8 -0.8 2 -0.8 -2 -2 -0.8 2 -0.8z" />
+        <path d="M39.5 21.5 l0.6 1.5 1.5 0.6 -1.5 0.6 -0.6 1.5 -0.6 -1.5 -1.5 -0.6 1.5 -0.6z" />
+      </g>
+      <circle cx="22" cy="24" r="15" fill={`url(#${id}g)`} mask={`url(#${id}m)`} />
+      <circle cx="16.6" cy="20.6" r="1.15" fill="#6e3414" opacity="0.8" />
+      <path
+        d="M15 27.4 q2.4 2 4.6 0.3"
+        fill="none"
+        stroke="#6e3414"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+        opacity="0.75"
+      />
+    </svg>
+  );
+}
+
+function BrandMark({ theme, className }) {
+  return theme === "dark" ? <Luna className={className} /> : <Sol className={className} />;
 }
 
 function SendIcon() {
@@ -50,8 +103,6 @@ function ConfidenceBadge({ tier }) {
   return <span className={"badge badge-" + tier.toLowerCase()}>{tier}</span>;
 }
 
-// Wrap [S1] / [S1, S5] citation tokens in styled pills, leaving other inline
-// nodes (bold, links) untouched.
 const CITE_RE = /\[S\d+(?:\s*,\s*S\d+)*\]/g;
 function withCitations(children) {
   return Children.map(children, (child) => {
@@ -211,11 +262,31 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [remaining, setRemaining] = useState(null);
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem("peatlearn_theme") || "light";
+    } catch {
+      return "light";
+    }
+  });
   const endRef = useRef(null);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem("peatlearn_theme", theme);
+    } catch {
+      /* ignore */
+    }
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "dark" ? "#1a0f0b" : "#fbf4e9");
+  }, [theme]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
 
   async function send(text) {
     const query = (text ?? input).trim();
@@ -261,7 +332,14 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
-        <SunMark className="brand-mark" />
+        <button
+          className="brand-toggle"
+          onClick={toggleTheme}
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          title={theme === "dark" ? "Switch to day (Sol)" : "Switch to night (Luna)"}
+        >
+          <BrandMark theme={theme} className="brand-mark" />
+        </button>
         <div className="brand-text">
           <h1>PeatLearn</h1>
           <span className="tag">Dr. Ray Peat's bioenergetics, grounded in his own words</span>
@@ -271,7 +349,7 @@ export default function App() {
       <main className="chat">
         {messages.length === 0 && !loading && (
           <div className="empty">
-            <SunMark className="empty-glyph" />
+            <BrandMark theme={theme} className="empty-glyph" />
             <h2>Ask about metabolism, hormones &amp; health</h2>
             <p>
               Every answer is drawn from Ray Peat's interviews, articles, and newsletters — and
