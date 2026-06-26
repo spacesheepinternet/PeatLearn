@@ -488,7 +488,8 @@ export default function App() {
 
       <p className="disclaimer">
         Answers reflect Ray Peat's views and may be incomplete. Not medical advice. PeatLearn is an
-        unofficial, educational project, not affiliated with Ray Peat or his estate.
+        unofficial, educational project, not affiliated with Ray Peat or his estate. Questions may be
+        logged to monitor and improve answer quality.
       </p>
     </div>
   );
