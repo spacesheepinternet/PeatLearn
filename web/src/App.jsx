@@ -277,7 +277,7 @@ function SourceItem({ s, n }) {
         <div className="src-doc">
           {doc.status === "idle" && (
             <button className="src-doc-btn" onClick={loadDoc}>
-              📄 Read full document
+              Read full document
             </button>
           )}
           {doc.status === "loading" && <p className="src-empty">Loading full document…</p>}
@@ -475,9 +475,9 @@ export default function App() {
           <span className="drawer-title">PeatLearn</span>
         </div>
         <nav className="drawer-nav">
-          <button onClick={() => goto("")}><span className="ico">💬</span> Chat</button>
-          <button onClick={() => goto("memorial")}><span className="ico">🕯️</span> Memorial</button>
-          <button onClick={() => goto("privacy")}><span className="ico">🔒</span> Privacy</button>
+          <button onClick={() => goto("")}>Chat</button>
+          <button onClick={() => goto("memorial")}>Memorial</button>
+          <button onClick={() => goto("privacy")}>Privacy</button>
         </nav>
         <div className="drawer-foot">
           Unofficial, educational — not affiliated with Ray Peat or his estate.
@@ -546,7 +546,7 @@ export default function App() {
           </div>
         )}
 
-        {error && <div className="error">⚠️ {error}</div>}
+        {error && <div className="error">{error}</div>}
         <div ref={endRef} />
       </main>
 

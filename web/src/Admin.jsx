@@ -165,7 +165,7 @@ export default function Admin({ onExit }) {
           </div>
 
           {status === "loading" && <p className="admin-note">Loading…</p>}
-          {status === "error" && <p className="admin-note error">⚠️ {error}</p>}
+          {status === "error" && <p className="admin-note error">{error}</p>}
           {status === "ok" && shown.length === 0 && (
             <p className="admin-note">No conversations match.</p>
           )}
