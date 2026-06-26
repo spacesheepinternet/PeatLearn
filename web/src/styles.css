@@ -173,6 +173,17 @@ body::before {
 
 /* ---- memorial page ---- */
 .mem-hero { text-align: center; padding: 0.5rem 0 0.5rem; }
+.mem-portrait {
+  width: 132px;
+  height: 132px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  margin: 0 auto 0.9rem;
+  display: block;
+  filter: sepia(0.12);
+}
 .mem-name { font-family: var(--serif); font-size: 1.7rem; font-weight: 400; color: var(--text); margin: 0; }
 .mem-years { color: var(--muted); margin: 0.2rem 0; }
 .mem-role { color: var(--text-soft); font-style: italic; margin: 0.2rem 0 0; }

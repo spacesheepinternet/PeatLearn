@@ -11,6 +11,7 @@ export default function Memorial({ onExit }) {
 
       <div className="page-body">
         <div className="mem-hero">
+          <img className="mem-portrait" src="/ray-peat.jpg" alt="Dr. Ray Peat" />
           <p className="mem-name">Dr. Raymond Peat</p>
           <p className="mem-years">1936 – 2022</p>
           <p className="mem-role">Pioneering bioenergetic researcher and independent scholar</p>
