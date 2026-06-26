@@ -82,6 +82,21 @@ body::before {
   padding: 1.15rem 0.25rem 0.9rem;
   border-bottom: 1px solid var(--border);
 }
+.menu-btn {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 11px;
+  cursor: pointer;
+  color: var(--text-soft);
+}
+.menu-btn svg { width: 20px; height: 20px; }
+.menu-btn:active { background: var(--surface-2); }
+
 .brand-toggle {
   flex: 0 0 auto;
   background: none;
@@ -91,6 +106,98 @@ body::before {
   display: flex;
   border-radius: 50%;
 }
+
+/* ---- left slide-in drawer ---- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 24, 10, 0.42);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+  z-index: 20;
+}
+.overlay.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 80%;
+  max-width: 320px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  box-shadow: 0 12px 40px rgba(60, 30, 8, 0.35);
+  transform: translateX(-100%);
+  transition: transform 0.28s ease;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+}
+.drawer.open { transform: none; }
+.drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.1rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.drawer-logo { width: 34px; height: 34px; }
+.drawer-title { font-family: var(--serif); font-size: 1.35rem; font-weight: 300; }
+.drawer-nav { display: flex; flex-direction: column; padding: 0.6rem; gap: 0.15rem; }
+.drawer-nav button {
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.85rem 0.9rem;
+  border-radius: 11px;
+  font: inherit;
+  font-size: 1.02rem;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.drawer-nav button:hover, .drawer-nav button:active { background: var(--surface-2); }
+.drawer-nav .ico { width: 1.4rem; text-align: center; }
+.drawer-foot {
+  margin-top: auto;
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- memorial page ---- */
+.mem-hero { text-align: center; padding: 0.5rem 0 0.5rem; }
+.mem-name { font-family: var(--serif); font-size: 1.7rem; font-weight: 400; color: var(--text); margin: 0; }
+.mem-years { color: var(--muted); margin: 0.2rem 0; }
+.mem-role { color: var(--text-soft); font-style: italic; margin: 0.2rem 0 0; }
+.mem-quote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.2rem;
+  border-left: 3px solid var(--amber);
+  background: var(--surface-2);
+  border-radius: 0 10px 10px 0;
+  font-family: var(--serif);
+  font-size: 1.18rem;
+  font-style: italic;
+  color: var(--text);
+}
+.mem-quote cite { display: block; margin-top: 0.5rem; font-size: 0.85rem; font-style: normal; color: var(--muted); }
+.mem-principles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin: 0.8rem 0; }
+.mem-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.85rem 0.95rem;
+  box-shadow: var(--shadow-sm);
+}
+.mem-card h4 { font-family: var(--serif); font-weight: 500; color: var(--text); margin: 0 0 0.35rem; font-size: 1.02rem; }
+.mem-card p { margin: 0; font-size: 0.86rem; color: var(--text-soft); }
+@media (max-width: 520px) { .mem-principles { grid-template-columns: 1fr; } }
 .brand-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .brand-mark {
   width: 38px;
