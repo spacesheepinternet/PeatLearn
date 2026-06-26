@@ -251,8 +251,44 @@ body::before {
   font-weight: 700;
   letter-spacing: 0.05em;
   padding: 0.18rem 0.5rem 0.18rem 0.45rem;
+  border: none;
   border-radius: 999px;
-  margin-bottom: 0.55rem;
+  font-family: inherit;
+}
+.badge-wrap { position: relative; display: inline-block; margin-bottom: 0.55rem; }
+button.badge { cursor: pointer; -webkit-appearance: none; appearance: none; }
+button.badge:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Tap-to-explain popover above the confidence badge */
+.badge-pop {
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 0;
+  width: max-content;
+  max-width: 240px;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: var(--text-soft);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+  animation: fadeUp 0.15s ease;
+}
+.badge-pop strong { color: var(--text); font-weight: 700; }
+.badge-pop::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  border: 6px solid transparent;
+  border-top-color: var(--surface);
 }
 .badge::before {
   content: "";
