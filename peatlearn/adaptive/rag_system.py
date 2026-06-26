@@ -531,8 +531,20 @@ class RayPeatRAG:
         # views on it. Downgrade to ABSTAIN when the majority of key entities
         # are missing and confidence isn't already HIGH.
         from peatlearn.rag.confidence import check_entity_grounding as _check_grounding
-        _missing, _should_downgrade = _check_grounding(search_query, candidates)
-        if _should_downgrade and confidence.tier not in ("HIGH", "LOW"):
+        _missing, _should_downgrade, _all_missing = _check_grounding(search_query, candidates)
+        if _all_missing and confidence.tier != "ABSTAIN":
+            # Hard fail: NONE of the question's key entities appear in ANY source.
+            # This overrides even a HIGH tier — a high rerank score on merely
+            # topically-adjacent passages (e.g. asking about "masturbation" and
+            # retrieving estrogen/libido passages) is exactly the case where the
+            # LLM fabricates a connection. The subject simply isn't in the corpus.
+            confidence.tier = "ABSTAIN"
+            confidence.reasons.append(
+                f"No key term from the question appears in any source "
+                f"({', '.join(_missing)}) — Peat's corpus does not address this "
+                f"topic, so any answer would be fabricated"
+            )
+        elif _should_downgrade and confidence.tier not in ("HIGH", "LOW"):
             # Only upgrade to ABSTAIN from MEDIUM — if the confidence scorer
             # already set LOW (e.g. via cosine-divergence override), the topic
             # IS present and the entity check shouldn't override that.
