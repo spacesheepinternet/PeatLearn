@@ -23,6 +23,7 @@ import os
 import sqlite3
 import tempfile
 import threading
+import time
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
@@ -34,6 +35,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from peatlearn.adaptive.rag_system import RayPeatRAG
+from app import conversation_log
 
 logger = logging.getLogger("peatlearn.web_api")
 
@@ -305,6 +307,7 @@ async def ask(req: AskRequest, request: Request, response: Response) -> AskRespo
     rag = get_rag()
     history = [t.model_dump() for t in req.chat_history] if req.chat_history else None
 
+    _t0 = time.monotonic()
     try:
         # get_rag_response is synchronous (it manages its own event loop
         # internally), so run it off the main loop to stay non-blocking.
@@ -318,6 +321,7 @@ async def ask(req: AskRequest, request: Request, response: Response) -> AskRespo
     except Exception as e:  # noqa: BLE001 — surface a clean 500 to the client
         logger.exception("RAG request failed")
         raise HTTPException(status_code=500, detail=f"RAG request failed: {e}") from e
+    _latency = time.monotonic() - _t0
 
     answer, confidence = _split_answer(raw)
     raw_sources = list(getattr(rag, "_last_sources", []) or [])
@@ -336,6 +340,32 @@ async def ask(req: AskRequest, request: Request, response: Response) -> AskRespo
         except Exception:  # noqa: BLE001 — follow-ups are best-effort
             logger.warning("Follow-up suggestion failed", exc_info=True)
 
+    # Persist the Q&A (best-effort; never blocks or fails the response).
+    try:
+        await run_in_threadpool(
+            conversation_log.log,
+            req.query,
+            answer,
+            confidence,
+            raw_sources,
+            _latency,
+            client_ip(request),
+            followups,
+        )
+    except Exception:  # noqa: BLE001
+        logger.warning("Conversation logging failed", exc_info=True)
+
     return AskResponse(
         answer=answer, sources=sources, confidence=confidence, followups=followups
     )
+
+
+@app.get("/api/admin/conversations")
+async def admin_conversations(request: Request, limit: int = 100) -> Dict[str, Any]:
+    """Admin-only: browse logged conversations (newest first). Needs X-Admin-Token."""
+    if not is_admin(request):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return {
+        "stats": conversation_log.stats(),
+        "conversations": conversation_log.recent(limit),
+    }
