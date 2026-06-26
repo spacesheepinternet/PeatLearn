@@ -206,9 +206,10 @@ def check_entity_grounding(
     """Check if the query's key entities appear in retrieved source texts.
 
     Returns:
-        (missing_entities, should_downgrade) — should_downgrade is True
-        when more than half of the query's key entities are absent from
-        all sources, indicating the LLM would fabricate a connection.
+        (missing_entities, should_downgrade, all_missing) — should_downgrade is
+        True when more than half of the query's key entities are absent from all
+        sources; all_missing is True when EVERY key entity is absent (the topic
+        is entirely outside the retrieved corpus, so any answer is fabricated).
     """
     # Split hyphenated/possessive forms into components
     raw_words = re.findall(r"[a-zA-Z][a-zA-Z'-]+", query.lower())
@@ -223,7 +224,7 @@ def check_entity_grounding(
     ]
 
     if not key_terms:
-        return [], False
+        return [], False, False
 
     corpus_text = " ".join(
         f"{c.get('context', '')} {c.get('ray_peat_response', '')}"
@@ -236,14 +237,18 @@ def check_entity_grounding(
     # false positives when a few vocabulary mismatches exist but the
     # core topic IS in the corpus.
     should_downgrade = len(missing) > len(key_terms) * 0.5
+    # EVERY key term absent: the question's subject is entirely outside the
+    # retrieved sources, so any answer is fabricated by analogy.
+    all_missing = len(missing) == len(key_terms)
 
     if missing:
         logger.info(
             f"Entity grounding: {len(missing)}/{len(key_terms)} key terms "
-            f"missing from sources: {missing}. Downgrade: {should_downgrade}"
+            f"missing from sources: {missing}. Downgrade: {should_downgrade}, "
+            f"all_missing: {all_missing}"
         )
 
-    return missing, should_downgrade
+    return missing, should_downgrade, all_missing
 
 
 def _cosine_similarity(a: List[float], b: List[float]) -> float:
