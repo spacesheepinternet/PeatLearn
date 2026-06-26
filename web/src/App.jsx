@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import { ask, fetchDocument } from "./api.js";
 import Admin from "./Admin.jsx";
 import Privacy from "./Privacy.jsx";
+import Memorial from "./Memorial.jsx";
 
 const SUGGESTIONS = [
   "What did Ray Peat think about polyunsaturated fats?",
@@ -360,6 +361,7 @@ export default function App() {
     }
   });
   const [route, setRoute] = useState(() => window.location.hash.replace(/^#/, ""));
+  const [menuOpen, setMenuOpen] = useState(false);
   const endRef = useRef(null);
   const taRef = useRef(null);
 
@@ -451,10 +453,43 @@ export default function App() {
   if (route === "privacy") {
     return <Privacy onExit={() => (window.location.hash = "")} />;
   }
+  if (route === "memorial") {
+    return <Memorial onExit={() => (window.location.hash = "")} />;
+  }
+
+  const goto = (hash) => {
+    setMenuOpen(false);
+    window.location.hash = hash;
+  };
 
   return (
     <div className="app">
+      {/* Left slide-in drawer */}
+      <div
+        className={"overlay" + (menuOpen ? " open" : "")}
+        onClick={() => setMenuOpen(false)}
+      />
+      <aside className={"drawer" + (menuOpen ? " open" : "")}>
+        <div className="drawer-head">
+          <BrandMark theme={theme} className="drawer-logo" />
+          <span className="drawer-title">PeatLearn</span>
+        </div>
+        <nav className="drawer-nav">
+          <button onClick={() => goto("")}><span className="ico">💬</span> Chat</button>
+          <button onClick={() => goto("memorial")}><span className="ico">🕯️</span> Memorial</button>
+          <button onClick={() => goto("privacy")}><span className="ico">🔒</span> Privacy</button>
+        </nav>
+        <div className="drawer-foot">
+          Unofficial, educational — not affiliated with Ray Peat or his estate.
+        </div>
+      </aside>
+
       <header className="header">
+        <button className="menu-btn" onClick={() => setMenuOpen(true)} aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+        </button>
         <button
           className="brand-toggle"
           onClick={toggleTheme}
