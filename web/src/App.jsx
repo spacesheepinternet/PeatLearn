@@ -100,9 +100,50 @@ function SendIcon() {
   );
 }
 
+const TIER_INFO = {
+  HIGH: "Strongly grounded — well supported by multiple closely-matching passages from Peat's work.",
+  MEDIUM: "Reasonably grounded — supported by relevant passages, but with some gaps. Double-check the key claims.",
+  LOW: "Weakly grounded — the sources only loosely support this. Verify independently before relying on it.",
+  ABSTAIN: "Not answered — Peat's corpus doesn't have enough relevant material, so the system declined rather than guess.",
+};
+
 function ConfidenceBadge({ tier }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("touchstart", onDoc);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("touchstart", onDoc);
+    };
+  }, [open]);
+
   if (!tier) return null;
-  return <span className={"badge badge-" + tier.toLowerCase()}>{tier}</span>;
+  const t = tier.toUpperCase();
+  return (
+    <span className="badge-wrap" ref={ref}>
+      <button
+        type="button"
+        className={"badge badge-" + t.toLowerCase()}
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        title="What does this mean?"
+      >
+        {tier}
+      </button>
+      {open && (
+        <span className="badge-pop" role="tooltip">
+          <strong>{t}</strong> — {TIER_INFO[t] || "How well this answer is grounded in Peat's corpus."}
+        </span>
+      )}
+    </span>
+  );
 }
 
 const CITE_RE = /\[S\d+(?:\s*,\s*S\d+)*\]/g;
