@@ -26,8 +26,7 @@ function ConvCard({ c }) {
         <div className="admin-answer-body">{c.answer || "(empty)"}</div>
       </details>
       <div className="admin-meta">
-        <span title="raw IP">🌐 {c.ip_raw || "—"}</span>
-        <span title="hashed IP">#{c.ip_hash || "—"}</span>
+        <span title="hashed visitor id (no raw IP stored)">#{c.ip_hash || "—"}</span>
         <span>{c.n_sources ?? 0} src</span>
       </div>
       {c.sources && c.sources.length > 0 && (

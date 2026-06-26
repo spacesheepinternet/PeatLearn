@@ -54,7 +54,6 @@ def _db() -> sqlite3.Connection:
             "CREATE TABLE IF NOT EXISTS conversations ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
             "ts TEXT NOT NULL, "
-            "ip_raw TEXT, "
             "ip_hash TEXT, "
             "question TEXT NOT NULL, "
             "answer TEXT, "
@@ -64,10 +63,12 @@ def _db() -> sqlite3.Connection:
             "followups TEXT, "
             "latency_s REAL)"
         )
-        # Migrate DBs created before ip_raw existed (older rows stay NULL).
-        cols = {r[1] for r in _conn.execute("PRAGMA table_info(conversations)").fetchall()}
-        if "ip_raw" not in cols:
-            _conn.execute("ALTER TABLE conversations ADD COLUMN ip_raw TEXT")
+        # Privacy: we do NOT store raw IPs (only a salted hash). If an older
+        # schema still has an ip_raw column, purge any values left in it.
+        try:
+            _conn.execute("UPDATE conversations SET ip_raw = NULL WHERE ip_raw IS NOT NULL")
+        except sqlite3.Error:
+            pass  # column doesn't exist on fresh DBs — nothing to purge
         _conn.commit()
     return _conn
 
@@ -97,7 +98,6 @@ def log(
         ][:12]
         row = (
             datetime.now(timezone.utc).isoformat(),
-            (ip or "") or None,
             hash_ip(ip),
             (question or "")[:4000],
             (answer or "")[:20000],
@@ -111,8 +111,8 @@ def log(
             conn = _db()
             conn.execute(
                 "INSERT INTO conversations "
-                "(ts, ip_raw, ip_hash, question, answer, confidence, n_sources, sources, followups, latency_s) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "(ts, ip_hash, question, answer, confidence, n_sources, sources, followups, latency_s) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 row,
             )
             conn.commit()
@@ -127,7 +127,7 @@ def recent(limit: int = 100) -> List[Dict[str, Any]]:
         with _lock:
             conn = _db()
             cur = conn.execute(
-                "SELECT id, ts, ip_raw, ip_hash, question, answer, confidence, n_sources, "
+                "SELECT id, ts, ip_hash, question, answer, confidence, n_sources, "
                 "sources, followups, latency_s "
                 "FROM conversations ORDER BY id DESC LIMIT ?",
                 (limit,),
