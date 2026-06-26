@@ -477,6 +477,56 @@ body::before {
   font-size: 0.72rem;
   margin: 0.15rem 0 0.6rem;
 }
+.disclaimer a { color: var(--accent-strong); text-underline-offset: 2px; }
+
+/* ----------------------------------------------------------- Static page -- */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding: 0 1rem calc(2rem + env(safe-area-inset-bottom));
+}
+.page-head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.9rem 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  z-index: 2;
+}
+.page-head h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.page-head > span { width: 64px; } /* balances the back button so the title centers */
+.page-body { padding: 1.2rem 0; color: var(--text-soft); }
+.page-body h2 {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 1.6rem 0 0.5rem;
+}
+.page-body p { margin: 0.6rem 0; }
+.page-body ul { margin: 0.6rem 0; padding-left: 1.3rem; }
+.page-body li { margin: 0.4rem 0; }
+.page-body strong { color: var(--text); }
+.page-updated { color: var(--muted); font-size: 0.85rem; }
+.page-note {
+  margin-top: 1.8rem !important;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }

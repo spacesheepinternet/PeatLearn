@@ -3,6 +3,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ask, fetchDocument } from "./api.js";
 import Admin from "./Admin.jsx";
+import Privacy from "./Privacy.jsx";
 
 const SUGGESTIONS = [
   "What did Ray Peat think about polyunsaturated fats?",
@@ -406,6 +407,9 @@ export default function App() {
   if (route === "admin") {
     return <Admin onExit={() => (window.location.hash = "")} />;
   }
+  if (route === "privacy") {
+    return <Privacy onExit={() => (window.location.hash = "")} />;
+  }
 
   return (
     <div className="app">
@@ -501,7 +505,8 @@ export default function App() {
       <p className="disclaimer">
         Answers reflect Ray Peat's views and may be incomplete. Not medical advice. PeatLearn is an
         unofficial, educational project, not affiliated with Ray Peat or his estate. Questions may be
-        logged to monitor and improve answer quality.
+        logged to monitor and improve answer quality —{" "}
+        <a href="#privacy">Privacy</a>.
       </p>
     </div>
   );
