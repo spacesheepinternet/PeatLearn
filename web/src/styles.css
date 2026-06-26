@@ -483,6 +483,162 @@ body::before {
   to   { opacity: 1; transform: none; }
 }
 
+/* ----------------------------------------------------------- Admin viewer - */
+.admin {
+  position: relative;
+  z-index: 1;
+  max-width: 820px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding: 0 1rem calc(1.5rem + env(safe-area-inset-bottom));
+}
+.admin-head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.9rem 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  z-index: 2;
+}
+.admin-head h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.admin-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  border-radius: 9px;
+  padding: 0.4rem 0.7rem;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.admin-btn.primary {
+  background: linear-gradient(135deg, var(--amber), var(--accent));
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+.admin-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0.8rem 0;
+}
+.admin-stats strong { color: var(--text); font-size: 1.05rem; }
+.admin-stat-pill {
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+}
+.admin-controls { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+.admin-filter, .admin-controls select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  font: inherit;
+  font-size: 16px;
+}
+.admin-filter:focus, .admin-controls select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.admin-control-row { display: flex; gap: 0.5rem; }
+.admin-control-row select { flex: 1; }
+.admin-note { text-align: center; color: var(--muted); padding: 1rem 0; }
+.admin-note.error { color: var(--clay); }
+
+.admin-list { display: flex; flex-direction: column; gap: 0.7rem; }
+.admin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.8rem 0.9rem;
+  box-shadow: var(--shadow-sm);
+}
+.admin-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+.admin-card-top .badge { margin-bottom: 0; }
+.admin-time { color: var(--muted); font-size: 0.76rem; }
+.admin-lat {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+.admin-q { margin: 0 0 0.5rem; font-weight: 600; }
+.admin-answer > summary {
+  cursor: pointer;
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.admin-answer-body {
+  margin-top: 0.5rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+.admin-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.6rem;
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.admin-src { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+.admin-src-pill {
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-token {
+  max-width: 360px;
+  margin: 3rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  text-align: center;
+  color: var(--text-soft);
+}
+.admin-token input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  font: inherit;
+  font-size: 16px;
+}
+.admin-token input:focus { outline: none; border-color: var(--accent); }
+
 /* ---------------------------------------------------------------- Mobile -- */
 @media (max-width: 640px) {
   .app { padding: 0 0.75rem; }
