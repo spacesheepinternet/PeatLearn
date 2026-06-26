@@ -50,6 +50,28 @@ export async function ask(query, chatHistory = []) {
 }
 
 /**
+ * Admin-only: fetch logged conversations. Sends the stored admin token.
+ * @param {number} limit
+ * @returns {Promise<{stats: object, conversations: object[]}>}
+ */
+export async function fetchConversations(limit = 100) {
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  const res = await fetch(`${BASE}/api/admin/conversations?limit=${limit}`, {
+    headers: token ? { "X-Admin-Token": token } : {},
+  });
+  if (!res.ok) {
+    const err = new Error(
+      res.status === 403
+        ? "Not authorized — your admin token is missing or wrong."
+        : `Request failed (${res.status})`
+    );
+    err.status = res.status;
+    throw err;
+  }
+  return res.json();
+}
+
+/**
  * Fetch the full text of a source document.
  * @param {string} file  the source_file path from a search result
  * @returns {Promise<{file: string, content: string}>}

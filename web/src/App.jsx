@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useId, Children } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ask, fetchDocument } from "./api.js";
+import Admin from "./Admin.jsx";
 
 const SUGGESTIONS = [
   "What did Ray Peat think about polyunsaturated fats?",
@@ -316,8 +317,15 @@ export default function App() {
       return "light";
     }
   });
+  const [route, setRoute] = useState(() => window.location.hash.replace(/^#/, ""));
   const endRef = useRef(null);
   const taRef = useRef(null);
+
+  useEffect(() => {
+    const onHash = () => setRoute(window.location.hash.replace(/^#/, ""));
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   // Auto-grow the composer so typed text is never clipped.
   useEffect(() => {
@@ -393,6 +401,10 @@ export default function App() {
     setSending(true);
     setTimeout(() => setSending(false), 500);
     send();
+  }
+
+  if (route === "admin") {
+    return <Admin onExit={() => (window.location.hash = "")} />;
   }
 
   return (
