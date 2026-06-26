@@ -25,6 +25,9 @@ services:
       DAILY_LIMIT_PER_IP: "${DAILY_LIMIT_PER_IP:-10}"
       DAILY_GLOBAL_CAP: "${DAILY_GLOBAL_CAP:-0}"
       RATE_DB_PATH: "/data/ratelimit.db"
+      # Conversation log (questions + answers) on the same persisted volume.
+      CONV_DB_PATH: "/data/conversations.db"
+      CONV_HASH_SALT: "${CONV_HASH_SALT:-}"
     expose:
       - "8080"
     # Bind to localhost only — reachable on the host itself for debugging, but
