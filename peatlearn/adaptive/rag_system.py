@@ -303,12 +303,21 @@ class RayPeatRAG:
                 + confidence_footer
             )
 
+        # --- Step 0.45: Conversational memory — resolve follow-ups ---
+        # Rewrite context-dependent follow-ups ("what about the dosage?",
+        # "how much?", "and for women?") into a standalone query using recent
+        # turns, so RETRIEVAL is history-aware. Only the search query is
+        # affected — the answer is still generated from freshly retrieved
+        # sources, so no prior (possibly hallucinated) answer becomes "fact".
+        from peatlearn.rag.query_contextualizer import contextualize as _contextualize
+        resolved_query = _contextualize(query, chat_history, self.api_key)
+
         # --- Step 0.5: Query vocabulary normalization ---
         # Map colloquial terms ("carbs", "seed oils", "gut health") to Peat's
         # corpus vocabulary so embedding, HyDE, and cross-encoder all operate
         # on terms that actually exist in the corpus.
         from peatlearn.rag.query_normalizer import normalize_query as _normalize
-        search_query = _normalize(query)
+        search_query = _normalize(resolved_query)
 
         # --- Step 1: Generate query embedding (routes to correct model by index dim) ---
         embedding = self.search_engine.embed_query(search_query)
