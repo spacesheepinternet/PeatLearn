@@ -24,6 +24,7 @@ from __future__ import annotations
 import contextvars
 import json
 import logging
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -31,7 +32,15 @@ from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
-_LOG_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "cost_logs"
+# In production set COST_LOG_DIR to a writable, persisted path (e.g. the mounted
+# /data volume). The default (repo data/cost_logs) works for local dev but is
+# NOT writable in the non-root container, so prod must override it.
+_LOG_DIR = Path(
+    os.getenv(
+        "COST_LOG_DIR",
+        str(Path(__file__).resolve().parent.parent.parent / "data" / "cost_logs"),
+    )
+)
 
 # --- Pricing, USD per 1M tokens (input, output). Thinking tokens bill as output.
 # These are editable constants — update if Google/Cohere change pricing.
