@@ -23,11 +23,15 @@ services:
       ALLOWED_ORIGINS: "http://localhost:5173,http://localhost:3000"
       # Cost controls (per-IP/day and total/day). Override here as needed.
       DAILY_LIMIT_PER_IP: "${DAILY_LIMIT_PER_IP:-10}"
-      DAILY_GLOBAL_CAP: "${DAILY_GLOBAL_CAP:-0}"
+      # Global spend guard: total questions/day across all visitors. At ~$0.008
+      # per question, 1000/day caps worst-case spend near $8/day. Override in .env.
+      DAILY_GLOBAL_CAP: "${DAILY_GLOBAL_CAP:-1000}"
       RATE_DB_PATH: "/data/ratelimit.db"
       # Conversation log (questions + answers) on the same persisted volume.
       CONV_DB_PATH: "/data/conversations.db"
       CONV_HASH_SALT: "${CONV_HASH_SALT:-}"
+      # Per-stage cost logs on the persisted, writable volume.
+      COST_LOG_DIR: "/data/cost_logs"
     expose:
       - "8080"
     # Bind to localhost only — reachable on the host itself for debugging, but
