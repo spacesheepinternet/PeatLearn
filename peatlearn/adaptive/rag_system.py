@@ -240,13 +240,28 @@ class RayPeatRAG:
         if _conv_reply is not None:
             return _conv_reply
 
+        # --- Step 0a.5: Conversational memory — resolve follow-ups FIRST ---
+        # Rewrite context-dependent follow-ups ("what about the dosage?",
+        # "how much?", "and for women?", "when to take it") into a standalone
+        # query using recent turns. This runs BEFORE the domain/temporal/citation
+        # gates on purpose: those gates judge a query's subject, and a bare
+        # fragment like "when to take it" carries none — so the domain gate would
+        # reject it as out-of-domain before retrieval ever sees the real topic.
+        # Resolving first lets every gate (and retrieval) act on the true subject.
+        # Only the SEARCH query is rewritten — the answer is still generated from
+        # freshly retrieved sources, so no prior (possibly hallucinated) answer
+        # becomes "fact". No history / self-contained query => returned unchanged.
+        from peatlearn.rag.query_contextualizer import contextualize as _contextualize
+        resolved_query = _contextualize(query, chat_history, self.api_key)
+
         # --- Step 0b: Domain guard — flag questions outside Peat's health corpus ---
         # Out-of-domain queries (code, finance, sports, trivia) have no grounded
         # answer; without this gate retrieval would surface near passages and the
         # LLM would confabulate a Peat-flavoured reply. Hybrid: lexical fast-paths
         # first, one cheap flash-lite classify only for ambiguous queries.
+        # Judged on resolved_query so a resolved follow-up keeps its subject.
         from peatlearn.rag.domain_guard import check_domain as _check_domain
-        _domain_reason = _check_domain(query, api_key=self.api_key)
+        _domain_reason = _check_domain(resolved_query, api_key=self.api_key)
         if _domain_reason:
             confidence_footer = f"\n\n\U0001f512 Confidence: ABSTAIN | {_domain_reason}"
             return (
@@ -260,7 +275,7 @@ class RayPeatRAG:
 
         # --- Step 0: Temporal guard — auto-ABSTAIN on post-2022 topics ---
         from peatlearn.rag.temporal_guard import check_temporal as _check_temporal
-        temporal_reason = _check_temporal(query)
+        temporal_reason = _check_temporal(resolved_query)
         if temporal_reason:
             confidence_footer = f"\n\n\U0001f512 Confidence: ABSTAIN | Temporal guard: {temporal_reason}"
             return (
@@ -288,7 +303,7 @@ class RayPeatRAG:
             "reference for", "source for", "where does peat say",
             "where did peat say", "which book", "what book",
         )
-        _q_normalized = query.lower()
+        _q_normalized = resolved_query.lower()
         if any(t in _q_normalized for t in _CITATION_TRIGGERS):
             confidence_footer = "\n\n\U0001f512 Confidence: ABSTAIN | Citation request — corpus does not contain reliable bibliographic data"
             return (
@@ -302,15 +317,6 @@ class RayPeatRAG:
                 "that in his actual words."
                 + confidence_footer
             )
-
-        # --- Step 0.45: Conversational memory — resolve follow-ups ---
-        # Rewrite context-dependent follow-ups ("what about the dosage?",
-        # "how much?", "and for women?") into a standalone query using recent
-        # turns, so RETRIEVAL is history-aware. Only the search query is
-        # affected — the answer is still generated from freshly retrieved
-        # sources, so no prior (possibly hallucinated) answer becomes "fact".
-        from peatlearn.rag.query_contextualizer import contextualize as _contextualize
-        resolved_query = _contextualize(query, chat_history, self.api_key)
 
         # --- Step 0.5: Query vocabulary normalization ---
         # Map colloquial terms ("carbs", "seed oils", "gut health") to Peat's
