@@ -15,7 +15,11 @@ transcripts, papers, newsletters, and health writings — with inline citations 
 ![Pinecone](https://img.shields.io/badge/Vector%20DB-Pinecone-000000)
 ![RAG Score](https://img.shields.io/badge/RAG%20Benchmark-9.64%2F10-success)
 
-[**Live app → peatlearn.streamlit.app**](https://peatlearn.streamlit.app)
+[**Live app → peatlearn.com**](https://peatlearn.com)
+
+<br>
+
+<a href="https://peatlearn.com"><img src="docs/img/peatlearn-home.png" alt="PeatLearn — ask about metabolism, hormones & health, answers cited from the corpus" width="850"></a>
 
 </div>
 
