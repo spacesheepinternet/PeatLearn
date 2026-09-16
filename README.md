@@ -10,7 +10,8 @@ transcripts, papers, newsletters, and health writings — with inline citations 
 <br>
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![Gemini](https://img.shields.io/badge/LLM-Google%20Gemini-4285F4?logo=google&logoColor=white)
 ![Pinecone](https://img.shields.io/badge/Vector%20DB-Pinecone-000000)
 ![RAG Score](https://img.shields.io/badge/RAG%20Benchmark-9.64%2F10-success)
@@ -56,34 +57,38 @@ corpus doesn't support an answer, rather than improvise.
 
 ## What Ships
 
-The deployed app is a single Streamlit dashboard with **two tabs**:
+The deployed app is a **Vite + React single-page app** served by Caddy, talking to a **FastAPI**
+backend (`app/web_api.py`) that runs the RAG pipeline. Both ship as containers via `docker compose`.
 
 | Tab | Description |
 |-----|-------------|
 | 💬 **Chat** | Ask questions about Ray Peat's work. Answers run through the full multi-stage RAG pipeline (below), are returned with inline citations and relevance-scored sources, and each source has a "Read full document" expander. Benchmark avg **9.64/10**. |
 | 🕊️ **Memorial** | A tribute page honoring Dr. Ray Peat. |
 
-> Other components (quizzes, recommender, personalization, knowledge graph, standalone FastAPI
-> backends) exist in the repository but are **not wired into the live app** — see
+> Other components (quizzes, recommender, personalization, knowledge graph, the Streamlit dashboard
+> at `app/dashboard.py`, and the standalone `app/api.py` / `app/advanced_api.py` backends) exist in
+> the repository but do **not** serve peatlearn.com — see
 > [In the Codebase (Not Shipped)](#in-the-codebase-not-shipped).
 
 ---
 
 ## Quick Start
 
-The live app runs a single Streamlit process:
+The whole stack runs from one compose file — no third-party PaaS:
 
 ```bash
-# 1. Activate the virtual environment
-venv\Scripts\activate          # Windows (PowerShell / CMD)
-source venv/Scripts/activate   # Git Bash
-
-# 2. Create your environment file and add API keys
-cp config/env_template.txt .env
-
-# 3. Run the dashboard
-streamlit run app/dashboard.py   # → http://localhost:8501
+cp config/env_template.txt .env      # add your API keys
+docker compose up --build            # -> http://localhost
 ```
+
+Frontend dev with hot reload (needs the API running):
+
+```bash
+uvicorn app.web_api:app --port 8080
+cd web && npm install && npm run dev  # -> http://localhost:5173
+```
+
+In production, set `SITE_ADDRESS` and `ACME_EMAIL` in `.env`; Caddy issues HTTPS automatically.
 
 ---
 
@@ -128,8 +133,8 @@ these values from `.env`. **Never hardcode API keys.**
 
 ### Embeddings
 
-The Pinecone index (`ray-peat-corpus-v3`) is pre-populated with native 3072-dim vectors covering
-the full 552-document corpus, so no local embedding setup is required to run the app.
+The Pinecone index (`ray-peat-corpus-v3`) is pre-populated with 14,591 native 3072-dim vectors
+covering the full corpus, so no local embedding setup is required to run the app.
 
 To pull the local embedding artifacts (optional), set `HF_DATASET_REPO` in `.env` and run:
 
@@ -141,12 +146,17 @@ python peatlearn/embedding/hf_download.py
 
 ## Architecture
 
-The deployed app is Streamlit-only — `app/dashboard.py` calls the RAG pipeline in
-`peatlearn/adaptive/rag_system.py` directly (no separate backend service in production).
+Caddy serves the built React SPA and reverse-proxies `/api` to FastAPI, which calls the RAG
+pipeline in `peatlearn/adaptive/rag_system.py`.
 
 ```
    ┌────────────────────────────┐
-   │   Streamlit Dashboard      │   app/dashboard.py  (Chat · Memorial)
+   │   React SPA (Vite)         │   web/  (Chat · Memorial · Privacy · Admin)
+   └─────────────┬──────────────┘
+                 │  Caddy · HTTPS · /api →
+                 ▼
+   ┌────────────────────────────┐
+   │   FastAPI                  │   app/web_api.py
    └─────────────┬──────────────┘
                  │
                  ▼
@@ -171,8 +181,9 @@ The deployed app is Streamlit-only — `app/dashboard.py` calls the RAG pipeline
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Streamlit (`app/dashboard.py`) |
-| RAG pipeline | `peatlearn/adaptive/rag_system.py` (called in-process) |
+| Frontend | **Vite + React 18** SPA (`web/`), `react-markdown` · served by Caddy |
+| API | **FastAPI** (`app/web_api.py`), containerised via `docker compose` |
+| RAG pipeline | `peatlearn/adaptive/rag_system.py` |
 | LLM | Google Gemini (`gemini-2.5-flash`, `gemini-2.5-flash-lite`), Groq fallback |
 | Embeddings | `gemini-embedding-001` · 3072 dimensions |
 | Reranker | Cohere `rerank-4-pro` (via OpenRouter) → local cross-encoder fallback |
@@ -183,7 +194,8 @@ The deployed app is Streamlit-only — `app/dashboard.py` calls the RAG pipeline
 
 ## Corpus & Data Pipeline
 
-The corpus draws from **552 source documents** spanning Ray Peat's recorded and written work:
+The corpus draws from **568 source documents** (2026-05-04 build) spanning Ray Peat's recorded and
+written work. The type breakdown below is from the earlier 552-document build:
 
 | Type | Count |
 |------|------:|
@@ -195,6 +207,11 @@ The corpus draws from **552 source documents** spanning Ray Peat's recorded and 
 | **Total** | **552** |
 
 These are cleaned, chunked, and embedded at 3072 dimensions, then stored in Pinecone.
+
+The 2026-05-04 build funnel: **568 files -> 22,858 raw chunks -> minus 6,329 duplicates -> minus
+1,938 quality-gate failures -> 14,591 records** in `ray-peat-corpus-v3`. About 36% of raw chunks
+are discarded on purpose. Context coverage 95.6%; chunk length 25 / 89 / 26,521 tokens
+(min / median / max).
 
 ```
 data/raw/  →  preprocessing/cleaning/  →  data/processed/ai_cleaned/
@@ -208,17 +225,32 @@ data/raw/  →  preprocessing/cleaning/  →  data/processed/ai_cleaned/
 
 ## RAG Quality Benchmark
 
-The chatbot is evaluated against a fixed **30-question benchmark** with dual scoring:
-LLM-as-judge (Gemini 2.5-flash on a 5-dimension rubric) **plus** automated metrics
-(citations, vocabulary hit rate, source diversity, and topic coverage).
+The chatbot is evaluated against a fixed **55-question benchmark** across 9 categories (including
+`adversarial` and `colloquial_user`), with dual scoring: LLM-as-judge (Gemini 2.5-flash on a
+**6-dimension weighted rubric**) **plus** automated metrics that need no judge (citations, vocabulary
+hit rate, source diversity, topic coverage, abstention-signal matching).
 
-**Retrieval pipeline:** queries run through HyDE expansion → two-pass Pinecone retrieval →
+| Rubric dimension | Weight |
+|---|---:|
+| accuracy | 0.25 |
+| grounding | 0.25 |
+| completeness | 0.15 |
+| refusal_appropriateness | 0.15 |
+| domain_fluency | 0.10 |
+| attribution_style | 0.10 |
+
+`refusal_appropriateness` was added in the v2 rubric to measure adversarial defence; its weight came
+out of accuracy, domain_fluency and attribution_style (0.05 each). Every question carries an
+`expected_behavior` label (`answer` / `abstain` / `reject_premise`), so refusal correctness is scored
+mechanically as well as judged.
+
+**Retrieval pipeline:** queries run through vocabulary normalization → two-pass Pinecone retrieval →
 a tiered reranker → MMR diversity → confidence-gated abstention. The reranker tries
 **Cohere `rerank-4-pro`** (via OpenRouter) first, then falls back to a local cross-encoder
 (`peat-reranker-ft` if present, otherwise `ms-marco-MiniLM-L-6-v2`), and finally to keyword overlap.
 
 ```bash
-python scripts/eval/eval_rag_quality.py               # full 30-question run
+python scripts/eval/eval_rag_quality.py               # full 55-question run
 python scripts/eval/eval_rag_quality.py --subset A,B  # only specific categories
 python scripts/eval/eval_rag_quality.py --no-judge    # automated metrics only
 ```
@@ -231,6 +263,7 @@ The question set lives in `data/eval/questions.json`; results are written to
 | Date | Score | Notes |
 |------|------:|-------|
 | commit `ed84cf1` | 8.60 / 10 | Baseline — HyDE + two-pass Pinecone + MMR diversity |
+| `057580e` | — | **HyDE removed** — built, measured, disabled: the raw query retrieved better |
 | 2026-04-11 | 8.95 / 10 | +0.35 — cross-encoder rerank (`ms-marco-MiniLM-L-6-v2`) + MMR fix |
 | 2026-04-14 | 9.05 / 10 | +0.10 — dynamic `max_sources` heuristic + three-tier prompt depth |
 | 2026-05-16 | **9.64 / 10** | +0.59 — swapped reranker to **Cohere `rerank-4-pro`** (A/B win over local MiniLM, 9.64 vs 9.42) |
@@ -290,7 +323,8 @@ peatlearn/               ← importable package (project root on PYTHONPATH)
   embedding/             ← CorpusEmbedder, HuggingFace sync
   recommendation/        ← matrix factorization trainer       (not shipped)
 app/
-  dashboard.py           ← live Streamlit app (Chat · Memorial)
+  web_api.py             ← live FastAPI backend (serves the React SPA's /api)
+  dashboard.py           ← Streamlit dashboard (dev/local only, not in production)
   api.py / advanced_api.py ← FastAPI backends (local dev only)
 config/                  ← settings.py (pydantic-settings, reads .env)
 preprocessing/           ← cleaning pipeline + quality analysis
