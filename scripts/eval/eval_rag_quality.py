@@ -9,8 +9,11 @@ and scores every answer with:
     1. LLM-as-judge (Gemini 2.5-flash) on a 6-dimension rubric
     2. Automated metrics (citations, vocab hit rate, source diversity, ...)
 
-Compares the final score against a stored baseline (default 8.6/10 from
-commit ed84cf1) and prints a delta. Raw per-question scores are saved to
+Compares the final score against the baseline stored in questions.json and
+prints a delta; exits 1 on regression. The baseline was 8.6 (ad-hoc score from
+commit ed84cf1, different question set) until 2026-09-19, when it was raised
+to 9.4 — the 55-question pipeline's level with either reranker (9.42 on
+2026-04-26 and 2026-05-16). Raw per-question scores are saved to
 data/eval/results_<timestamp>.json for future comparison.
 
 Usage:
@@ -18,7 +21,7 @@ Usage:
     python scripts/eval/eval_rag_quality.py --subset A,B         # only specific categories
     python scripts/eval/eval_rag_quality.py --adversarial-only   # 15 adversarial Q's only
     python scripts/eval/eval_rag_quality.py --no-judge           # automated metrics only
-    python scripts/eval/eval_rag_quality.py --baseline 8.6
+    python scripts/eval/eval_rag_quality.py --baseline 9.4
 """
 
 import argparse
@@ -97,6 +100,23 @@ ABSTENTION_PATTERNS = [
     "do not have sufficient information",
     "answer this question reliably",
     "weakly related to your query",
+    # The pipeline's own templated refusals (rag_system.py). Missing these let
+    # a real false refusal ("I couldn't find relevant information...") count
+    # as "answered" — the 2026-05-16 MiniLM run reported 0 false refusals
+    # while F2 had been refused.
+    "couldn't find relevant information",
+    "falls outside that domain",
+    "emerged after ray peat's death",
+    "can't reliably identify which specific studies",
+]
+
+# The pipeline's error replies (rate limit / outage / fallback). These are
+# neither an answer nor a deliberate refusal — tracked separately so an outage
+# can't masquerade as either.
+ERROR_PATTERNS = [
+    "ran into a technical issue",
+    "gemini api daily quota has been reached",
+    "gemini api is rate-limited right now",
 ]
 
 # Phrases that signal the RAG pushed back on a false premise (reject_premise).
@@ -115,12 +135,24 @@ PREMISE_REJECTION_PATTERNS = [
     "peat warned against",
     "peat was opposed",
     "peat was skeptical",
-    "peat considered",
-    "peat viewed",
+    # "peat considered" / "peat viewed" removed 2026-09-19: they are ordinary
+    # attribution phrases, not rejections — they flagged 16 of 40 normal
+    # answers as "premise rejected" in the 2026-05-16 run.
     "this misrepresents",
     "this is a misattribution",
     "mischaracteriz",
     "peat actually",
+    # Phrasings the pipeline actually produces (read from the 2026-05-16 run's
+    # H6–H15 answers; the list above caught only 3 of ~9 real rejections).
+    "premise is incorrect",
+    "premise is wrong",
+    "premise doesn't",
+    "premise does not",
+    "does not recommend",
+    "did not recommend",
+    "didn't recommend",
+    "never recommended",
+    "warned against",
 ]
 
 # 25 Peat-specific terms we expect a good answer to touch at least partially
@@ -193,7 +225,9 @@ def parse_sources_footer(answer_with_footer: str) -> Tuple[str, List[Dict[str, A
 
     body, _, footer = answer_with_footer.partition(marker)
     sources: List[Dict[str, Any]] = []
-    line_re = re.compile(r"^\s*(\d+)\.\s*(.+?)\s*\(relevance:\s*([\d.]+)\)\s*$")
+    # Relevance is a rerank logit and is often negative (MiniLM, and Cohere
+    # raw scores < 0.5) — the sign must be accepted or those sources vanish.
+    line_re = re.compile(r"^\s*(\d+)\.\s*(.+?)\s*\(relevance:\s*(-?[\d.]+)\)\s*$")
     for line in footer.splitlines():
         m = line_re.match(line)
         if m:
@@ -210,11 +244,15 @@ def detect_abstention_signal(answer_body: str) -> str:
     """Classify the answer's refusal posture via keyword heuristics.
 
     Returns one of:
+        "error"             — pipeline error / rate-limit / outage reply
         "abstained"         — answer contains clear abstention language
         "premise_rejected"  — answer pushes back on the question's framing
-        "answered"          — answer contains neither signal
+        "answered"          — answer contains none of the above
     """
     lower = answer_body.lower()
+    for pat in ERROR_PATTERNS:
+        if pat in lower:
+            return "error"
     for pat in ABSTENTION_PATTERNS:
         if pat in lower:
             return "abstained"
@@ -267,6 +305,12 @@ def compute_abstention_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
             false_refusal += 1
     answer_total = len(pools["answer"])
 
+    # Errors across every pool — an outage is neither a refusal nor an answer.
+    error_ids = [
+        r.get("id") for r in results
+        if detect_abstention_signal(r.get("answer", "")) == "error"
+    ]
+
     adversarial_total = abstain_total + reject_total
     adversarial_correct = abstain_correct + reject_correct
 
@@ -285,6 +329,8 @@ def compute_abstention_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
         ),
         "adversarial_correct": adversarial_correct,
         "adversarial_total": adversarial_total,
+        "error_count": len(error_ids),
+        "error_ids": error_ids,
     }
 
 
@@ -658,7 +704,7 @@ def print_summary(report: Dict[str, Any]) -> None:
 
     banner = "PASS" if delta >= 0 else "REGRESSION"
     print(f"\n  FINAL SCORE : {overall:.2f} / 10  ({scored}/{total} questions judged)")
-    print(f"  BASELINE    : {baseline:.2f} / 10  (commit ed84cf1)")
+    print(f"  BASELINE    : {baseline:.2f} / 10  (questions.json)")
     print(f"  DELTA       : {delta:+.2f}   ->   {banner}")
 
     if report.get("per_category"):
@@ -688,6 +734,9 @@ def print_summary(report: Dict[str, Any]) -> None:
         print(f"    Overall adversarial defence rate: "
               f"{am['adversarial_correct']}/{am['adversarial_total']}"
               f"  ({am['adversarial_defense_rate']:.0%})")
+        if am.get("error_count"):
+            print(f"    Pipeline errors: {am['error_count']}  {am['error_ids']}"
+                  f"  (outage / rate limit — these scores are not quality signal)")
 
     if report.get("worst5"):
         print("\n  Worst 5 answers (for manual review):")

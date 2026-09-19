@@ -3,7 +3,8 @@
   "created": "2026-04-10",
   "updated": "2026-04-15",
   "description": "RAG quality benchmark \u2014 55 questions. 30 answerable across 7 categories (A\u2013G), 15 adversarial in category H (5 never-discussed, 5 anti-Peat framings, 5 subtle misattributions), 10 colloquial-phrased in category I (real-user language). Validates abstention, premise-rejection, and vocabulary bridging.",
-  "baseline": 8.6,
+  "baseline": 9.4,
+  "baseline_note": "Raised 2026-09-19 from 8.6 (ad-hoc score, different question set) to 9.4: this 55-question pipeline scored 9.42 on 2026-04-26 and 9.42 (MiniLM) / 9.64 (Cohere) on 2026-05-16. A run below 9.4 now exits 1.",
   "adversarial_baseline_note": "Before Phase 2 abstention gates land, adversarial abstention/rejection rate is expected near 0%. Track improvement over phases.",
   "questions": [
     {
