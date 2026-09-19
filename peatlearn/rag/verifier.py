@@ -16,7 +16,7 @@ Also enforces two cheap post-processing checks (no LLM call):
        in at least one cited source.
     2. Citation-ID drift: any [Sn] where n > len(sources) triggers a flag.
 
-Cost: +1 LLM call per query (~1-2s, ~600 input tokens on flash-lite).
+Cost: +1 LLM call per query (~1-2s, a few thousand input tokens on flash-lite).
 Skipped on ABSTAIN answers.
 """
 
@@ -37,6 +37,11 @@ VERIFY_URL = (
     f"https://generativelanguage.googleapis.com/v1beta/models/"
     f"{VERIFY_MODEL}:generateContent"
 )
+
+# Per-source window shown to the verifier. Matches what the generator sees
+# (rag_system.py _CHUNK_CAP=1200, context[:400]).
+SOURCE_CONTEXT_CHARS = 400
+SOURCE_TEXT_CHARS = 1200
 
 
 @dataclass
@@ -118,13 +123,17 @@ def verify_claims(
     fabricated_quotes = _check_fabricated_quotes(answer, sources_text)
 
     # --- LLM verification pass ---
-    # Build numbered source blocks matching the [Sn] format in the answer
+    # Build numbered source blocks matching the [Sn] format in the answer.
+    # The verifier must see at least as much of each source as the generator
+    # did (rag_system.py: 400 chars of context, 1200 of Peat's words) —
+    # otherwise a true claim drawn from later in a passage is marked
+    # UNSUPPORTED and stripped. Over half the corpus chunks exceed 500 chars.
     source_blocks = []
     for i, s in enumerate(sources, 1):
         source_blocks.append(
             f"[S{i}] {s.get('source_file', 'unknown')}\n"
-            f"Context: {s.get('context', '')[:300]}\n"
-            f"Peat's words: {s.get('ray_peat_response', '')[:500]}"
+            f"Context: {s.get('context', '')[:SOURCE_CONTEXT_CHARS]}\n"
+            f"Peat's words: {s.get('ray_peat_response', '')[:SOURCE_TEXT_CHARS]}"
         )
     sources_for_prompt = "\n---\n".join(source_blocks)
 

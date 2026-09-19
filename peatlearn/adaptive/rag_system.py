@@ -521,9 +521,15 @@ class RayPeatRAG:
             return "I couldn't find relevant information on that topic in Ray Peat's work. Try rephrasing or ask about metabolism, thyroid, hormones, or nutrition."
 
         # --- Step 2b: Rerank using cross-encoder (falls back to keyword overlap) ---
+        # Score against the resolved query, not the raw text: for a follow-up
+        # like "when to take it", retrieval already used the rewritten
+        # standalone question, and the reranker must judge relevance to that
+        # same question. For self-contained queries resolved_query == query.
+        # (Not search_query — the normalizer's appended keyword list helps
+        # embedding recall but is noise to a cross-encoder reading sentences.)
         from peatlearn.rag.reranker import rerank as _rerank
         _n_rerank_docs = len(candidates)
-        candidates = _rerank(query, candidates)
+        candidates = _rerank(resolved_query, candidates)
         _reranker_used = candidates[0].get("_reranker_model", "unknown") if candidates else "none"
         logger.info(f"Reranker fired: {_reranker_used}")
         try:
